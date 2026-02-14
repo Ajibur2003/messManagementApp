@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Owner Dashboard - Mess Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            background: white;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert-danger {
+            border-left: 5px solid #c33;
+            color: #c33;
+        }
+        
+        .alert-success {
+            border-left: 5px solid #3c3;
+            color: #3c3;
+        }
+        
+        .alert-info {
+            border-left: 5px solid #33c;
+            color: #33c;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="password"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Error states */
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #ef5350;
+            background-color: #ffebee;
+        }
+        
+        .error-message {
+            color: #ef5350;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-group.error .error-message {
+            display: block;
+        }
+        
+        /* Success states */
+        .form-group.success input,
+        .form-group.success select {
+            border-color: #66bb6a;
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        button[type="submit"],
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        
+        button[type="submit"]:hover,
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button[type="submit"]:disabled,
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            margin-left: -60px;
+        }
+        
+        button[type="submit"]:disabled .spinner {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        thead th {
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tbody td {
+            padding: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-blocked {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* Action buttons */
+        .btn-action {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .btn-block {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .btn-unblock {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: white;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        /* Form grid for better layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .form-grid .form-group {
+            margin-bottom: 0;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .form-card {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            thead th,
+            tbody td {
+                padding: 10px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👑 Owner Dashboard</h1>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Register New Mess -->
+        <div class="form-card">
+            <h2>📋 Register New Mess</h2>
+            <form method="POST" id="registerMessForm" novalidate>
+                <input type="hidden" name="form_type" value="register_mess">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="registration_date">Registration Date *</label>
+                        <input type="date" id="registration_date" name="registration_date" required>
+                        <span class="error-message">Please select a date</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mess_code">Mess Code *</label>
+                        <input type="text" id="mess_code" name="mess_code" required 
+                               pattern="^[a-zA-Z0-9]{2,20}$"
+                               placeholder="e.g., M001">
+                        <span class="error-message">2-20 characters, letters and numbers only</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mess_name">Mess Name *</label>
+                    <input type="text" id="mess_name" name="mess_name" required 
+                           minlength="3"
+                           placeholder="Enter mess name">
+                    <span class="error-message">Minimum 3 characters required</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mess_address">Mess Address *</label>
+                    <input type="text" id="mess_address" name="mess_address" required 
+                           minlength="10"
+                           placeholder="Enter full address">
+                    <span class="error-message">Minimum 10 characters required</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="address_link">Address Link</label>
+                    <input type="text" id="address_link" name="address_link" required 
+                           placeholder="Google Maps link or similar">
+                    <span class="helper-text">Optional: Google Maps or location link</span>
+                </div>
+                
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">First Contact Person</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_person_name">Name *</label>
+                        <input type="text" id="first_person_name" name="first_person_name" required 
+                               pattern="^[a-zA-Z\s]{2,50}$"
+                               placeholder="Enter name">
+                        <span class="error-message">2-50 characters, letters only</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="first_person_phone_number">Phone Number *</label>
+                        <input type="tel" id="first_person_phone_number" name="first_person_phone_number" required 
+                               pattern="^[0-9]{10,15}$"
+                               placeholder="10-15 digits">
+                        <span class="error-message">10-15 digits required</span>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_person_whatsapp_number">WhatsApp Number *</label>
+                        <input type="tel" id="first_person_whatsapp_number" name="first_person_whatsapp_number" required 
+                               pattern="^[0-9]{10,15}$"
+                               placeholder="10-15 digits">
+                        <span class="error-message">10-15 digits required</span>
+                    </div>
+                    
+                                        <div class="form-group">
+                        <label for="first_person_insta_id">Instagram ID *</label>
+                        <input type="text" id="first_person_insta_id" name="first_person_insta_id" required 
+                               pattern="^[a-zA-Z0-9._]{1,30}$"
+                               placeholder="Instagram username">
+                        <span class="error-message">Valid Instagram username required</span>
+                    </div>
+                </div>
+                
+                <h3 style="color: #667eea; margin: 20px 0 15px 0;">Second Contact Person</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="second_person_name">Name *</label>
+                        <input type="text" id="second_person_name" name="second_person_name" required 
+                               pattern="^[a-zA-Z\s]{2,50}$"
+                               placeholder="Enter name">
+                        <span class="error-message">2-50 characters, letters only</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="second_person_phone_number">Phone Number *</label>
+                        <input type="tel" id="second_person_phone_number" name="second_person_phone_number" required 
+                               pattern="^[0-9]{10,15}$"
+                               placeholder="10-15 digits">
+                        <span class="error-message">10-15 digits required</span>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="second_person_whatsapp_number">WhatsApp Number *</label>
+                        <input type="tel" id="second_person_whatsapp_number" name="second_person_whatsapp_number" required 
+                               pattern="^[0-9]{10,15}$"
+                               placeholder="10-15 digits">
+                        <span class="error-message">10-15 digits required</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="second_person_insta_id">Instagram ID *</label>
+                        <input type="text" id="second_person_insta_id" name="second_person_insta_id" required 
+                               pattern="^[a-zA-Z0-9._]{1,30}$"
+                               placeholder="Instagram username">
+                        <span class="error-message">Valid Instagram username required</span>
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="start_date">Start Date *</label>
+                        <input type="date" id="start_date" name="start_date" required>
+                        <span class="error-message">Please select start date</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="end_date">End Date *</label>
+                        <input type="date" id="end_date" name="end_date" required>
+                        <span class="error-message">Please select end date</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password_register">Password *</label>
+                    <input type="password" id="password_register" name="password" required 
+                           minlength="4"
+                           placeholder="Minimum 4 characters">
+                    <span class="error-message">Minimum 4 characters required</span>
+                </div>
+                
+                <button type="submit" id="submitRegisterBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Register Mess</span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Create Table -->
+        <div class="form-card">
+            <h2>🗂️ Create Table</h2>
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="createTableForm" novalidate>
+                <input type="hidden" name="create_table" value="submit">
+                
+                <div class="form-group">
+                    <label for="mess_code_table">Enter Mess Code *</label>
+                    <input type="text" id="mess_code_table" name="mess_code" 
+                           placeholder="Enter Mess Code" required
+                           pattern="^[a-zA-Z0-9]{2,20}$">
+                    <span class="error-message">Please enter a valid mess code</span>
+                </div>
+                <div class="form-group">
+                    <label for="mess_code_table">Enter Phone Number *</label>
+                    <input type="number" id="mess_code_table" name="number" 
+                           placeholder="Enter Phone Number" required>
+                    <span class="error-message">Please enter a valid phone number</span>
+                </div>
+                
+                <button type="submit" id="submitTableBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Create Table</span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Assign Head Manager -->
+        <div class="form-card">
+            <h2>👨‍💼 Assign Head Manager to Mess</h2>
+            <form method="POST" id="assignManagerForm" novalidate>
+                <input type="hidden" name="form_type" value="assign_manager">
+                
+                <div class="form-group">
+                    <label for="manager_name">Head Manager Name *</label>
+                    <input type="text" id="manager_name" name="manager_name" required 
+                           pattern="^[a-zA-Z\s]{2,50}$"
+                           placeholder="Enter manager name">
+                    <span class="error-message">2-50 characters, letters only</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone_number">Phone Number *</label>
+                    <input type="tel" id="phone_number" name="phone_number" required 
+                           pattern="^[0-9]{10,15}$"
+                           placeholder="10-15 digits">
+                    <span class="error-message">10-15 digits required</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password_manager">Password *</label>
+                    <input type="password" id="password_manager" name="password" required 
+                           minlength="4"
+                           placeholder="Minimum 4 characters">
+                    <span class="error-message">Minimum 4 characters required</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mess_code_manager">Select Mess *</label>
+                    <select id="mess_code_manager" name="mess_code" required>
+                        <option value="">-- Select Mess --</option>
+                        {% if messes %}
+                            {% for mess in messes %}
+                                <option value="{{ mess.mess_code }}">{{ mess.mess_name }} ({{ mess.mess_code }})</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No messes available</option>
+                        {% endif %}
+                    </select>
+                    <span class="error-message">Please select a mess</span>
+                </div>
+                
+                <button type="submit" id="submitManagerBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Assign Manager</span>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Existing Messes Table -->
+        <div class="form-card">
+            <h2>🏢 Existing Messes</h2>
+            {% if messes %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Address</th>
+                            <th>Manager</th>
+                            <th>Phone</th>
+                            <th>WhatsApp</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mess in messes %}
+                        <tr>
+                            <td><strong>{{ mess.mess_code }}</strong></td>
+                            <td>{{ mess.mess_name }}</td>
+                            <td>{{ mess.start_date if mess.start_date else 'N/A' }}</td>
+                            <td>{{ mess.end_date if mess.end_date else 'N/A' }}</td>
+                            <td>{{ mess.mess_address if mess.mess_address else 'N/A' }}</td>
+                            <td>{{ mess.manager_name if mess.manager_name else 'Not Assigned' }}</td>
+                            <td>{{ mess.phone_number if mess.phone_number else '-' }}</td>
+                            <td>{{ mess.whatsapp_number if mess.whatsapp_number else '-' }}</td>
+                            <td>
+                                {% if mess.blocked %}
+                                    <span class="status-badge status-blocked">Blocked</span>
+                                {% else %}
+                                    <span class="status-badge status-active">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if mess.blocked %}
+                                    <form method="post" action="{{ url_for('owner_dashboard') }}" style="display:inline">
+                                        <input type="hidden" name="mess_code" value="{{ mess.mess_code }}">
+                                        <input type="hidden" name="action" value="unblock">
+                                        <button type="submit" class="btn-action btn-unblock">Unblock</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ url_for('owner_dashboard') }}" style="display:inline"
+                                          onsubmit="return confirm('Are you sure you want to block this mess?');">
+                                        <input type="hidden" name="mess_code" value="{{ mess.mess_code }}">
+                                        <input type="hidden" name="action" value="block">
+                                        <button type="submit" class="btn-action btn-block">Block</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>No messes registered yet</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Set Date -->
+        <div class="form-card">
+            <h2>📅 Set Dates</h2>
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="setDateForm" novalidate>
+                <input type="hidden" name="form_type" value="set_dates">
+                
+                <div class="form-group">
+                    <label for="mess_code_date">Select Mess *</label>
+                    <select id="mess_code_date" name="mess_code" required>
+                        <option value="">-- Select Mess --</option>
+                        {% if messes %}
+                            {% for mess in messes %}
+                                <option value="{{ mess.mess_code }}">{{ mess.mess_name }} ({{ mess.mess_code }})</option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="" disabled>No messes available</option>
+                        {% endif %}
+                    </select>
+                    <span class="error-message">Please select a mess</span>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="new_start_date">New Start Date *</label>
+                        <input type="date" id="new_start_date" name="new_start_date" required>
+                        <span class="error-message">Please select start date</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new_end_date">New End Date *</label>
+                        <input type="date" id="new_end_date" name="new_end_date" required>
+                        <span class="error-message">Please select end date</span>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submitDateBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Update Dates</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all forms
+            const forms = document.querySelectorAll('form');
+            
+            // Set today's date as default for registration date
+            const today = new Date().toISOString().split('T')[0];
+            const regDate = document.getElementById('registration_date');
+            if (regDate) regDate.value = today;
+            
+            // Initialize validation for all forms
+            forms.forEach(form => {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const formInputs = form.querySelectorAll('input[required], select[required]');
+                
+                // Real-time validation
+                formInputs.forEach(input => {
+                    input.addEventListener('blur', function() {
+                        validateField(this);
+                    });
+                    
+                    input.addEventListener('input', function() {
+                        if (this.parentElement.classList.contains('error')) {
+                            validateField(this);
+                        }
+                    });
+                    
+                    input.addEventListener('change', function() {
+                        if (this.parentElement.classList.contains('error')) {
+                            validateField(this);
+                        }
+                    });
+                });
+                
+                // Form submission
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    let isValid = true;
+                    let firstErrorField = null;
+                    
+                    formInputs.forEach(input => {
+                        if (!validateField(input)) {
+                            isValid = false;
+                            if (!firstErrorField) {
+                                firstErrorField = input;
+                            }
+                        }
+                    });
+                    
+                    // Date validation for start/end dates
+                    const startDateInput = form.querySelector('[name="start_date"], [name="new_start_date"]');
+                    const endDateInput = form.querySelector('[name="end_date"], [name="new_end_date"]');
+                    
+                    if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
+                        const startDate = new Date(startDateInput.value);
+                        const endDate = new Date(endDateInput.value);
+                        
+                        if (endDate <= startDate) {
+                            alert('End date must be after start date');
+                            endDateInput.focus();
+                            return false;
+                        }
+                    }
+                    
+                    if (!isValid) {
+                        if (firstErrorField) {
+                            firstErrorField.focus();
+                            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        return false;
+                    }
+                    
+                                        // Disable button and show loading
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        const btnText = submitBtn.querySelector('.btn-text');
+                        if (btnText) btnText.textContent = 'Processing...';
+                    }
+                    
+                    // Submit form
+                    this.submit();
+                });
+            });
+            
+            // Validation function
+            function validateField(field) {
+                const formGroup = field.parentElement;
+                const value = field.value.trim();
+                
+                // Remove previous states
+                formGroup.classList.remove('error', 'success');
+                
+                // Check if required and empty
+                if (field.hasAttribute('required') && !value) {
+                    formGroup.classList.add('error');
+                    return false;
+                }
+                
+                // Pattern validation
+                if (field.hasAttribute('pattern') && value) {
+                    const pattern = new RegExp(field.getAttribute('pattern'));
+                    if (!pattern.test(value)) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Minlength validation
+                if (field.hasAttribute('minlength')) {
+                    const minLength = parseInt(field.getAttribute('minlength'));
+                    if (value.length < minLength) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Date validation
+                if (field.type === 'date' && value) {
+                    const selectedDate = new Date(value);
+                    if (isNaN(selectedDate.getTime())) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Select validation
+                if (field.tagName === 'SELECT' && field.hasAttribute('required')) {
+                    if (!value) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Number validation
+                if (field.type === 'number' && value) {
+                    const numValue = parseFloat(value);
+                    if (isNaN(numValue)) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Field is valid
+                if (value) {
+                    formGroup.classList.add('success');
+                }
+                return true;
+            }
+            
+            // Input sanitization for text fields
+            const textInputs = document.querySelectorAll('input[type="text"], input[type="tel"]');
+            textInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.trimStart();
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.value = this.value.trim();
+                });
+            });
+            
+            // Phone number formatting
+            const phoneInputs = document.querySelectorAll('input[type="tel"], input[name*="phone"], input[name*="whatsapp"]');
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Remove non-numeric characters
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+            
+            // Password visibility (optional enhancement)
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+            passwordInputs.forEach(input => {
+                const toggleBtn = document.createElement('span');
+                toggleBtn.innerHTML = '👁️';
+                toggleBtn.style.cssText = 'position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none;';
+                
+                input.parentElement.style.position = 'relative';
+                input.style.paddingRight = '45px';
+                
+                toggleBtn.addEventListener('click', function() {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        toggleBtn.innerHTML = '🙈';
+                    } else {
+                        input.type = 'password';
+                        toggleBtn.innerHTML = '👁️';
+                    }
+                });
+                
+                input.parentElement.appendChild(toggleBtn);
+            });
+            
+            // Auto-dismiss flash messages after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+            
+            // Prevent form resubmission on page refresh
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+            
+            // Unsaved changes warning
+            let formModified = false;
+            const allInputs = document.querySelectorAll('input, select');
+            
+            allInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    formModified = true;
+                });
+                
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+            });
+            
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            // Reset formModified on submit
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    formModified = false;
+                });
+            });
+            
+            // Smooth scroll to top on page load
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Table row highlight on click
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Don't highlight if clicking on button
+                    if (e.target.tagName !== 'BUTTON') {
+                        tableRows.forEach(r => r.style.backgroundColor = '');
+                        this.style.backgroundColor = '#e3f2fd';
+                    }
+                });
+            });
+            
+            // Enhanced block/unblock confirmation
+            const blockForms = document.querySelectorAll('form[onsubmit*="confirm"]');
+            blockForms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const action = this.querySelector('input[name="action"]').value;
+                    const messCode = this.querySelector('input[name="mess_code"]').value;
+                    
+                    if (action === 'block') {
+                        const confirmed = confirm(`Are you sure you want to BLOCK mess "${messCode}"?\n\nThis will prevent access to the system.`);
+                        if (!confirmed) {
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
+            });
+            
+            // Empty state check for selects
+            const selectElements = document.querySelectorAll('select');
+            selectElements.forEach(select => {
+                if (select.options.length <= 1 || (select.options.length === 2 && select.options[1].disabled)) {
+                    const emptyNotice = document.createElement('div');
+                    emptyNotice.className = 'helper-text';
+                    emptyNotice.style.color = '#ef5350';
+                    emptyNotice.textContent = 'No options available. Please register a mess first.';
+                    select.parentElement.appendChild(emptyNotice);
+                    select.disabled = true;
+                }
+            });
+            
+            // Copy to clipboard functionality for mess codes
+            const messCodes = document.querySelectorAll('tbody td:first-child strong');
+            messCodes.forEach(code => {
+                code.style.cursor = 'pointer';
+                code.title = 'Click to copy mess code';
+                
+                code.addEventListener('click', function() {
+                    const text = this.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = '✓ Copied!';
+                        this.style.color = '#66bb6a';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.color = '';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                    });
+                });
+            });
+            
+            // Add loading overlay for better UX
+            const createLoadingOverlay = () => {
+                const overlay = document.createElement('div');
+                overlay.id = 'loadingOverlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                `;
+                overlay.innerHTML = '<div style="background: white; padding: 30px; border-radius: 15px; text-align: center;"><div class="spinner" style="display: inline-block; margin-bottom: 15px;"></div><p style="color: #333; font-weight: 600;">Processing...</p></div>';
+                document.body.appendChild(overlay);
+            };
+            
+            createLoadingOverlay();
+            
+            // Show overlay on form submit
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const overlay = document.getElementById('loadingOverlay');
+                    if (overlay) {
+                        overlay.style.display = 'flex';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

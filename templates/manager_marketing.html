@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manager Marketing Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            padding: 15px 30px;
+            margin: -20px -20px 30px -20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .portal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .portal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Container Styles */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.5s ease-out;
+            border-left: 5px solid;
+        }
+
+        .flash-message.success {
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .flash-message.error {
+            border-color: #ef5350;
+            color: #c62828;
+        }
+
+        .flash-message.warning {
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        /* Responsive Table */
+        .responsive-table {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 800px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Form Styles */
+        form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Valid State - Green Border */
+        input.valid,
+        select.valid {
+            border-color: #4caf50;
+            background-color: #f1f8f4;
+        }
+
+        /* Invalid State - Red Border */
+        input.invalid,
+        select.invalid {
+            border-color: #ef5350;
+            background-color: #ffebee;
+        }
+
+        .error-message {
+            color: #ef5350;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Radio Button Styles */
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-group label:hover {
+            border-color: #667eea;
+            background-color: #f5f7ff;
+        }
+
+        .radio-group input[type="radio"]:checked + span {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            min-height: 52px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button[type="submit"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        button[type="submit"].loading .spinner {
+            display: block;
+        }
+
+        button[type="submit"].loading .button-text {
+            display: none;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .accept-btn,
+        .reject-btn {
+            padding: 8px 16px !important;
+            margin: 0 !important;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            touch-action: manipulation;
+        }
+
+        .accept-btn {
+            background: linear-gradient(90deg, #4caf50, #81c784) !important;
+            color: white;
+        }
+
+        .accept-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .reject-btn {
+            background: linear-gradient(90deg, #fa7268, #ffc3aa) !important;
+            color: white;
+        }
+
+        .reject-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(250, 114, 104, 0.4);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-accepted {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+                margin: -10px -10px 20px -10px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            .flash-messages {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .accept-btn,
+            .reject-btn {
+                width: 100%;
+                min-height: 44px;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+                min-height: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .portal-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            table {
+                font-size: 0.75rem;
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Back to Portal Button -->
+    <div class="header">
+        <h1>Manager Marketing Dashboard</h1>
+        <a href="/portal" class="portal-btn">← Back to Portal</a>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages" id="flashMessages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <!-- Marketing Approvals Section -->
+        <div class="section">
+            <h2>Marketing Approvals</h2>
+            {% if pending_entries and pending_entries|length > 0 %}
+                <div class="responsive-table">
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Night</th>
+                            <th>Morning</th>
+                            <th>Shop</th>
+                            <th>Veg</th>
+                            <th>Nveg</th>
+                            <th>Other</th>
+                            <th>Common</th>
+                            <th>Note</th>
+                            <th style="max-width:75px;min-width:60px;">Action</th>
+                        </tr>
+                        {% for entry in pending_entries %}
+                        <tr>
+                            <td>{{ entry.username if entry.username else 'N/A' }}</td>
+                            <td>{{ entry.date if entry.date else 'N/A' }}</td>
+                            <td>{{ entry.night if entry.night else '-' }}</td>
+                            <td>{{ entry.morning if entry.morning else '-' }}</td>
+                            <td>{{ entry.shop_money if entry.shop_money is not none else '0.00' }}</td>
+                            <td>{{ entry.veg_money if entry.veg_money is not none else '0.00' }}</td>
+                            <td>{{ entry.nonveg_money if entry.non_veg_money is not none else '0.00' }}</td>
+                            <td>{{ entry.other_money if entry.other_money is not none else '0.00' }}</td>
+                            <td>{{ entry.common_money if entry.common_money is not none else '0.00' }}</td>
+                            <td>{{ entry.note if entry.note else '-' }}</td>
+                            <td>
+                                {% if entry.status == 'pending' %}
+                                <form method="POST" action="/manager/marketing" style="padding:0px; margin:0px;" class="approval-form" onsubmit="return handleApprovalSubmit(this);">
+                                    <input type="hidden" name="entry_sl_no" value="{{ entry.sl_no }}">
+                                    <div class="action-buttons">
+                                        <button type="submit" name="action" value="accept" class="accept-btn" style="margin-top:0px; padding: 4px;">Accept</button>
+                                        <button type="submit" name="action" value="reject" class="reject-btn" style="margin-top:0px; padding: 4px; background: linear-gradient(90deg,#fa7268,#ffc3aa);">Reject</button>
+                                    </div>
+                                </form>
+                                {% else %}
+                                <span class="status-badge status-{{ entry.status }}">{{ entry.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p>No pending marketing approvals at this time</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Submit Marketing Section -->
+        <div class="section">
+            <h2>Submit Marketing</h2>
+            {% if message %}
+            <h4 style="color: #ef5350; text-align:center; margin-bottom: 20px;">{{ message }}</h4>
+            {% endif %}
+            <form method="POST" action="/manager/marketing" id="marketingForm" novalidate>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="meal_marketing" value="yes_marketing" onchange="toggleMarketingForm()">
+                        <span>Marketing Form</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="meal_marketing" value="fetch_data" onchange="toggleMarketingForm()">
+                        <span>Fetch Marketing Data</span>
+                    </label>
+                </div>
+
+                <div id="marketing_form">
+                    <div class="form-group">
+                        <label for="name">Username <span style="color: red;">*</span></label>
+                        <select name="id" id="name" {% if not members or members|length == 0 %}disabled{% endif %}>
+                            {% if members and members|length > 0 %}
+                                {% for member in members %}
+                                <option value="{{ member.id }}">{{ member.name }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">No members available</option>
+                            {% endif %}
+                        </select>
+                        <span class="error-message" id="name-error">Please select a username</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Date <span style="color: red;">*</span></label>
+                        <input type="date" name="date" id="date">
+                        <span class="error-message" id="date-error">Please select a valid date</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="night">Night Meal <span style="color: red;">*</span></label>
+                        <select name="night" id="night" required>
+                            <option value="selected">--Select--</option>
+                            <option value="chicken">Chicken</option>
+                            <option value="veg">Veg</option>
+                            <option value="egg">Egg</option>
+                            <option value="beef">Beef</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <span class="error-message" id="night-error">Please select night meal</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="morning">Morning Meal</label>
+                        <select name="morning" id="morning">
+                            <option value="selected">--Select--</option>
+                            <option value="chicken">Chicken</option>
+                            <option value="veg">Veg</option>
+                            <option value="egg">Egg</option>
+                            <option value="beef">Beef</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <span class="error-message" id="morning-error">Please select morning meal</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shop_money">Shop Money</label>
+                        <input type="number" name="shop_money" id="shop_money" min="0" step="0.01" placeholder="0.00">
+                        <span class="error-message" id="shop_money-error">Please enter a valid amount</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="veg_money">Veg Money</label>
+                        <input type="number" name="veg_money" id="veg_money" min="0" step="0.01" placeholder="0.00">
+                        <span class="error-message" id="veg_money-error">Please enter a valid amount</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nonveg_money">Non-Veg Money</label>
+                        <input type="number" name="nonveg_money" id="nonveg_money" min="0" step="0.01" placeholder="0.00">
+                        <span class="error-message" id="nonveg_money-error">Please enter a valid amount</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="other_money">Other Money</label>
+                        <input type="number" name="other_money" id="other_money" min="0" step="0.01" placeholder="0.00">
+                        <span class="error-message" id="other_money-error">Please enter a valid amount</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="common_money">Common Money</label>
+                        <input type="number" name="common_money" id="common_money" min="0" step="0.01" placeholder="0.00">
+                        <span class="error-message" id="common_money-error">Please enter a valid amount</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="note">Note</label>
+                        <input type="text" name="note" id="note" placeholder="Optional notes" maxlength="255">
+                        <span class="error-message" id="note-error">Note is too long</span>
+                    </div>
+                </div>
+
+                <div id="fetch_data_form" style="display: none;">
+                    <div class="form-group">
+                        <label for="start_date">Start Date <span style="color: red;">*</span></label>
+                        <input type="date" name="start_date" id="start_date">
+                        <span class="error-message" id="start_date-error">Please select a start date</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_date">End Date <span style="color: red;">*</span></label>
+                        <input type="date" name="end_date" id="end_date">
+                        <span class="error-message" id="end_date-error">Please select an end date</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <span class="button-text">Submit</span>
+                    <div class="spinner"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Your Submissions Section -->
+        <div class="section">
+            <h3>Your Submissions</h3>
+            {% if marketing_data and marketing_data|length > 0 %}
+                <div class="responsive-table">
+                    <table>
+                        <tr>
+                            <th>SL No</th><th>Name</th><th>Date</th><th>Night</th><th>Morning</th><th>Shop</th><th>Veg</th><th>Nveg</th><th>Other</th><th>C_Money</th><th>Note</th><th>Status</th>
+                        </tr>
+                        {% for data in marketing_data %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ data.username if data.username else 'N/A' }}</td>
+                            <td>{{ data.date if data.date else 'N/A' }}</td>
+                            <td>{{ data.night if data.night else '-' }}</td>
+                            <td>{{ data.morning if data.morning else '-' }}</td>
+                            <td>{{ data.shop_money if data.shop_money is not none else '0.00' }}</td>
+                            <td>{{ data.veg_money if data.veg_money is not none else '0.00' }}</td>
+                            <td>{{ data.non_veg_money if data.non_veg_money is not none else '0.00' }}</td>
+                            <td>{{ data.other_money if data.other_money is not none else '0.00' }}</td>
+                            <td>{{ data.common_money if data.common_money is not none else '0.00' }}</td>
+                            <td>{{ data.note if data.note else '-' }}</td>
+                            <td><span class="status-badge status-{{ data.status }}">{{ data.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <p>No marketing submissions found</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    // Original JavaScript - Preserved
+    function toggleMarketingForm() {
+        const marketingForm = document.getElementById('marketing_form');
+        const fetchDataForm = document.getElementById('fetch_data_form');
+        const mealMarketing = document.querySelector('input[name="meal_marketing"]:checked');
+        if (!mealMarketing) {
+            marketingForm.style.display = 'none';
+            fetchDataForm.style.display = 'none';
+            return;
+        }
+        if (mealMarketing.value === 'yes_marketing') {
+            marketingForm.style.display = 'block';
+            fetchDataForm.style.display = 'none';
+        } else if (mealMarketing.value === 'fetch_data') {
+            marketingForm.style.display = 'none';
+            fetchDataForm.style.display = 'block';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleMarketingForm();
+    });
+
+    // NEW ADDED JavaScript for 18 Features (Does not modify existing logic)
+    
+    // Feature 18: Auto-dismiss Flash Messages After 5 Seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.animation = 'slideInRight 0.5s ease-out reverse';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
+
+    // Feature 8: Unsaved Changes Warning Before Leaving Page
+    let formModified = false;
+    const form = document.getElementById('marketingForm');
+    
+    if (form) {
+        const formInputs = form.querySelectorAll('input, select, textarea');
+        formInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                formModified = true;
+            });
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formModified) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        form.addEventListener('submit', function() {
+            formModified = false;
+        });
+    }
+
+    // Feature 3 & 4: Real-time Validation Feedback & Success State Styling
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldId = field.id;
+        const errorElement = document.getElementById(fieldId + '-error');
+        let isValid = true;
+        let errorMessage = '';
+
+        // Date validation
+        // if (field.type === 'date' && value) {
+        //     const selectedDate = new Date(value);
+        //     const today = new Date();
+        //     today.setHours(0, 0, 0, 0);
+            
+        //     if (selectedDate > today) {
+        //         isValid = false;
+        //         errorMessage = 'Date cannot be in the future';
+        //     }
+        // }
+
+        // Number validation
+        if (field.type === 'number' && value) {
+            const numValue = parseFloat(value);
+            if (numValue < 0) {
+                isValid = false;
+                errorMessage = 'Amount cannot be negative';
+            }
+        }
+
+        // Select validation
+        if (field.tagName === 'SELECT' && field.hasAttribute('required')) {
+            if (value === 'selected' || value === '') {
+                isValid = false;
+                errorMessage = 'Please select an option';
+            }
+        }
+
+        // Required field validation
+        if (field.hasAttribute('required') && !value) {
+            isValid = false;
+            errorMessage = 'This field is required';
+        }
+
+        // Note length validation
+        if (fieldId === 'note' && value.length > 255) {
+            isValid = false;
+            errorMessage = 'Note is too long (max 255 characters)';
+        }
+
+        // Apply styling
+        if (value) {
+            if (isValid) {
+                field.classList.add('valid');
+                field.classList.remove('invalid');
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                }
+            } else {
+                field.classList.add('invalid');
+                field.classList.remove('valid');
+                if (errorElement) {
+                    errorElement.textContent = errorMessage;
+                    errorElement.classList.add('show');
+                }
+            }
+        } else {
+            field.classList.remove('valid', 'invalid');
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+        }
+
+        return isValid;
+    }
+
+    // Add validation listeners to all form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const allFields = document.querySelectorAll('#marketingForm input, #marketingForm select');
+        allFields.forEach(function(field) {
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.classList.contains('invalid')) {
+                    validateField(this);
+                }
+            });
+        });
+
+        // Set today's date as default
+        const dateField = document.getElementById('date');
+        if (dateField && !dateField.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateField.value = today;
+        }
+    });
+
+    // Feature 10 & 5: Form Validation Before Submission & Scroll to First Error
+    form.addEventListener('submit', function(e) {
+        const mealMarketing = document.querySelector('input[name="meal_marketing"]:checked');
+        
+        if (!mealMarketing) {
+            e.preventDefault();
+            alert('Please select either Marketing Form or Fetch Marketing Data');
+            return false;
+        }
+
+        let isValid = true;
+        let firstInvalidField = null;
+
+        if (mealMarketing.value === 'yes_marketing') {
+            const requiredFields = ['name', 'date', 'night'];
+            
+            requiredFields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    if (!validateField(field)) {
+                        isValid = false;
+                        if (!firstInvalidField) {
+                            firstInvalidField = field;
+                        }
+                    }
+                }
+            });
+
+            // Validate all number fields
+            const numberFields = ['shop_money', 'veg_money', 'nonveg_money', 'other_money', 'common_money'];
+            numberFields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field && field.value) {
+                    if (!validateField(field)) {
+                        isValid = false;
+                        if (!firstInvalidField) {
+                            firstInvalidField = field;
+                        }
+                    }
+                }
+            });
+
+        } else if (mealMarketing.value === 'fetch_data') {
+            const startDateField = document.getElementById('start_date');
+            const endDateField = document.getElementById('end_date');
+
+            if (!startDateField.value) {
+                isValid = false;
+                startDateField.classList.add('invalid');
+                const errorElement = document.getElementById('start_date-error');
+                if (errorElement) {
+                    errorElement.classList.add('show');
+                }
+                if (!firstInvalidField) {
+                    firstInvalidField = startDateField;
+                }
+            }
+
+            if (!endDateField.value) {
+                isValid = false;
+                endDateField.classList.add('invalid');
+                const errorElement = document.getElementById('end_date-error');
+                if (errorElement) {
+                    errorElement.classList.add('show');
+                }
+                if (!firstInvalidField) {
+                    firstInvalidField = endDateField;
+                }
+            }
+
+            // Date range validation
+            if (startDateField.value && endDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const endDate = new Date(endDateField.value);
+                
+                if (startDate > endDate) {
+                    isValid = false;
+                    endDateField.classList.add('invalid');
+                    const errorElement = document.getElementById('end_date-error');
+                    if (errorElement) {
+                        errorElement.textContent = 'End date must be after start date';
+                        errorElement.classList.add('show');
+                    }
+                    if (!firstInvalidField) {
+                        firstInvalidField = endDateField;
+                    }
+                }
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Feature 5: Scroll to first error field
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                setTimeout(function() {
+                    firstInvalidField.focus();
+                }, 500);
+            }
+            
+            return false;
+        }
+
+        // Feature 11 & 15: Disabled Submit Buttons During Processing & Loading States
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
+        }
+
+        return true;
+    });
+
+    // Feature 7: Prevents Form Resubmission on Refresh
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    // Handle approval form submission
+    // remember clicked submit button (handles clicks on inner elements inside the button)
+document.addEventListener("click", function (event) {
+    const btn = event.target.closest && event.target.closest('button[type="submit"], input[type="submit"]');
+    if (btn && btn.form) {
+        // store the exact button on the form as a fallback
+        btn.form._clickedButton = btn;
+    }
+});
+
+// use this onsubmit handler: onsubmit="return handleApprovalSubmit(event, this);"
+function handleApprovalSubmit(evt, form) {
+    // Prefer the standard submitter (supported in modern browsers)
+    // evt may be undefined in some very old environments — we accept that and fall back
+    const clicked = (evt && evt.submitter) || form._clickedButton;
+
+    let buttonToDisable = null;
+
+    // If evt.submitter or saved clicked button exists, use it.
+    if (clicked) {
+        buttonToDisable = clicked;
+    } else {
+        // Fallback: maybe the user pressed Enter (no click). Try document.activeElement if it's a submit button.
+        const active = document.activeElement;
+        if (active && (active.matches && (active.matches('button[type="submit"], input[type="submit"]')))) {
+            buttonToDisable = active;
+        }
+    }
+
+    if (buttonToDisable) {
+        buttonToDisable.disabled = true;
+        buttonToDisable.style.opacity = '0.7';
+    } else {
+        // Last resort: disable all submit buttons in the form to avoid double-submits
+        const all = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+        all.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = '0.7';
+        });
+    }
+
+    // Show loading overlay if present
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.classList.add('active');
+
+    // allow the submit to continue
+    return true;
+}_
+
+    // Feature 14: Input Sanitization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sanitize number inputs
+        const numberInputs = document.querySelectorAll('input[type="number"]');
+        numberInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                // Remove any non-numeric characters except decimal point
+                this.value = this.value.replace(/[^0-9.]/g, '');
+                
+                // Ensure only one decimal point
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
+            });
+        });
+
+        // Sanitize text inputs
+        const textInputs = document.querySelectorAll('input[type="text"]');
+        textInputs.forEach(function(input) {
+            input.addEventListener('blur', function() {
+                // Trim whitespace
+                this.value = this.value.trim();
+            });
+        });
+    });
+
+    // Validate date ranges for fetch data form
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateField = document.getElementById('start_date');
+        const endDateField = document.getElementById('end_date');
+
+        if (startDateField && endDateField) {
+            function validateDateRange() {
+                if (startDateField.value && endDateField.value) {
+                    const startDate = new Date(startDateField.value);
+                    const endDate = new Date(endDateField.value);
+                    
+                    if (startDate > endDate) {
+                        endDateField.classList.add('invalid');
+                        const errorElement = document.getElementById('end_date-error');
+                        if (errorElement) {
+                            errorElement.textContent = 'End date must be after start date';
+                            errorElement.classList.add('show');
+                        }
+                    } else {
+                        endDateField.classList.remove('invalid');
+                        endDateField.classList.add('valid');
+                        const errorElement = document.getElementById('end_date-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
+                    }
+                }
+            }
+
+            startDateField.addEventListener('change', validateDateRange);
+            endDateField.addEventListener('change', validateDateRange);
+        }
+    });
+
+    </script>
+</body>
+</html>

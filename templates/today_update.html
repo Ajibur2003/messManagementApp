@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today Update</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            color: #2d3748;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .meal-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .total-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-size: 15px;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:last-child td:first-child {
+            border-radius: 0 0 0 12px;
+        }
+
+        tr:last-child td:last-child {
+            border-radius: 0 0 12px 0;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-label {
+            color: #2d3748;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .date-input {
+            padding: 12px 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .date-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-size: 16px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header, .meal-section, .search-section {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-form {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .date-input {
+                width: 100%;
+            }
+
+            .search-btn, .back-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="page-title">Daily Meal Update</h1>
+            <a href="/portal" class="back-btn">← Back to Portal</a>
+        </div>
+
+        <!-- Morning Section -->
+        <div class="meal-section">
+            <div class="section-header">
+                <h2 class="section-title">{{ typeOrSearch_of_morning }} Morning</h2>
+                <span class="total-badge">Total: {{ todayOrSearch_total_morning }} Meals</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Meal</th>
+                        <th>Guest Meal</th>
+                    </tr>
+                    {% if todayOrSearch_morning_datas %}
+                    {% for datas in todayOrSearch_morning_datas %}
+                    <tr>
+                        <td><strong>{{ datas.name }}</strong></td>
+                        <td>{{ datas['morning_sum'] | int }}</td>
+                        <td>{{ datas['guest_morning_sum'] | int }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="no-data">No morning meal data available</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Night Section -->
+        <div class="meal-section">
+            <div class="section-header">
+                <h2 class="section-title">{{ typeOrSearch_of_night }} Night</h2>
+                <span class="total-badge">Total: {{ todayOrSearch_total_night }} Meals</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Meal</th>
+                        <th>Guest Meal</th>
+                    </tr>
+                    {% if todayOrSearch_night_datas %}
+                    {% for datas in todayOrSearch_night_datas %}
+                    <tr>
+                        <td><strong>{{ datas.name }}</strong></td>
+                        <td>{{ datas['night_sum'] | int }}</td>
+                        <td>{{ datas['guest_night_sum'] | int }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="no-data">No night meal data available</td>
+                    </tr>
+                    {% endif %}
+                </table>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form action="/today_upddate" method="post" class="search-form">
+                <label for="search_date" class="search-label">Search by Date:</label>
+                <input type="date" name="search_date" id="search_date" class="date-input" required>
+                <button type="submit" class="search-btn">🔍 Search</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

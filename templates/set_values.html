@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Values - Mess Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+
+        h2 {
+            color: #0a74df;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 25px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            animation: slideInRight 0.3s ease-out;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #10b981;
+            color: white;
+            border-left: 4px solid #059669;
+        }
+
+        .alert-error {
+            background: #ef4444;
+            color: white;
+            border-left: 4px solid #dc2626;
+        }
+
+        .alert-warning {
+            background: #f59e0b;
+            color: white;
+            border-left: 4px solid #d97706;
+        }
+
+        .alert-info {
+            background: #3b82f6;
+            color: white;
+            border-left: 4px solid #2563eb;
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        label {
+            color: #3a66b7;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .current-value {
+            color: #6b7280;
+            font-weight: 400;
+            font-size: 12px;
+            background: #f3f4f6;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+            margin-top: -4px;
+        }
+
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Success State - Green Border */
+        .form-group.success input,
+        .form-group.success select {
+            border-color: #667eea;
+            background: #fdfdfd;
+        }
+
+        /* Error State - Red Border */
+        .form-group.error input,
+        .form-group.error select {
+            border-color: #ef4444;
+            background: #fef2f2;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            font-weight: 500;
+            display: none;
+            margin-top: -4px;
+        }
+
+        .form-group.error .error-message {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Submit Button */
+        input[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            min-height: 52px;
+        }
+
+        input[type="submit"]:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        input[type="submit"]:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        input[type="submit"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #9ca3af;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        input[type="submit"]:disabled + .spinner {
+            display: block;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .form-card {
+                padding: 25px 20px;
+                border-radius: 12px;
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+
+            input[type="number"],
+            input[type="date"],
+            select {
+                padding: 12px 14px;
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+
+            input[type="submit"] {
+                padding: 14px 20px;
+                font-size: 16px;
+            }
+
+            label {
+                font-size: 13px;
+            }
+
+            .current-value {
+                font-size: 11px;
+            }
+
+            .back-button {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 20px 15px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            form {
+                gap: 18px;
+            }
+
+            .form-group {
+                gap: 6px;
+            }
+        }
+
+        /* Touch-friendly sizes for mobile */
+        @media (hover: none) and (pointer: coarse) {
+            input[type="number"],
+            input[type="date"],
+            select,
+            input[type="submit"],
+            .back-button {
+                min-height: 44px; /* iOS touch target recommendation */
+            }
+        }
+
+        /* Smooth Transitions */
+        * {
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Status Badge Styles (for future use) */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.blocked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="form-card">
+        <a href="/portal" class="back-button">← Back to Portal</a>
+        <h2>⚙️ Set System Values</h2>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('set_values') }}" id="setValuesForm" novalidate>
+            
+            <div class="form-group">
+                <label for="masi_m">
+                    Masi Mode
+                    {% if variables and variables.masi_M_on_off %}
+                        <span class="current-value">Current: {{ variables.masi_M_on_off }}</span>
+                    {% endif %}
+                </label>
+                <select id="masi_m" name="masi_M_on_off" required>
+                    <option value="">-- Select Mode --</option>
+                    <option value="per_month" {% if variables and variables.masi_M_on_off == 'per_month' %}selected{% endif %}>Per Month</option>
+                    <option value="per_head" {% if variables and variables.masi_M_on_off == 'per_head' %}selected{% endif %}>Per Head</option>
+                </select>
+                <span class="error-message">Please select a masi mode</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="masi_charge">
+                    Masi Charge (₹)
+                    {% if variables and variables.masi_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.masi_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="masi_charge" name="masi_charge" 
+                       placeholder="Enter masi charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.masi_charge if variables and variables.masi_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="guest_meal_range">
+                    Guest Meal Range
+                    {% if variables and variables.guest_meal_range is not none %}
+                        <span class="current-value">Current: {{ variables.guest_meal_range }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="guest_meal_range" name="guest_meal_range" 
+                       placeholder="Enter guest meal range" 
+                       min="0" step="1" required
+                       value="{{ variables.guest_meal_range if variables and variables.guest_meal_range is not none else '' }}">
+                <span class="error-message">Please enter a valid number (0 or greater)</span>
+                <span class="helper-text">Maximum guest meals allowed per person</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="common_meal">
+                    Common Meal Range
+                    {% if variables and variables.common_meal is not none %}
+                        <span class="current-value">Current: {{ variables.common_meal }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="common_meal" name="common_meal" 
+                       placeholder="Enter common meal range" 
+                       min="0" step="1" required
+                       value="{{ variables.common_meal if variables and variables.common_meal is not none else '' }}">
+                <span class="error-message">Please enter a valid number (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="veg_guest_charge">
+                    Veg Guest Charge (₹)
+                    {% if variables and variables.veg_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.veg_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="veg_guest_charge" name="veg_guest_charge" 
+                       placeholder="Enter veg guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.veg_guest_charge if variables and variables.veg_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="egg_guest_charge">
+                    Egg Guest Charge (₹)
+                    {% if variables and variables.egg_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.egg_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="egg_guest_charge" name="egg_guest_charge" 
+                       placeholder="Enter egg guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.egg_guest_charge if variables and variables.egg_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="fish_guest_charge">
+                    Fish Guest Charge (₹)
+                    {% if variables and variables.fish_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.fish_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="fish_guest_charge" name="fish_guest_charge" 
+                       placeholder="Enter fish guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.fish_guest_charge if variables and variables.fish_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="chicken_guest_charge">
+                    Chicken Guest Charge (₹)
+                    {% if variables and variables.chicken_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.chicken_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="chicken_guest_charge" name="chicken_guest_charge" 
+                       placeholder="Enter chicken guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.chicken_guest_charge if variables and variables.chicken_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="beef_guest_charge">
+                    Beef Guest Charge (₹)
+                    {% if variables and variables.beef_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.beef_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="beef_guest_charge" name="beef_guest_charge" 
+                       placeholder="Enter beef guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.beef_guest_charge if variables and variables.beef_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+
+            <div class="form-group">
+                <label for="other_guest_charge">
+                    Other Guest Charge (₹)
+                    {% if variables and variables.other_guest_charge is not none %}
+                        <span class="current-value">Current: ₹{{ "%.2f"|format(variables.other_guest_charge) }}</span>
+                    {% endif %}
+                </label>
+                <input type="number" id="other_guest_charge" name="other_guest_charge" 
+                       placeholder="Enter other guest charge" 
+                       min="0" step="0.01" required
+                       value="{{ variables.other_guest_charge if variables and variables.other_guest_charge is not none else '' }}">
+                <span class="error-message">Please enter a valid amount (0 or greater)</span>
+            </div>
+
+            <div class="form-group">
+                <label for="calculation_date">
+                    Calculation Date
+                    {% if variables and variables.meal_calculation_date is not none %}
+                        <span class="current-value">Current: {{ variables.meal_calculation_date }}</span>
+                    {% endif %}
+                </label>
+                <input type="date" id="calculation_date" name="calculation_date" 
+                       placeholder="Enter calculation date" 
+                       value="{{ variables.meal_calculation_date if variables and variables.meal_calculation_date is not none else '' }}">
+                <span class="error-message">Please enter a valid date</span>
+            </div>
+
+
+            <input type="submit" id="submitBtn" value="Update Values">
+            <span class="spinner"></span>
+        </form>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('setValuesForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            
+            // Get all form inputs
+            const formInputs = form.querySelectorAll('input[required], select[required]');
+            
+            // Track form modifications for unsaved changes warning
+            let formModified = false;
+            let isSubmitting = false;
+            
+            // Real-time validation on blur
+            formInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                // Remove error on input and mark as modified
+                input.addEventListener('input', function() {
+                    formModified = true;
+                    if (this.parentElement.classList.contains('error')) {
+                        validateField(this);
+                    }
+                });
+                
+                // For select elements
+                input.addEventListener('change', function() {
+                    formModified = true;
+                    if (this.parentElement.classList.contains('error')) {
+                        validateField(this);
+                    }
+                });
+            });
+            
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                let firstErrorField = null;
+                
+                // Validate all required fields
+                formInputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                        if (!firstErrorField) {
+                            firstErrorField = input;
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    // Scroll to first error with smooth animation
+                    if (firstErrorField) {
+                        firstErrorField.focus();
+                        firstErrorField.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center',
+                            inline: 'nearest'
+                        });
+                    }
+                    return false;
+                }
+                
+                // Mark as submitting to prevent unsaved changes warning
+                isSubmitting = true;
+                formModified = false;
+                
+                // Disable button and show loading state
+                submitBtn.disabled = true;
+                submitBtn.value = 'Processing...';
+                
+                // Show loading overlay
+                loadingOverlay.classList.add('active');
+                
+                // Submit the form
+                this.submit();
+            });
+            
+            // Validation function
+            function validateField(field) {
+                const formGroup = field.parentElement;
+                const value = field.value.trim();
+                
+                // Remove previous states
+                formGroup.classList.remove('error', 'success');
+                
+                // Check if field is required and empty
+                if (field.hasAttribute('required') && !value) {
+                    formGroup.classList.add('error');
+                    return false;
+                }
+                
+                // Number validation
+                if (field.type === 'number' && value) {
+                    const numValue = parseFloat(value);
+                    const min = field.hasAttribute('min') ? parseFloat(field.getAttribute('min')) : null;
+                    
+                    if (isNaN(numValue)) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                    
+                    if (min !== null && numValue < min) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Select validation
+                if (field.tagName === 'SELECT' && field.hasAttribute('required')) {
+                    if (!value) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Field is valid - show success state (green border)
+                if (value) {
+                    formGroup.classList.add('success');
+                }
+                return true;
+            }
+            
+            // Input sanitization for number fields
+            const numberInputs = form.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Trim whitespace
+                    this.value = this.value.trim();
+                    
+                    // Prevent negative values
+                    if (this.hasAttribute('min') && parseFloat(this.getAttribute('min')) >= 0) {
+                        if (parseFloat(this.value) < 0) {
+                            this.value = 0;
+                        }
+                    }
+                });
+                
+                // Format on blur
+                input.addEventListener('blur', function() {
+                    if (this.value && !isNaN(parseFloat(this.value))) {
+                        const step = this.getAttribute('step');
+                        if (step === '0.01') {
+                            // Format currency fields to 2 decimal places
+                            this.value = parseFloat(this.value).toFixed(2);
+                        } else if (step === '1') {
+                            // Round integer fields
+                            this.value = Math.round(parseFloat(this.value));
+                        }
+                    }
+                });
+            });
+            
+            // Auto-dismiss flash messages after 5 seconds with fade-out animation
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(100%)';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+                
+                // Allow manual dismissal by clicking
+                alert.addEventListener('click', function() {
+                    this.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    this.style.opacity = '0';
+                    this.style.transform = 'translateX(100%)';
+                    setTimeout(() => this.remove(), 300);
+                });
+            });
+            
+            // Prevent form resubmission on page refresh
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+            
+            // Show confirmation before leaving if form has unsaved changes
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified && !isSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            // Initial validation for pre-filled fields (show green border if valid)
+            window.addEventListener('load', function() {
+                formInputs.forEach(input => {
+                    if (input.value && input.value.trim() !== '') {
+                        validateField(input);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

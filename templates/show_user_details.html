@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>show_user_details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f7fafc;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:last-child td:first-child {
+            border-radius: 0 0 0 12px;
+        }
+
+        tr:last-child td:last-child {
+            border-radius: 0 0 12px 0;
+        }
+
+        .status-paid {
+            background-color: #48bb78;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-unpaid {
+            background-color: #f56565;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 18px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>All User Details</h1>
+            <a href="/portal" class="back-btn">← Back to Portal</a>
+        </div>
+        
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Reg: Date</th>
+                    <th>Name</th>
+                    <th>Number</th>
+                    <th>Occupation</th>
+                    <th>Instrument</th>
+                    <th>Paid/Unpaid</th>
+                    <th>Paid Method</th>
+                    <th>Paid By</th>
+                    <th>Refund</th>
+                    <th>Note</th>
+                </tr>
+                {% if user_details %}
+                {% for user in user_details %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.registration_date }}</td>
+                    <td><strong>{{ user.name }}</strong></td>
+                    <td>{{ user.phone_number }}</td>
+                    <td>{{ user.occupation }}</td>
+                    <td>₹{{ user.instrument_amount }}</td>
+                    <td>
+                        {% if user.paid == 'paid' %}
+                        <form method="POST" action="/show_user_details" onsubmit="return confirm('Do you want to change the status of this user to unpaid?');">
+                            <input type="hidden" name="new_status" value="unpaid">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="status-paid">{{ user.paid }}</button>
+                        </form>
+                        <!-- <span class="status-paid">{{ user.paid }}</span> -->
+                        {% elif user.paid == 'unpaid' %}
+                        <form method="POST" action="/show_user_details" onsubmit="return confirm('Do you want to change the status of this user to paid?');">
+                            <input type="hidden" name="new_status" value="paid">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <button type="submit" class="status-unpaid">{{ user.paid }}</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.payment_method }}</td>
+                    <td>{{ user.payment_by }}</td>
+                    <td>₹{{ user.refund_amount }}</td>
+                    <td>{{ user.note }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="10" class="no-data">No user details available</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</body>
+</html>

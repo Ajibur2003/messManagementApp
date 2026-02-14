@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manager Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      :root {
+        --active: #0a74df;
+        --blocked: #ef5350;
+        --table-bg: #fff;
+        --table-head: #eceefe;
+        --main-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --main-radius: 15px;
+        --card-shadow: 0 8px 36px rgba(102,126,234,0.085);
+        --table-shadow: 0 2px 14px rgba(102,126,234,0.09);
+      }
+      body {
+        font-family: 'Montserrat', Arial, sans-serif;
+        background: var(--main-gradient);
+        min-height: 100vh;
+        padding: 22px 8px;
+        color: #333;
+      }
+      h2 {
+        display: block;
+        width: 100%;
+        text-align: center;
+        color: #0a74df;
+        font-size: 2.1rem;
+        font-family: inherit;
+        font-weight: 800;
+        letter-spacing:.02em;
+        background: var(--table-head);
+        border-radius: var(--main-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 26px;
+        padding: 8px 0;
+        animation: fadeIn 0.7s;
+      }
+      .manager-table {
+        background: var(--table-bg);
+        border-radius: var(--main-radius);
+        box-shadow: var(--table-shadow);
+        width:100%;
+        margin:0 auto 30px auto;
+        animation: fadeIn 0.9s;
+        overflow:hidden;
+        border-collapse:collapse;
+        min-width:700px;
+      }
+      .manager-table th {
+        background: var(--table-head);
+        font-weight: bold;
+        padding:13px 10px;
+        font-size:1.07rem;
+        white-space:nowrap;
+      }
+      .manager-table td {
+        padding: 12px 11px;
+        border-bottom: 1px solid #edeefe;
+        font-size: 1rem;
+      }
+      .manager-table tr {
+        transition: background 0.13s;
+      }
+      .manager-table tbody tr:hover {
+        background: #f8fafb;
+      }
+      .manager-table button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border: none;
+        border-radius: 22px;
+        padding: 7px 20px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: .98rem;
+        box-shadow: 0 2px 9px rgba(33,181,115,0.14);
+        transition: background 0.16s, opacity 0.07s, box-shadow 0.15s;
+        margin: 1px 0;
+      }
+      .manager-table button:active {
+        opacity: 0.75;
+        box-shadow: 0 1px 4px rgba(33,181,115,0.24);
+      }
+      .manager-table button[style*="background:linear-gradient"] {
+        color: #fff;
+        font-weight: 700;
+        border-style: none;
+        border-radius: 22px;
+        box-shadow: 0 2px 9px rgba(250,114,104,0.12);
+      }
+      .manager-table em {
+        color: #aaa;
+        font-size: 0.98rem;
+      }
+      /* Status Badges */
+      .status-badge {
+        padding: 3px 13px;
+        border-radius:14px;
+        font-weight:700;
+        font-size:.95rem;
+        vertical-align: middle;
+        letter-spacing: .02em;
+        margin-left: 8px;
+        background: #eceefe;
+        display:inline-block;
+      }
+      .badge-active { color: var(--active);}
+      .badge-blocked { color: var(--blocked);}
+      .manager-table .status-badge {
+        margin-left:0;
+      }
+      /* Responsive Table */
+      .responsive-table {
+        width:100%;
+        overflow-x:auto;
+      }
+      @media (max-width:900px){
+        .manager-table, .responsive-table {
+          min-width:100vw;
+          display:block;
+          overflow-x:auto;
+        }
+        .manager-table th, .manager-table td {
+          padding:8px 6px;
+          font-size:.93rem;
+        }
+      }
+      @media (max-width:700px) {
+        h2 { font-size:1.31rem; padding:7px 0;}
+        .manager-table, .responsive-table {
+          border-radius:11px;
+        }
+      }
+      @media (max-width:550px) {
+        body { padding: 6px 4px;}
+        .manager-table th, .manager-table td {
+          padding:6px 4px;
+          font-size: .88rem;
+        }
+      }
+      /* Table Horizontal Scroll Bar Styling */
+      .responsive-table::-webkit-scrollbar {
+        height: 8px;
+      }
+      .responsive-table::-webkit-scrollbar-thumb {
+        background: #eceefe;
+        border-radius:4px;
+      }
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform:translateY(20px);}
+        to { opacity:1; transform:translateY(0);}
+      }
+      /* Flash message styling */
+      .flash-messages {
+        position: fixed; top: 20px; right: 12px; z-index: 1000; max-width: 400px;
+      }
+      .flash-message {
+        background: #fff;
+        padding: 13px 16px;
+        border-radius: 11px;
+        box-shadow: 0 5px 13px rgba(0,0,0,0.18);
+        margin-bottom: 10px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        animation: slideInRight 0.5s;
+        border-left:5px solid var(--active);
+      }
+      .flash-message.success { border-color: var(--active); color:var(--active); }
+      .flash-message.error { border-color: var(--blocked); color:var(--blocked);}
+      /* Empty State */
+      .empty-state {
+        color: #999;
+        text-align: center;
+        padding: 44px 16px 24px;
+        font-size: 1.05rem;
+      }
+    </style>
+</head>
+<body>
+    <!-- Header with Portal Button -->
+    <div class="header" style="background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:34px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;border-radius:0;padding:15px 30px;">
+        <h1 style="color:var(--active);font-size:1.45rem;font-weight:700;">Manager Dashboard</h1>
+        <a href="/portal" class="portal-btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff;padding:10px 24px;border-radius:22px;text-decoration:none;font-weight:600;">← Back to Portal</a>
+    </div>
+
+    <h2>Manager Dashboard</h2>
+
+    <div class="responsive-table">
+    <table class="manager-table" border="0" cellpadding="0" cellspacing="0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Action</th>
+          <th>Assign Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u['id'] }}</td>
+          <td>{{ u['name'] }}</td>
+          <td>
+            {{ u['role'] }}
+            {% if u['role'] == 'head_manager' %}
+              <span class="status-badge badge-active">Head Manager</span>
+            {% elif u['role'] == 'manager' %}
+              <span class="status-badge badge-active">Manager</span>
+            {% else %}
+              <span class="status-badge" style="color:#777;background:#eff4fa;">User</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u['blocked'] %}
+              <span class="badge-blocked status-badge">Blocked</span>
+            {% else %}
+              <span class="badge-active status-badge">Active</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u['blocked'] %}
+              <form method="post" action="{{ url_for('blocked') }}">
+                <input type="hidden" name="user_id" value="{{ u['id'] }}">
+                <input type="hidden" name="action" value="unblock">
+                <button type="submit">Unblock</button>
+              </form>
+            {% else %}
+              <form method="post" action="{{ url_for('blocked') }}" onsubmit="return confirm('Block this user?');">
+                <input type="hidden" name="user_id" value="{{ u['id'] }}">
+                <input type="hidden" name="action" value="block">
+                <button type="submit" style="background:linear-gradient(90deg,#fa7268 0%,#ffc3aa 90%);">Block</button>
+              </form>
+            {% endif %}
+          </td>
+          <td>
+            {% if u['role'] == 'head_manager' %}
+              <em>N/A</em>
+            {% elif u['role'] == 'user' %}
+              <form method="post" action="{{ url_for('blocked') }}">
+                <input type="hidden" name="user_id" value="{{ u['id'] }}">
+                <input type="hidden" name="new_role" value="manager">
+                <button type="submit">MANAGER</button>
+              </form>
+            {% else %}
+              <form method="post" action="{{ url_for('blocked') }}" onsubmit="return confirm('Revoke manager role from this user?');">
+                <input type="hidden" name="user_id" value="{{ u['id'] }}">
+                <input type="hidden" name="new_role" value="user">
+                <button type="submit" style="background:linear-gradient(90deg,#fa7268 0%,#ffc3aa 90%);">USER</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% if not users or users|length==0 %}
+      <div class="empty-state">No managers or users registered yet.</div>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    <div class="flash-messages" id="flashMessages">
+      <!-- Example:
+      <div class="flash-message success"><span>User updated successfully.</span></div>
+      <div class="flash-message error"><span>Error updating user.</span></div>
+      -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}"><span>{{ message }}</span></div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <script>
+      // Feature 7: Prevents Form Resubmission on Refresh
+      if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+      }
+      // Feature 18: Auto-dismiss Flash Messages After 5 Seconds with fade-out
+      document.addEventListener('DOMContentLoaded', function() {
+        const flashes = document.querySelectorAll('.flash-message');
+        flashes.forEach(function(message) {
+          setTimeout(function() {
+            message.style.opacity = 0;
+            setTimeout(function(){message.style.display="none";},570);
+          }, 5000);
+        });
+      });
+      // Feature 9: Smooth transitions: handled via CSS fadeIn & slideInRight
+
+      // Feature 12: Disable dropdowns if no options (not present in this table context)
+
+      // Feature 17: Status Badges are color coded, already shown above
+
+      // Feature 11: Disabled Button on Processing (for demo, only disables for 1 second on submit)
+      document.querySelectorAll('form').forEach(function(frm) {
+        frm.addEventListener('submit', function(e){
+          let btn = frm.querySelector('button[type="submit"]');
+          if(btn){
+            btn.disabled = true;
+            btn.textContent="Processing...";
+            setTimeout(function(){
+              btn.disabled=false;
+              btn.textContent=btn.value||btn.textContent.replace('Processing...','');
+            },1200);
+          }
+        });
+      });
+
+      // Feature 8: Unsaved Changes Warning (for table forms)
+      let tableChanged = false;
+      document.querySelectorAll('.manager-table form input').forEach(function(inp){
+        inp.addEventListener('change',function(){tableChanged=true;});
+        inp.addEventListener('input',function(){tableChanged=true;});
+      });
+      window.addEventListener('beforeunload',function(e){
+        if(tableChanged){
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      // Features 2-5, 10, 13-16: Not applicable here; relevant for forms with user input
+      // If your table has forms for editing user info inline, validation, error, focus, and scroll can be added similarly.
+    </script>
+</body>
+</html>

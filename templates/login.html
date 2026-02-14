@@ -3,16 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Mess Management - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            color: #0a74df;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        input:invalid {
+            border-color: #e0e0e0;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .alert-danger {
+            background-color: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+        
+        .alert-success {
+            background-color: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+        
+        .alert-info {
+            background-color: #eef;
+            color: #33c;
+            border-left: 4px solid #33c;
+        }
+        
+        .error-message {
+            color: #c33;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-group.error input {
+            border-color: #c33;
+        }
+        
+        .form-group.error .error-message {
+            display: block;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Login</h2>
-    <form action="/login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" name="username" required><br><br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required><br><br>
-        <button type="submit">Login</button>
-    </form>
+    <div class="login-container">
+        <h1>Mess Management</h1>
+        <p class="subtitle">Please login to continue</p>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="/" id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="mess_code">Mess Code</label>
+                <input 
+                    type="text" 
+                    id="mess_code" 
+                    name="mess_code" 
+                    autocomplete="off"
+                    placeholder="Enter mess code"
+                    pattern="^[a-zA-Z0-9]+$"
+                    title="Mess code should contain only letters and numbers"
+                >
+                <span class="error-message">Please enter a valid mess code</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input 
+                    type="text" 
+                    id="phone" 
+                    name="phone_number" 
+                    required 
+                    autocomplete="off"
+                    placeholder="Enter phone number"
+                    pattern="^[0-9]{1,15}$"
+                    title="Phone number should contain only digits"
+                >
+                <span class="error-message">Please enter a valid phone number</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    required 
+                    autocomplete="current-password"
+                    placeholder="Enter password"
+                    minlength="4"
+                >
+                <span class="error-message">Password must be at least 4 characters</span>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">Login</button>
+            <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const inputs = form.querySelectorAll('input[required]');
+            
+            // Real-time validation
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    if (this.parentElement.classList.contains('error')) {
+                        validateField(this);
+                    }
+                });
+            });
+            
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isValid = false;
+                    }
+                });
+                
+                if (isValid) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Logging in...';
+                    this.submit();
+                }
+            });
+            
+            function validateField(field) {
+                const formGroup = field.parentElement;
+                
+                // Remove previous error
+                formGroup.classList.remove('error');
+                
+                // Check if empty
+                if (!field.value.trim()) {
+                    formGroup.classList.add('error');
+                    return false;
+                }
+                
+                // Check pattern validity
+                if (field.hasAttribute('pattern')) {
+                    const pattern = new RegExp(field.getAttribute('pattern'));
+                    if (!pattern.test(field.value)) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                // Check minlength
+                if (field.hasAttribute('minlength')) {
+                    const minLength = parseInt(field.getAttribute('minlength'));
+                    if (field.value.length < minLength) {
+                        formGroup.classList.add('error');
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+        });
+    </script>
 </body>
 </html>

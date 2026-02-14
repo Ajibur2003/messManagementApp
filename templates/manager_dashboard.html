@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard - Mess Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* Header with back button */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Flash Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease-out;
+            border-left: 5px solid #667eea;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* User Selection Form */
+        form[method="GET"] {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        select, input[type="date"], input[type="number"] {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Success state */
+        select.valid, input.valid {
+            border-color: #66bb6a;
+        }
+        
+        /* Error state */
+        select.error, input.error {
+            border-color: #ef5350;
+            background-color: #ffebee;
+        }
+        
+        #user-select {
+            min-width: 250px;
+        }
+        
+        /* Form sections */
+        .row-nowrap-group, .mode-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .row-nowrap-group:hover, .mode-section:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        
+        .row-nowrap-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .radio-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        input[type="radio"], input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        input[type="number"] {
+            width: 150px;
+        }
+        
+        .toggle-group {
+            margin-top: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .toggle-flex-row, .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons */
+        button[type="submit"], button[type="reset"] {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 10px;
+            position: relative;
+            min-width: 120px;
+        }
+        
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button[type="submit"]:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button[type="reset"] {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        button[type="reset"]:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        button[type="submit"]:disabled .spinner {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        /* Info box */
+        .info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid #66bb6a;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        thead th {
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tbody td {
+            padding: 12px 15px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+            
+            h2 {
+                font-size: 22px;
+            }
+            
+            .row-nowrap-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            input[type="number"], select {
+                width: 100% !important;
+                max-width: 300px;
+            }
+            
+            button[type="submit"], button[type="reset"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            thead th, tbody td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header-actions">
+            <h2>Manager Dashboard</h2>
+            <a href="/portal" class="back-btn">← Back to Portal</a>
+        </div>
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Legacy message support -->
+        {% if message %}
+        <div class="alert">{{ message }}</div>
+        {% endif %}
+        
+        <!-- User Selection -->
+        <form method="GET" action="{{ url_for('manager_dashboard') }}" id="userSelectForm">
+            <label for="user-select">Select User:</label>
+            <select name="id" id="user-select" onchange="this.form.submit()">
+                <option value="">-- Select User --</option>
+                <option value="at_a_all" {% if selected_id=="at_a_all" %}selected{% endif %}>All Users (At-a-all)</option>
+                {% if users %}
+                    {% for user in users %}
+                    <option value="{{ user['id'] }}" {% if selected_id==user['id'] %}selected{% endif %}>
+                        {{ user['name'] if user['name'] else 'User ' + user['id']|string }}
+                    </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="" disabled>No users available</option>
+                {% endif %}
+            </select>
+        </form>
+        
+        <!-- Meal Update Form -->
+        <form method="POST" action="{{ url_for('manager_dashboard') }}" id="mealForm" novalidate>
+            <input type="hidden" name="id" value="{{ selected_id if selected_id else '' }}">
+            
+            {% if selected_id != '' %}
+                {% if selected_id != "at_a_all" %}
+                    <!-- Continue Mode -->
+                    <div class="row-nowrap-group">
+                        <label>
+                            <input type="radio" name="meal_mode" value="continue"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> Continue
+                        </label>
+                    </div>
+                    <div class="toggle-group" id="continue-options" style="display: none;">
+                        <div class="row-nowrap-group">
+                            <label class="radio-inline">
+                                Date: <input type="date" name="continue_date" onclick="toggleRadio()"> 
+                            </label>
+                        </div>
+                        <div class="row-nowrap-group">
+                            <label class="radio-inline">
+                                <input type="radio" name="continue_option" value="tonight" onclick="toggleRadio()"> Today Night
+                            </label>
+                            <input type="radio" name="continue_guest" value="continue_guest_night">
+                            <input type="number" name="continue_guest_night_count" min="0" max="3" placeholder="Guests meals">
+                        </div>
+                        <div class="row-nowrap-group">
+                            <label class="radio-inline">
+                                <input type="radio" name="continue_option" value="tomorrow_morning" onclick="toggleRadio()">
+                                Today Morning
+                            </label>
+                            <input type="radio" name="continue_guest" value="continue_guest_morning">
+                            <input type="number" name="continue_guest_morning_count" min="0" max="3" placeholder="Guests meals">
+                        </div>
+                        <div class="row-nowrap-group">
+                            <label class="radio-inline" style="font-weight: 600;"><input type="radio" name="toggle" value="on"> ON</label>
+                            <label class="radio-inline" style="font-weight: 600;"><input type="radio" name="toggle" value="off"> OFF</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Date Mode -->
+                    <div class="mode-section">
+                        <label class="radio-inline"><input type="radio" name="meal_mode" value="date"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> Date:</label>
+                        <div class="toggle-group" id="date-options" style="display: none;">
+                            <label>Date: <input type="date" name="date"></label>
+                            <label><input type="checkbox" name="morning"> Morning</label>
+                            <label><input type="checkbox" name="night"> Night</label>
+
+                            <div class="flex-row">
+                                <input type="checkbox" name="M_Guest" id="M_Guest" onchange="toggleGuestInput('M_Guest')">
+                                <label for="M_Guest">M_Guest</label>
+                                <div id="M_Guest_count_row" style="display:none;flex:1;">
+                                    <label for="M_Guest_count"></label>
+                                    <input type="number" name="M_Guest_count" placeholder="M_Guests meals" id="M_Guest_count"
+                                        min="0" max="3" style="margin-top: 3px;margin-bottom: 0px;">
+                                </div>
+                            </div>
+                            <div class="flex-row">
+                                <input type="checkbox" name="N_Guest" id="N_Guest" onchange="toggleGuestInput('N_Guest')">
+                                <label for="N_Guest">N_Guest</label>
+                                <div id="N_Guest_count_row" style="display:none;flex:1;">
+                                    <label for="N_Guest_count"></label>
+                                    <input type="number" name="N_Guest_count" placeholder="N_Guests meals" id="N_Guest_count"
+                                        min="0" max="3" style="margin-top: 3px;margin-bottom: 3px;">
+                                </div>
+                            </div>
+                            <div class="toggle-flex-row">
+                                <label><input type="radio" name="toggle" value="on"> ON</label>
+                                <label><input type="radio" name="toggle" value="off"> OFF</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- One Continue Mode -->
+                    <div class="mode-section">
+                        <label class="radio-inline">
+                            <input type="radio" name="meal_mode" value="one_continue"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> One Continue
+                        </label>
+                        <div class="toggle-group" id="one-continue-options" style="display: none;">
+                            <label class="radio-inline"><input type="radio" name="one_part" value="morning"> Morning</label>
+                            <label class="radio-inline"><input type="radio" name="one_part" value="night"> Night</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Fetch Data Mode -->
+                    <div class="mode-section">
+                        <label class="radio-inline">
+                            <input type="radio" name="meal_mode" value="fatch_data"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> Fetch Data
+                        </label>
+                        <div class="toggle-group" id="fatch_data-options" style="display: none;">
+                            <label>Start Date: <input type="date" name="start_date"></label>
+                            <label>End Date: <input type="date" name="end_date"></label>
+                        </div>
+                    </div>
+                    
+                {% elif selected_id == "at_a_all" %}
+                    <!-- All User Mode -->
+                    <div class="mode-section">
+                        <label class="radio-inline">
+                            <input type="radio" name="meal_mode" value="all_user"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> At a all
+                        </label>
+                        <div class="toggle-group" id="at_a_all-options" style="display: none;">
+                            <label>Date: <input type="date" name="all_user_date"></label>
+                            <label><input type="checkbox" name="morning"> Morning</label>
+                            <label><input type="checkbox" name="night"> Night</label>
+                            <div class="toggle-flex-row">
+                                <label><input type="radio" name="toggle" value="on"> ON</label>
+                                <label><input type="radio" name="toggle" value="off"> OFF</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fetch Data for All Users -->
+                    <div class="mode-section">
+                        <label class="radio-inline">
+                            <input type="radio" name="meal_mode" value="fatch_data"
+                                onchange="toggleSections(); enforceSingleSelection(this)"> Fetch Data
+                        </label>
+                        <div class="toggle-group" id="fatch_data-options" style="display: none;">
+                            <label>Start Date: <input type="date" name="start_date"></label>
+                            <label>End Date: <input type="date" name="end_date"></label>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" id="submitBtn">
+                    <span class="spinner"></span>
+                    <span id="btnText">Submit</span>
+                </button>
+                <button type="reset">Reset</button>
+            </div>
+        </form>
+        
+        <!-- User Info -->
+        <div class="info">Total users: {{ users|length if users else 0 }}</div>
+        
+        <!-- Meals Table -->
+        {% if meals %}
+        <div class="table-container">
+            <table border="0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Morning</th>
+                        <th>Night</th>
+                        <th>G_Morning</th>
+                        <th>G_Night</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meal in meals %}
+                    <tr>
+                        <td>{{ meal['name'] if meal['name'] else 'N/A' }}</td>
+                        <td>{{ meal['date'] if meal['date'] else 'N/A' }}</td>
+                        <td>{{ meal['morning'] if meal['morning'] is not none else 0 }}</td>
+                        <td>{{ meal['night'] if meal['night'] is not none else 0 }}</td>
+                        <td>{{ meal['guest_morning'] if meal['guest_morning'] is not none else 0 }}</td>
+                        <td>{{ meal['guest_night'] if meal['guest_night'] is not none else 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No meal records available. Select a user and update mode.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- ORIGINAL JAVASCRIPT (PRESERVED) -->
+    <script>
+        function toggleSections() {
+            const selected = document.querySelector('input[name="meal_mode"]:checked')?.value;
+            const continueOpts = document.getElementById('continue-options');
+            const dateOpts = document.getElementById('date-options');
+            const oneContinueOpts = document.getElementById('one-continue-options');
+            const at_a_allOpts = document.getElementById('at_a_all-options');
+            const fatch_dataOpts = document.getElementById('fatch_data-options');
+            
+            if (continueOpts) continueOpts.style.display = 'none';
+            if (dateOpts) dateOpts.style.display = 'none';
+            if (oneContinueOpts) oneContinueOpts.style.display = 'none';
+            if (at_a_allOpts) at_a_allOpts.style.display = 'none';
+            if (fatch_dataOpts) fatch_dataOpts.style.display = 'none';
+            
+            if (selected === 'continue' && continueOpts) {
+                continueOpts.style.display = 'block';
+            } else if (selected === 'date' && dateOpts) {
+                dateOpts.style.display = 'block';
+            } else if (selected === 'one_continue' && oneContinueOpts) {
+                oneContinueOpts.style.display = 'block';
+            } else if (selected === 'all_user' && at_a_allOpts) {
+                at_a_allOpts.style.display = 'block';
+            } else if (selected === 'fatch_data' && fatch_dataOpts) {
+                fatch_dataOpts.style.display = 'block';
+            }
+        }
+        
+        window.onload = toggleSections;
+        
+        function toggleRadio(radio) {
+            if (radio.checked && radio.dataset.wasChecked === "true") {
+                radio.checked = false;
+                radio.dataset.wasChecked = "false";
+            } else {
+                const radios = document.getElementsByName(radio.name);
+                radios.forEach(r => r.dataset.wasChecked = "false");
+                radio.dataset.wasChecked = "true";
+            }
+        }
+        
+        function enforceSingleSelection(clickedRadio) {
+            const mealModeRadios = document.querySelectorAll('input[name="meal_mode"]');
+            const guestRadios = document.querySelectorAll('input[name="guest"]');
+            const selectedMealMode = document.querySelector('input[name="meal_mode"]:checked')?.value;
+            const selectedGuest = document.querySelector('input[name="guest"]:checked')?.value;
+            
+            const allowedPairs = [
+                { meal: "just_night", guest: "guest_night" },
+                { meal: "just_morning", guest: "guest_morning" },
+                { meal: "tomorrow_night", guest: "guest_tomorrow_night" }
+            ];
+            
+            const isException = allowedPairs.some(pair =>
+                selectedMealMode === pair.meal && selectedGuest === pair.guest
+            );
+            
+            if (clickedRadio.name === "meal_mode" && !isException) {
+                guestRadios.forEach(r => r.checked = false);
+            } else if (clickedRadio.name === "guest" && !isException) {
+                mealModeRadios.forEach(r => r.checked = false);
+            }
+        }
+        
+        function toggleRadio() {
+            const pairs = {
+                'tonight': 'continue_guest_night',
+                'tomorrow_morning': 'continue_guest_morning',
+                'tomorrow_night': 'continue_guest_tomorrow_night'
+            };
+            
+            const optionRadios = document.querySelectorAll('input[name="continue_option"]');
+            const guestRadios = document.querySelectorAll('input[name="continue_guest"]');
+            
+            function clearAllExcept(currentOption, currentGuest) {
+                optionRadios.forEach(opt => {
+                    if (opt.value !== currentOption) opt.checked = false;
+                });
+                guestRadios.forEach(guest => {
+                    if (guest.value !== currentGuest) guest.checked = false;
+                });
+            }
+            
+            optionRadios.forEach(option => {
+                option.addEventListener('click', () => {
+                    const guestVal = pairs[option.value];
+                    const matchingGuest = document.querySelector(`input[name="continue_guest"][value="${guestVal}"]`);
+                    const isGuestSelected = matchingGuest?.checked;
+                    clearAllExcept(option.value, isGuestSelected ? guestVal : null);
+                });
+            });
+            
+            guestRadios.forEach(guest => {
+                guest.addEventListener('click', () => {
+                    const optionVal = Object.keys(pairs).find(key => pairs[key] === guest.value);
+                    const matchingOption = document.querySelector(`input[name="continue_option"][value="${optionVal}"]`);
+                    const isOptionSelected = matchingOption?.checked;
+                    clearAllExcept(isOptionSelected ? optionVal : null, guest.value);
+                });
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', toggleRadio);
+        
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.style.display = 'none';
+        }, 4000);
+    </script>
+    
+    <script>
+        function toggleGuestInput(type) {
+            var checkbox = document.getElementById(type);
+            var row = document.getElementById(type + "_count_row");
+            if (checkbox.checked) {
+                row.style.display = "flex";
+            } else {
+                row.style.display = "none";
+                var input = document.getElementById(type + "_count");
+                if (input) input.value = '';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleGuestInput('M_Guest');
+            toggleGuestInput('N_Guest');
+        });
+    </script>
+    
+    <!-- NEW ENHANCED FEATURES -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mealForm = document.getElementById('mealForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            // 1. Auto-dismiss flash messages after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                                        setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+
+            // 2. Form validation before submission
+            if (mealForm) {
+                mealForm.addEventListener('submit', function(e) {
+                    const selectedId = document.querySelector('input[name="id"]')?.value;
+                    
+                    if (!selectedId) {
+                        e.preventDefault();
+                        alert('Please select a user first.');
+                        return false;
+                    }
+                    
+                    const selectedMode = document.querySelector('input[name="meal_mode"]:checked');
+                    const selectedGuest = document.querySelector('input[name="guest"]:checked');
+                    
+                    if (!selectedMode && !selectedGuest) {
+                        e.preventDefault();
+                        alert('Please select a meal update option.');
+                        return false;
+                    }
+                    
+                    // Validate continue mode
+                    if (selectedMode?.value === 'continue') {
+                        const continueOption = document.querySelector('input[name="continue_option"]:checked');
+                        const toggleOption = document.querySelector('input[name="toggle"]:checked');
+                        const continueGuest = document.querySelector('input[name="continue_guest"]:checked');
+                        
+                        if (!continueOption && !continueGuest) {
+                            e.preventDefault();
+                            alert('Please select a continue option or guest option.');
+                            return false;
+                        }
+                        
+                        if (continueOption && !toggleOption && !continueGuest) {
+                            e.preventDefault();
+                            alert('Please select ON or OFF for continue mode.');
+                            return false;
+                        }
+                    }
+                    
+                    // Validate one_continue mode
+                    if (selectedMode?.value === 'one_continue') {
+                        const onePart = document.querySelector('input[name="one_part"]:checked');
+                        if (!onePart) {
+                            e.preventDefault();
+                            alert('Please select Morning or Night for one continue mode.');
+                            return false;
+                        }
+                    }
+                    
+                    // Validate date mode
+                    if (selectedMode?.value === 'date') {
+                        const dateInput = document.querySelector('input[name="date"]');
+                        const morningChecked = document.querySelector('input[name="morning"]')?.checked;
+                        const nightChecked = document.querySelector('input[name="night"]')?.checked;
+                        const toggleOption = document.querySelector('input[name="toggle"]:checked');
+                        
+                        if (!dateInput?.value) {
+                            e.preventDefault();
+                            alert('Please select a date.');
+                            dateInput?.focus();
+                            return false;
+                        }
+                        
+                        if ((morningChecked || nightChecked) && !toggleOption) {
+                            e.preventDefault();
+                            alert('Please select ON or OFF for the selected meal time.');
+                            return false;
+                        }
+                    }
+                    
+                    // Validate all_user mode
+                    if (selectedMode?.value === 'all_user') {
+                        const allUserDate = document.querySelector('input[name="all_user_date"]');
+                        const morningChecked = document.querySelector('input[name="morning"]')?.checked;
+                        const nightChecked = document.querySelector('input[name="night"]')?.checked;
+                        const toggleOption = document.querySelector('input[name="toggle"]:checked');
+                        
+                        if (!allUserDate?.value) {
+                            e.preventDefault();
+                            alert('Please select a date for all users mode.');
+                            allUserDate?.focus();
+                            return false;
+                        }
+                        
+                        if (!morningChecked && !nightChecked) {
+                            e.preventDefault();
+                            alert('Please select at least Morning or Night.');
+                            return false;
+                        }
+                        
+                        if (!toggleOption) {
+                            e.preventDefault();
+                            alert('Please select ON or OFF.');
+                            return false;
+                        }
+                    }
+                    
+                    // Validate fetch data mode
+                    if (selectedMode?.value === 'fatch_data') {
+                        const startDate = document.querySelector('input[name="start_date"]');
+                        const endDate = document.querySelector('input[name="end_date"]');
+                        
+                        if (!startDate?.value || !endDate?.value) {
+                            e.preventDefault();
+                            alert('Please select both start and end dates.');
+                            if (!startDate?.value) startDate?.focus();
+                            else endDate?.focus();
+                            return false;
+                        }
+                        
+                        if (new Date(startDate.value) > new Date(endDate.value)) {
+                            e.preventDefault();
+                            alert('Start date must be before or equal to end date.');
+                            startDate?.focus();
+                            return false;
+                        }
+                    }
+                    
+                    // Validate guest counts
+                    const guestInputs = document.querySelectorAll('input[type="number"]');
+                    for (let input of guestInputs) {
+                        if (input.value && (parseInt(input.value) < 0 || parseInt(input.value) > 3)) {
+                            e.preventDefault();
+                            alert('Guest meal count must be between 0 and 3.');
+                            input.focus();
+                            return false;
+                        }
+                    }
+                    
+                    // 3. Disable submit button during processing
+                    submitBtn.disabled = true;
+                    btnText.textContent = 'Processing...';
+                });
+            }
+
+            // 4. Real-time validation and success state styling
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    this.classList.remove('valid', 'error');
+                    
+                    if (this.value === '') {
+                        return;
+                    }
+                    
+                    if (value >= 0 && value <= 3) {
+                        this.classList.add('valid');
+                    } else {
+                        this.classList.add('error');
+                    }
+                    
+                    // Enforce limits
+                    if (value > 3) this.value = '3';
+                    if (value < 0) this.value = '0';
+                });
+            });
+
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    this.classList.remove('valid', 'error');
+                    if (this.value) {
+                        this.classList.add('valid');
+                    }
+                });
+            });
+
+            // 5. User select validation
+            const userSelect = document.getElementById('user-select');
+            if (userSelect) {
+                userSelect.addEventListener('change', function() {
+                    this.classList.remove('valid', 'error');
+                    if (this.value) {
+                        this.classList.add('valid');
+                    }
+                });
+            }
+
+            // 6. Input sanitization
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+
+            // 7. Prevent form resubmission on refresh
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+
+            // 8. Unsaved changes warning before leaving page
+            let formModified = false;
+            const allInputs = document.querySelectorAll('input, select');
+            
+            allInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+            });
+            
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified && !submitBtn.disabled) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            // Reset formModified on submit
+            if (mealForm) {
+                mealForm.addEventListener('submit', function() {
+                    formModified = false;
+                });
+            }
+
+            // 9. Reset button handler
+            const resetBtn = document.querySelector('button[type="reset"]');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    formModified = false;
+                    document.querySelectorAll('.valid, .error').forEach(el => {
+                        el.classList.remove('valid', 'error');
+                    });
+                    setTimeout(toggleSections, 0);
+                });
+            }
+
+            // 10. Dynamic date validation for fetch data
+            const startDateInput = document.querySelector('input[name="start_date"]');
+            const endDateInput = document.querySelector('input[name="end_date"]');
+            
+            if (startDateInput && endDateInput) {
+                startDateInput.addEventListener('change', function() {
+                    endDateInput.min = this.value;
+                    if (endDateInput.value && new Date(endDateInput.value) < new Date(this.value)) {
+                        endDateInput.value = this.value;
+                    }
+                });
+            }
+
+            // 11. Empty state check for user select
+            if (userSelect && userSelect.options.length <= 2) {
+                const emptyOption = userSelect.querySelector('option[disabled]');
+                if (emptyOption) {
+                    userSelect.disabled = true;
+                    userSelect.style.backgroundColor = '#f5f5f5';
+                    const info = document.querySelector('.info');
+                    if (info) {
+                        info.style.backgroundColor = '#ffebee';
+                        info.style.color = '#c62828';
+                        info.style.borderLeftColor = '#ef5350';
+                        info.textContent = 'No users available. Please register users first.';
+                    }
+                }
+            }
+
+            // 12. Touch-friendly interactions for mobile
+            if ('ontouchstart' in window) {
+                document.querySelectorAll('.row-nowrap-group, .mode-section').forEach(section => {
+                    section.style.minHeight = '44px';
+                });
+                
+                document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                    const label = input.closest('label');
+                    if (label) {
+                        label.style.minHeight = '44px';
+                        label.style.display = 'flex';
+                        label.style.alignItems = 'center';
+                    }
+                });
+            }
+
+            // 13. Table row highlighting
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    tableRows.forEach(r => r.style.backgroundColor = '');
+                    this.style.backgroundColor = '#e3f2fd';
+                });
+            });
+
+            // 14. Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + Enter to submit
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (submitBtn && !submitBtn.disabled) {
+                        mealForm.submit();
+                    }
+                }
+                
+                // Escape to reset
+                if (e.key === 'Escape') {
+                    if (confirm('Reset the form?')) {
+                        mealForm?.reset();
+                        toggleSections();
+                    }
+                }
+            });
+
+            // 15. Loading overlay
+            function createLoadingOverlay() {
+                const overlay = document.createElement('div');
+                overlay.id = 'loadingOverlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                `;
+                overlay.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                        <div style="width: 40px; height: 40px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px;"></div>
+                        <p style="color: #333; font-weight: 600; margin: 0;">Processing your request...</p>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+            
+            createLoadingOverlay();
+            
+            if (mealForm) {
+                mealForm.addEventListener('submit', function() {
+                    const overlay = document.getElementById('loadingOverlay');
+                    if (overlay) {
+                        setTimeout(() => {
+                            overlay.style.display = 'flex';
+                        }, 100);
+                    }
+                });
+            }
+
+            // 16. Scroll to top on load
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Initialize
+            toggleSections();
+            console.log('Manager dashboard enhanced features loaded successfully!');
+        });
+    </script>
+</body>
+</html>
+
+

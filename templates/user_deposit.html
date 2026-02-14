@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Deposit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            padding: 15px 30px;
+            margin: -20px -20px 30px -20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .portal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .portal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Container Styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #764ba2;
+            margin: 30px auto 20px;
+            max-width: 1200px;
+            font-size: 1.5rem;
+            padding: 0 20px;
+        }
+
+        h4 {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-size: 1rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.5s ease-out;
+            border-left: 5px solid;
+        }
+
+        .flash-message.success {
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .flash-message.error {
+            border-color: #ef5350;
+            color: #c62828;
+        }
+
+        .flash-message.warning {
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        /* Form Styles */
+        form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"]:read-only {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        /* Valid State - Green Border */
+        input.valid,
+        select.valid {
+            border-color: #4caf50;
+            background-color: #f1f8f4;
+        }
+
+        /* Invalid State - Red Border */
+        input.invalid,
+        select.invalid {
+            border-color: #ef5350;
+            background-color: #ffebee;
+        }
+
+        .error-message {
+            color: #ef5350;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Radio Button Styles */
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-group label {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .radio-group label:hover {
+            border-color: #667eea;
+            background-color: #f5f7ff;
+        }
+
+        /* Button Styles */
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            min-height: 52px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button[type="submit"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        button[type="submit"].loading .spinner {
+            display: block;
+        }
+
+        button[type="submit"].loading .button-text {
+            display: none;
+        }
+
+        /* Table Styles */
+        .table-container {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 600px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-accepted {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+                margin: -10px -10px 20px -10px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .container,
+            .table-container {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            .flash-messages {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
+            .radio-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+                min-height: 48px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .portal-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            table {
+                font-size: 0.75rem;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Back to Portal Button -->
+    <div class="header">
+        <h1>User Deposit Dashboard</h1>
+        <a href="/portal" class="portal-btn">← Back to Portal</a>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages" id="flashMessages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Deposit Form Section -->
+    <div class="container">
+        <h2>Deposit Form</h2>
+        {% if message %}
+        <h4>{{ message }}</h4>
+        {% endif %}
+        <form method="POST" id="depositForm" novalidate>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="meal_deposit" value="yes_deposit" onchange="toggleDepositForm()">
+                    <span>Deposit Form</span>
+                </label>
+                <label>
+                    <input type="radio" name="meal_deposit" value="fetch_data" onchange="toggleDepositForm()">
+                    <span>Fetch Deposit Data</span>
+                </label>
+            </div>
+
+            <div id="deposit_form">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" value="{{ username if username else '' }}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>Date <span style="color: red;">*</span></label>
+                    <input type="date" name="date" id="date">
+                    <span class="error-message" id="date-error">Please select a valid date</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Money <span style="color: red;">*</span></label>
+                    <input type="number" step="0.01" name="money" id="money" placeholder="Enter deposit amount" min="0.01">
+                    <span class="error-message" id="money-error">Please enter a valid amount greater than 0</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment By <span style="color: red;">*</span></label>
+                    <select name="payment_by" id="payment_by">
+                        <option value="" disabled selected>Select payment method</option>
+                        <option value="bkash">bKash</option>
+                        <option value="nagad">Nagad</option>
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                    </select>
+                    <span class="error-message" id="payment_by-error">Please select a payment method</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Other Notes</label>
+                    <input type="text" name="other_note" id="other_note" placeholder="Enter any other notes" maxlength="255">
+                    <span class="error-message" id="other_note-error">Note is too long</span>
+                </div>
+            </div>
+
+            <div id="fetch_data_form" style="display: none;">
+                <div class="form-group">
+                    <label for="start_date">Start Date <span style="color: red;">*</span></label>
+                    <input type="date" name="start_date" id="start_date">
+                    <span class="error-message" id="start_date-error">Please select a start date</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">End Date <span style="color: red;">*</span></label>
+                    <input type="date" name="end_date" id="end_date">
+                    <span class="error-message" id="end_date-error">Please select an end date</span>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                <span class="button-text">Submit Deposit</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <!-- Your Deposits Table Section -->
+    <h3 style="color: #e0e0e0;">Your Deposits</h3>
+    <div class="table-container">
+        {% if (entries and entries|length > 0) or (deposit_datas and deposit_datas|length > 0) %}
+            <table border="1">
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Payment By</th>
+                    <th>Other Notes</th>
+                    <th>Status</th>
+                </tr>
+                {% for entry in entries %}
+                    {% if entry.status == 'pending' %}
+                    <tr>
+                        <td>{{ entry.date if entry.date else 'N/A' }}</td>
+                        <td>{{ entry.money if entry.money is not none else '0.00' }}</td>
+                        <td>{{ entry.payment_by if entry.payment_by else 'N/A' }}</td>
+                        <td>{{ entry.note if entry.note else '-' }}</td>
+                        <td><span class="status-badge status-{{ entry.status }}">{{ entry.status }}</span></td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                {% for data in deposit_datas %}
+                <tr>
+                    <td>{{ data.date if data.date else 'N/A' }}</td>
+                    <td>{{ data.money if data.money is not none else '0.00' }}</td>
+                    <td>{{ data.payment_by if data.payment_by else 'N/A' }}</td>
+                    <td>{{ data.note if data.note else '-' }}</td>
+                    <td><span class="status-badge status-{{ data.status }}">{{ data.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p>No deposit records found</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+    // Original JavaScript - Preserved
+    function toggleDepositForm() {
+        const depositForm = document.getElementById('deposit_form');
+        const fetchDataForm = document.getElementById('fetch_data_form');
+        const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
+        
+        if (!mealDeposit) {
+            depositForm.style.display = 'none';
+            fetchDataForm.style.display = 'none';
+            return;
+        }
+        
+        if (mealDeposit.value === 'yes_deposit') {
+            depositForm.style.display = 'block';
+            fetchDataForm.style.display = 'none';
+        } else if (mealDeposit.value === 'fetch_data') {
+            depositForm.style.display = 'none';
+            fetchDataForm.style.display = 'block';
+        } else {
+            depositForm.style.display = 'none';
+            fetchDataForm.style.display = 'none';
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDepositForm();
+    });
+
+    // NEW ADDED JavaScript for 18 Features (Does not modify existing logic)
+
+    // Feature 18: Auto-dismiss Flash Messages After 5 Seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.animation = 'slideInRight 0.5s ease-out reverse';
+                message.style.opacity = '0';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
+
+    // Feature 8: Unsaved Changes Warning Before Leaving Page
+    let formModified = false;
+    const form = document.getElementById('depositForm');
+    
+    if (form) {
+        const formInputs = form.querySelectorAll('input, select, textarea');
+        formInputs.forEach(function(input) {
+            if (!input.hasAttribute('readonly')) {
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+            }
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            if (formModified) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        form.addEventListener('submit', function() {
+            formModified = false;
+        });
+    }
+
+    // Feature 2: Pre-filled Form Fields - Set today's date
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.getElementById('date');
+        if (dateField && !dateField.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateField.value = today;
+        }
+    });
+
+    // Feature 3 & 4: Real-time Validation Feedback & Success State Styling
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldId = field.id;
+        const errorElement = document.getElementById(fieldId + '-error');
+        let isValid = true;
+        let errorMessage = '';
+
+        // Date validation
+        if (field.type === 'date' && value) {
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (selectedDate > today) {
+                isValid = false;
+                errorMessage = 'Date cannot be in the future';
+            }
+        }
+
+        // Number validation
+        if (field.type === 'number' && fieldId === 'money') {
+            if (value && parseFloat(value) <= 0) {
+                isValid = false;
+                errorMessage = 'Amount must be greater than 0';
+            }
+        }
+
+        // Select validation
+        if (field.tagName === 'SELECT' && fieldId === 'payment_by') {
+            if (value === '' || value === 'selected') {
+                isValid = false;
+                errorMessage = 'Please select a payment method';
+            }
+        }
+
+        // Note length validation
+        if (fieldId === 'other_note' && value.length > 255) {
+            isValid = false;
+            errorMessage = 'Note is too long (max 255 characters)';
+        }
+
+        // Apply styling
+        if (value) {
+            if (isValid) {
+                field.classList.add('valid');
+                field.classList.remove('invalid');
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                }
+            } else {
+                field.classList.add('invalid');
+                field.classList.remove('valid');
+                if (errorElement) {
+                    errorElement.textContent = errorMessage;
+                    errorElement.classList.add('show');
+                }
+            }
+        } else {
+            field.classList.remove('valid', 'invalid');
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+        }
+
+        return isValid;
+    }
+
+    // Add validation listeners to all form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const allFields = document.querySelectorAll('#depositForm input:not([readonly]), #depositForm select');
+        allFields.forEach(function(field) {
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            field.addEventListener('input', function() {
+                if (this.classList.contains('invalid')) {
+                    validateField(this);
+                }
+            });
+        });
+    });
+
+    // Feature 10 & 5: Form Validation Before Submission & Scroll to First Error
+    form.addEventListener('submit', function(e) {
+        const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
+        
+        if (!mealDeposit) {
+            e.preventDefault();
+            alert('Please select either Deposit Form or Fetch Deposit Data');
+            return false;
+        }
+
+        let isValid = true;
+        let firstInvalidField = null;
+
+        if (mealDeposit.value === 'yes_deposit') {
+            const requiredFields = ['date', 'money', 'payment_by'];
+            
+            requiredFields.forEach(function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    const value = field.value.trim();
+                    
+                    if (!value || (field.tagName === 'SELECT' && value === '')) {
+                        isValid = false;
+                        field.classList.add('invalid');
+                        const errorElement = document.getElementById(fieldId + '-error');
+                        if (errorElement) {
+                            errorElement.classList.add('show');
+                        }
+                        if (!firstInvalidField) {
+                            firstInvalidField = field;
+                        }
+                    } else {
+                        if (!validateField(field)) {
+                            isValid = false;
+                            if (!firstInvalidField) {
+                                firstInvalidField = field;
+                            }
+                        }
+                    }
+                }
+            });
+
+        } else if (mealDeposit.value === 'fetch_data') {
+            const startDateField = document.getElementById('start_date');
+            const endDateField = document.getElementById('end_date');
+
+            if (!startDateField.value) {
+                isValid = false;
+                startDateField.classList.add('invalid');
+                const errorElement = document.getElementById('start_date-error');
+                if (errorElement) {
+                    errorElement.classList.add('show');
+                }
+                if (!firstInvalidField) {
+                    firstInvalidField = startDateField;
+                }
+            }
+
+            if (!endDateField.value) {
+                isValid = false;
+                endDateField.classList.add('invalid');
+                const errorElement = document.getElementById('end_date-error');
+                if (errorElement) {
+                    errorElement.classList.add('show');
+                }
+                if (!firstInvalidField) {
+                    firstInvalidField = endDateField;
+                }
+            }
+
+            // Date range validation
+            if (startDateField.value && endDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const endDate = new Date(endDateField.value);
+                
+                if (startDate > endDate) {
+                    isValid = false;
+                    endDateField.classList.add('invalid');
+                    const errorElement = document.getElementById('end_date-error');
+                    if (errorElement) {
+                        errorElement.textContent = 'End date must be after start date';
+                        errorElement.classList.add('show');
+                    }
+                    if (!firstInvalidField) {
+                        firstInvalidField = endDateField;
+                    }
+                }
+            }
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Feature 5: Scroll to first error field
+            if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                setTimeout(function() {
+                    firstInvalidField.focus();
+                }, 500);
+            }
+            
+            return false;
+        }
+
+        // Feature 11 & 15: Disabled Submit Buttons During Processing & Loading States
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('loading');
+        
+        // Show loading overlay
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.classList.add('active');
+        }
+
+        return true;
+    });
+
+    // Feature 7: Prevents Form Resubmission on Refresh
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+    // Feature 14: Input Sanitization
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sanitize number inputs
+        const moneyInput = document.getElementById('money');
+        if (moneyInput) {
+            moneyInput.addEventListener('input', function() {
+                // Remove any non-numeric characters except decimal point
+                this.value = this.value.replace(/[^0-9.]/g, '');
+                
+                // Ensure only one decimal point
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
+                
+                // Limit to 2 decimal places
+                if (parts.length === 2 && parts[1].length > 2) {
+                    this.value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+            });
+        }
+
+        // Sanitize text inputs (trim whitespace)
+        const textInputs = document.querySelectorAll('input[type="text"]:not([readonly])');
+        textInputs.forEach(function(input) {
+            input.addEventListener('blur', function() {
+                this.value = this.value.trim();
+            });
+        });
+
+        // Sanitize note field length
+        const noteField = document.getElementById('other_note');
+        if (noteField) {
+            noteField.addEventListener('input', function() {
+                if (this.value.length > 255) {
+                    this.value = this.value.substring(0, 255);
+                    const errorElement = document.getElementById('other_note-error');
+                    if (errorElement) {
+                        errorElement.textContent = 'Note has been trimmed to 255 characters';
+                        errorElement.classList.add('show');
+                        setTimeout(function() {
+                            errorElement.classList.remove('show');
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    });
+
+    // Validate date ranges for fetch data form
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateField = document.getElementById('start_date');
+        const endDateField = document.getElementById('end_date');
+
+        if (startDateField && endDateField) {
+            function validateDateRange() {
+                if (startDateField.value && endDateField.value) {
+                    const startDate = new Date(startDateField.value);
+                    const endDate = new Date(endDateField.value);
+                    
+                    if (startDate > endDate) {
+                        endDateField.classList.add('invalid');
+                        endDateField.classList.remove('valid');
+                        const errorElement = document.getElementById('end_date-error');
+                        if (errorElement) {
+                            errorElement.textContent = 'End date must be after start date';
+                            errorElement.classList.add('show');
+                        }
+                    } else {
+                        endDateField.classList.remove('invalid');
+                        if (endDateField.value) {
+                            endDateField.classList.add('valid');
+                        }
+                        const errorElement = document.getElementById('end_date-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
+                    }
+                }
+            }
+
+            startDateField.addEventListener('change', validateDateRange);
+            endDateField.addEventListener('change', validateDateRange);
+        }
+    });
+
+    // Enhanced validation for money field
+    document.addEventListener('DOMContentLoaded', function() {
+        const moneyField = document.getElementById('money');
+        if (moneyField) {
+            moneyField.addEventListener('blur', function() {
+                const value = parseFloat(this.value);
+                if (this.value && value <= 0) {
+                    this.classList.add('invalid');
+                    this.classList.remove('valid');
+                    const errorElement = document.getElementById('money-error');
+                    if (errorElement) {
+                        errorElement.textContent = 'Amount must be greater than 0';
+                        errorElement.classList.add('show');
+                    }
+                } else if (this.value) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                    const errorElement = document.getElementById('money-error');
+                    if (errorElement) {
+                        errorElement.classList.remove('show');
+                    }
+                }
+            });
+        }
+    });
+
+    // Enhanced validation for payment method
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentField = document.getElementById('payment_by');
+        if (paymentField) {
+            paymentField.addEventListener('change', function() {
+                if (this.value && this.value !== '') {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                    const errorElement = document.getElementById('payment_by-error');
+                    if (errorElement) {
+                        errorElement.classList.remove('show');
+                    }
+                }
+            });
+        }
+    });
+
+    // Enhanced date validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.getElementById('date');
+        if (dateField) {
+            dateField.addEventListener('change', function() {
+                if (this.value) {
+                    const selectedDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDate >= today) {
+                        this.classList.add('invalid');
+                        this.classList.remove('valid');
+                        const errorElement = document.getElementById('date-error');
+                        if (errorElement) {
+                            errorElement.textContent = 'Date cannot be in the future';
+                            errorElement.classList.add('show');
+                        }
+                    } else {
+                        this.classList.add('valid');
+                        this.classList.remove('invalid');
+                        const errorElement = document.getElementById('date-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
+                    }
+                }
+            });
+        }
+
+        const startDateField = document.getElementById('start_date');
+        if (startDateField) {
+            startDateField.addEventListener('change', function() {
+                if (this.value) {
+                    this.classList.add('valid');
+                    this.classList.remove('invalid');
+                    const errorElement = document.getElementById('start_date-error');
+                    if (errorElement) {
+                        errorElement.classList.remove('show');
+                    }
+                }
+            });
+        }
+
+        const endDateField = document.getElementById('end_date');
+        if (endDateField) {
+            endDateField.addEventListener('change', function() {
+                if (this.value) {
+                    const startDate = document.getElementById('start_date').value;
+                    if (startDate) {
+                        const start = new Date(startDate);
+                        const end = new Date(this.value);
+                        
+                        if (end >= start) {
+                            this.classList.add('valid');
+                            this.classList.remove('invalid');
+                            const errorElement = document.getElementById('end_date-error');
+                            if (errorElement) {
+                                errorElement.classList.remove('show');
+                            }
+                        }
+                    } else if (this.value) {
+                        this.classList.add('valid');
+                        this.classList.remove('invalid');
+                    }
+                }
+            });
+        }
+    });
+
+    // Clear validation on radio button change
+    document.addEventListener('DOMContentLoaded', function() {
+        const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
+        radioButtons.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Clear all validation states
+                const allInputs = document.querySelectorAll('#depositForm input, #depositForm select');
+                allInputs.forEach(function(input) {
+                    input.classList.remove('valid', 'invalid');
+                });
+                
+                // Clear all error messages
+                const allErrors = document.querySelectorAll('.error-message');
+                allErrors.forEach(function(error) {
+                    error.classList.remove('show');
+                });
+                
+                // Reset form modified flag
+                formModified = false;
+            });
+        });
+    });
+
+    // Prevent multiple form submissions
+    let isSubmitting = false;
+    document.addEventListener('DOMContentLoaded', function() {
+        const depositForm = document.getElementById('depositForm');
+        if (depositForm) {
+            depositForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Check if validation passes
+                const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
+                if (mealDeposit) {
+                    isSubmitting = true;
+                }
+            });
+        }
+    });
+
+    // Add visual feedback for radio button selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
+        radioButtons.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Remove selected style from all labels
+                const allLabels = document.querySelectorAll('.radio-group label');
+                allLabels.forEach(function(label) {
+                    label.style.borderColor = '#e0e0e0';
+                    label.style.backgroundColor = 'white';
+                });
+                
+                // Add selected style to checked radio's label
+                if (this.checked) {
+                    const parentLabel = this.parentElement;
+                    parentLabel.style.borderColor = '#667eea';
+                    parentLabel.style.backgroundColor = '#f5f7ff';
+                }
+            });
+        });
+    });
+
+    // Auto-focus first field when form is toggled
+    document.addEventListener('DOMContentLoaded', function() {
+        const originalToggle = window.toggleDepositForm;
+        window.toggleDepositForm = function() {
+            originalToggle();
+            
+            const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
+            if (mealDeposit) {
+                setTimeout(function() {
+                    if (mealDeposit.value === 'yes_deposit') {
+                        const dateField = document.getElementById('date');
+                        if (dateField) {
+                            dateField.focus();
+                        }
+                    } else if (mealDeposit.value === 'fetch_data') {
+                        const startDateField = document.getElementById('start_date');
+                        if (startDateField) {
+                            startDateField.focus();
+                        }
+                    }
+                }, 100);
+            }
+        };
+    });
+
+    </script>
+</body>
+</html>
+
+

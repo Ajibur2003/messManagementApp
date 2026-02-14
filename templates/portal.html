@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e8f5e9 0%, #e1f0eb 100%);
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+        h2 {
+            text-align: center;
+            color: #0a74df;;
+            font-weight: 800;
+            font-size: 2.1rem;
+            margin-top: 33px;
+            margin-bottom: 34px;
+            letter-spacing: .02em;
+        }
+        .button {
+            display: block;
+            width: 98%;
+            max-width: 340px;
+            margin: 19px auto 0 auto;
+            padding: 18px 0;
+            font-size: 1.17rem;
+            text-align: center;
+            font-family: inherit;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+            border-radius: 14px;
+            text-decoration: none;
+            box-shadow: 0 3px 12px rgba(33, 181, 115, 0.10);
+            letter-spacing: .03em;
+            transition: filter 0.13s, box-shadow 0.16s;
+        }
+        .button:active { filter: brightness(0.96);}
+        .button:hover { box-shadow: 0 6px 24px rgba(46,185,114,0.13);}
+        table {
+            width: 98vw;
+            max-width: 850px;
+            margin: 30px auto 0 auto;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(42,183,133,0.09);
+        }
+        th, td {
+            padding: 14px 8px;
+            border: none;
+            text-align: center;
+            font-size: 1.13rem;
+        }
+        th {
+            background: linear-gradient(90deg, #19de8c 0%, #3be989 100%);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: .02em;
+        }
+        td {
+            color: #17a56d;
+            background: #f2fff8;
+        }
+        tr:nth-child(even) td { background: #e5fdec;}
+        h3 {
+            text-align: center;
+            font-family: inherit;
+            color: #21b573;
+            margin-top: 34px;
+        }
+        @media (max-width: 600px) {
+            .button { font-size: 0.97rem; padding: 12px 0;}
+            h2 { font-size: 1.25rem; }
+            table, th, td {font-size: .99rem;}
+            th, td {padding: 9px 2px;}
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to the Portal</h2>
+    {% if role == 'head_manager' %}
+        <a href="{{ url_for('register') }}" class="button">Register</a>
+        <a href="{{ url_for('blocked') }}" class="button">Blocked Users</a>
+        <a href="{{ url_for('set_values') }}" class="button">Set Values</a>
+        {% endif %}
+    {% if role == 'manager'  or role == 'head_manager' %}
+        <a href="{{ url_for('show_user_details') }}" class="button">Show User Details</a>
+        <a href="{{ url_for('today_update') }}" class="button">Today Update</a>
+        <a href="{{ url_for('manager_dashboard') }}" class="button">Meal Update</a>
+        <a href="{{ url_for('manager_marketing_dashboard') }}" class="button">Marketing</a>
+        <a href="{{ url_for('manager_deposit_dashboard') }}" class="button">Deposit</a>
+        <a href="{{ url_for('manager_meal_amount') }}" class="button">Meal Amount</a>
+    {% else %}
+        <a href="{{ url_for('today_update') }}" class="button">Today Update</a>
+        <a href="{{ url_for('dashboard') }}" class="button">Meal Update</a>
+        <a href="{{ url_for('user_marketing_dashboard') }}" class="button">Marketing</a>
+        <a href="{{ url_for('user_deposit_dashboard') }}" class="button">Deposit</a>
+        <a href="{{ url_for('user_meal_amount') }}" class="button">Meal Amount</a>
+        <a href="{{ url_for('logout') }}" class="button" style="background:#495057;">Logout</a>
+    {% endif %}
+</body>
+</html>

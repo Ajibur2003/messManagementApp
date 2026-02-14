@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Meal Amount</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            padding: 15px 30px;
+            margin: -20px -20px 30px -20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            animation: slideDown 0.5s ease-out;
+            border-radius: 0;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+
+        .portal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .portal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Previous Section */
+        .previous-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* Headings */
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h4 {
+            color: #555;
+            margin: 15px 0;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 12px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        h4:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .highlight-h4 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            font-weight: 600;
+            border-left: none !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: white;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.5s ease-out;
+            border-left: 5px solid;
+        }
+
+        .flash-message.success {
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .flash-message.error {
+            border-color: #ef5350;
+            color: #c62828;
+        }
+
+        .flash-message.warning {
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        /* Error Message */
+        .error-message-box {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            border-left: 5px solid #ef5350;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            color: #666;
+            border: none;
+            font-size: 1.2rem;
+        }
+
+        /* Data Grid */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .data-item {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .data-item.highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-left: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .data-value {
+            font-size: 1.1rem;
+            margin-top: 5px;
+            color: inherit;
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+                margin: -10px -10px 20px -10px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .card,
+            .previous-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+
+            h4 {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+
+            .flash-messages {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .portal-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            h4 {
+                font-size: 0.85rem;
+                padding: 8px 12px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .header,
+            .portal-btn,
+            .flash-messages {
+                display: none;
+            }
+
+            .card,
+            .previous-section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header with Back to Portal Button -->
+    <div class="header">
+        <h1>Meal Amount Dashboard</h1>
+        <a href="/portal" class="portal-btn">← Back to Portal</a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages" id="flashMessages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <!-- Current Month Data -->
+        <div class="card">
+            <h3>Meal Amount Details</h3>
+            {% if message %}
+            <div class="error-message-box">
+                {{ message }}
+            </div>
+            {% endif %}
+
+            {% if moneydata %}
+            <div class="data-grid">
+                <div class="data-item highlight">
+                    <div class="data-label">Total Meals</div>
+                    <div class="data-value">{{ moneydata.total_meals if moneydata.total_meals is not none else 0 }}
+                    </div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Deposit</div>
+                    <div class="data-value">{{ moneydata.total_deposit if moneydata.total_deposit is not none else 0 }}
+                    </div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Alive</div>
+                    <div class="data-value">{{ moneydata.amount_alive if moneydata.amount_alive is not none else 0 }}
+                    </div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Veg Guest Charge</div>
+                    <div class="data-value">{{ moneydata.veg_guest_money if moneydata.veg_guest_money is not none else 0
+                        }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Egg Guest Charge</div>
+                    <div class="data-value">{{ moneydata.egg_guest_money if moneydata.egg_guest_money is not none else 0
+                        }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Fish Guest Charge</div>
+                    <div class="data-value">{{ moneydata.fish_guest_money if moneydata.fish_guest_money is not none else
+                        0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Chicken Guest Charge</div>
+                    <div class="data-value">{{ moneydata.chicken_guest_money if moneydata.chicken_guest_money is not
+                        none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Beef Guest Charge</div>
+                    <div class="data-value">{{ moneydata.beef_guest_money if moneydata.beef_guest_money is not none else
+                        0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Other Guest Charge</div>
+                    <div class="data-value">{{ moneydata.other_guest_money if moneydata.other_guest_money is not none
+                        else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Guests</div>
+                    <div class="data-value">{{ moneydata.total_guests if moneydata.total_guests is not none else 0 }}
+                    </div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Meal Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(moneydata.mealcharge | float) if moneydata.mealcharge is
+                        not none else "0.00" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Guest Amount</div>
+                    <div class="data-value">{{ moneydata.guest_amount if moneydata.guest_amount is not none else 0 }}
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 40px;">Your Meal Amount Details</h3>
+            <div class="data-grid">
+                <div class="data-item highlight">
+                    <div class="data-label">Your Total Meals</div>
+                    <div class="data-value">{{ moneydata.total_user_meals if moneydata.total_user_meals is not none else
+                        0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Total Deposit</div>
+                    <div class="data-value">{{ moneydata.total_user_deposit if moneydata.total_user_deposit is not none
+                        else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Veg Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_veg_guest if moneydata.total_user_veg_guest is not
+                        none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Egg Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_egg_guest if moneydata.total_user_egg_guest is not
+                        none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Fish Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_fish_guest if moneydata.total_user_fish_guest is not
+                        none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Chicken Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_chicken_guest if moneydata.total_user_chicken_guest
+                        is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Beef Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_beef_guest if moneydata.total_user_beef_guest is not
+                        none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Other Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_other_guest if moneydata.total_user_other_guest is
+                        not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Total Guests</div>
+                    <div class="data-value">{{ moneydata.total_user_guests if moneydata.total_user_guests is not none
+                        else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Guest Amount</div>
+                    <div class="data-value">{{ moneydata.user_guest_amount if moneydata.user_guest_amount is not none
+                        else 0 }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Your Amount</div>
+                    <div class="data-value">{{ "%.2f"|format(moneydata.amount | float) if moneydata.amount is not none
+                        else "0.00" }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3>{{ message if message else "No meal data available for this month" }}</h3>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Previous Month Data -->
+        <h2>Previous Month Data</h2>
+        <div class="previous-section">
+
+
+            {% if not search_variable_data %}
+            {% if previous_variable_data and previous_variable_data|length > 0 %}
+            <h3>Meal Amount Details</h3>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">Date</div>
+                    <div class="data-value">{{ previous_variable_data[0].date if previous_variable_data[0].date else
+                        'N/A' }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Total Meals</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_meal if
+                        previous_variable_data[0].total_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Veg Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_veg_meal if
+                        previous_variable_data[0].total_guest_veg_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Egg Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_egg_meal if
+                        previous_variable_data[0].total_guest_egg_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Fish Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_fish_meal if
+                        previous_variable_data[0].total_guest_fish_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Chicken Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_chicken_meal if
+                        previous_variable_data[0].total_guest_chicken_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Beef Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_beef_meal if
+                        previous_variable_data[0].total_guest_beef_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Other Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_other_meal if
+                        previous_variable_data[0].total_guest_other_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Guests</div>
+                    <div class="data-value">{{ previous_variable_data[0].total_guest_meal if
+                        previous_variable_data[0].total_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Meal Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(previous_variable_data[0].meal_charge | float) if
+                        previous_variable_data[0].meal_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Common Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(previous_variable_data[0].common_charge | float) if
+                        previous_variable_data[0].common_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Veg Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].veg_guest_charge if
+                        previous_variable_data[0].veg_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Egg Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].egg_guest_charge if
+                        previous_variable_data[0].egg_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Fish Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].fish_guest_charge if
+                        previous_variable_data[0].fish_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Chicken Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].chicken_guest_charge if
+                        previous_variable_data[0].chicken_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Beef Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].beef_guest_charge if
+                        previous_variable_data[0].beef_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Other Guest Charge</div>
+                    <div class="data-value">{{ previous_variable_data[0].other_guest_charge if
+                        previous_variable_data[0].other_guest_charge is not none else 0 }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3>No data found for the previous month.</h3>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if search_variable_data %}
+            <h3>Meal Amount Details</h3>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-label">Date</div>
+                    <div class="data-value">{{ search_variable_data[0].date if search_variable_data[0].date else 'N/A'
+                        }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Total Meals</div>
+                    <div class="data-value">{{ search_variable_data[0].total_meal if search_variable_data[0].total_meal
+                        is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Veg Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_veg_meal if
+                        search_variable_data[0].total_guest_veg_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Egg Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_egg_meal if
+                        search_variable_data[0].total_guest_egg_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Fish Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_fish_meal if
+                        search_variable_data[0].total_guest_fish_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Chicken Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_chicken_meal if
+                        search_variable_data[0].total_guest_chicken_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Beef Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_beef_meal if
+                        search_variable_data[0].total_guest_beef_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Other Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].data if search_variable_data[0].data is not none
+                        else "no date" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Total Guests</div>
+                    <div class="data-value">{{ search_variable_data[0].total_guest_meal if
+                        search_variable_data[0].total_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Meal Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(search_variable_data[0].meal_charge | float) if
+                        search_variable_data[0].meal_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Common Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(search_variable_data[0].common_charge | float) if
+                        search_variable_data[0].common_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Veg Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].veg_guest_charge if
+                        search_variable_data[0].veg_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Egg Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].egg_guest_charge if
+                        search_variable_data[0].egg_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Fish Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].fish_guest_charge if
+                        search_variable_data[0].fish_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Chicken Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].chicken_guest_charge if
+                        search_variable_data[0].chicken_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Beef Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].beef_guest_charge if
+                        search_variable_data[0].beef_guest_charge is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Other Guest Charge</div>
+                    <div class="data-value">{{ search_variable_data[0].other_guest_charge if
+                        search_variable_data[0].other_guest_charge is not none else 0 }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not search_meal_charge_data %}
+            {% if previous_meal_charge_data and previous_meal_charge_data|length > 0 %}
+            <h3 style="margin-top: 40px;">Your Meal Amount Details</h3>
+            <div class="data-grid">
+                <div class="data-item highlight">
+                    <div class="data-label">Your Total Meals</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].total_meal if
+                        previous_meal_charge_data[0].total_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Total Deposit</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].deposit if
+                        previous_meal_charge_data[0].deposit is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Veg Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_veg_guest_meal if
+                        previous_meal_charge_data[0].T_veg_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Egg Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_egg_guest_meal if
+                        previous_meal_charge_data[0].T_egg_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Fish Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_fish_guest_meal if
+                        previous_meal_charge_data[0].T_fish_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Chicken Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_chicken_guest_meal if
+                        previous_meal_charge_data[0].T_chicken_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Beef Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_beef_guest_meal if
+                        previous_meal_charge_data[0].T_beef_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Other Guests</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_other_guest_meal if
+                        previous_meal_charge_data[0].T_other_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Guest Amount</div>
+                    <div class="data-value">{{ previous_meal_charge_data[0].T_guest_amount if
+                        previous_meal_charge_data[0].T_guest_amount is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Common Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(previous_meal_charge_data[0].common_charge | float) if
+                        previous_meal_charge_data[0].common_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Your Amount</div>
+                    <div class="data-value">{{ "%.2f"|format(previous_meal_charge_data[0].amount | float) if
+                        previous_meal_charge_data[0].amount is not none else "0.00" }}</div>
+                </div>
+            </div>
+            {% elif previous_variable_data and previous_variable_data|length > 0 %}
+            <div class="empty-state" style="padding: 40px 20px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3>No personal meal data found for the previous month.</h3>
+            </div>
+            {% endif %}
+            {% endif %}
+
+            {% if search_meal_charge_data %}
+            <h3 style="margin-top: 40px;">Your Meal Amount Details</h3>
+            <div class="data-grid">
+                <div class="data-item highlight">
+                    <div class="data-label">Your Total Meals</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].total_meal if
+                        search_meal_charge_data[0].total_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Total Deposit</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].deposit if search_meal_charge_data[0].deposit
+                        is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Veg Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_veg_guest_meal if
+                        search_meal_charge_data[0].T_veg_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Egg Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_egg_guest_meal if
+                        search_meal_charge_data[0].T_egg_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Fish Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_fish_guest_meal if
+                        search_meal_charge_data[0].T_fish_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Chicken Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_chicken_guest_meal if
+                        search_meal_charge_data[0].T_chicken_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Beef Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_beef_guest_meal if
+                        search_meal_charge_data[0].T_beef_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Other Guests</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_other_guest_meal if
+                        search_meal_charge_data[0].T_other_guest_meal is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Your Guest Amount</div>
+                    <div class="data-value">{{ search_meal_charge_data[0].T_guest_amount if
+                        search_meal_charge_data[0].T_guest_amount is not none else 0 }}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Common Charge</div>
+                    <div class="data-value">{{ "%.2f"|format(search_meal_charge_data[0].common_charge | float) if
+                        search_meal_charge_data[0].common_charge is not none else "0.00" }}</div>
+                </div>
+                <div class="data-item highlight">
+                    <div class="data-label">Your Amount</div>
+                    <div class="data-value">{{ "%.2f"|format(search_meal_charge_data[0].amount | float) if
+                        search_meal_charge_data[0].amount is not none else "0.00" }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+
+        <form method="POST" action="{{ url_for('user_meal_amount') }}" autocomplete="off" id="mealSearchForm">
+            <div id="search_by_date_form"
+                style="max-width: 400px; margin: 32px auto 0; background: #fff; border-radius: 16px; box-shadow: 0 7px 31px rgba(102,126,234,.12); padding: 32px 24px 24px 24px;">
+                <label for="selected_id" style="font-weight: 600; color: #444;">Select User</label>
+                <select name="selected_id" id = "selected_id" required
+                    style="width: 100%; background: #f8f9fa; border-radius: 7px; padding: 13px 15px; margin-bottom: 3px; font-size: 1rem; border: 2px solid #eee; outline: none; transition: border-color 0.2s;">
+                    <option value="" disabled selected>--Select--</option>
+                    {% for active_user in active_users %}
+                    <option value="{{ active_user.id }}" style="color: #2e7d32;">{{ active_user.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="input-error-msg"
+                    style="color:#ef5350;font-size: .92rem; margin-bottom: 13px; min-height: 18px;"></div>
+
+                <label for="meal_charge_date" style="font-weight: 600; color: #444;">Meal Charge Date</label>
+                <input type="text" id="monthPicker" name="meal_charge_date"  id = "meal_charge_date" required placeholder="Enter last day of month"
+                    style="width: 100%; background: #f8f9fa; border-radius: 7px; padding: 13px 15px; margin-bottom: 3px; font-size: 1rem; border: 2px solid #eee; outline: none; transition: border-color 0.2s;">
+                <div class="input-error-msg"
+                    style="color:#ef5350;font-size: .92rem; margin-bottom: 13px; min-height: 18px;"></div>
+
+                <button type="submit"
+                    style="margin-top:7px; width:100%; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color: #fff; padding: 13px 0; border-radius: 25px; font-weight: 700; font-size: 1.08rem; border: none;box-shadow: 0 2px 14px rgba(102,126,234,0.14); transition: background 0.15s, opacity 0.12s;">
+                    <span class="spinner" style="display:none;"></span>
+                    <span id="btnText">Search</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Feature 18: Auto-dismiss Flash Messages After 5 Seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                setTimeout(function () {
+                    message.style.display = 'none';
+                }, 5000);
+            });
+        });
+    </script>
+    <script>
+    // Feature 2: Auto-fill today's date if empty (for registration fields)
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     var dateInput = document.querySelector('input[type="date"][name="meal_charge_date"]');
+    //     if (dateInput && !dateInput.value) {
+    //         var today = new Date().toISOString().split('T')[0];
+    //         dateInput.value = today;
+    //     }
+    // });
+    document.addEventListener('DOMContentLoaded', function () {
+            var monthInputs = document.querySelectorAll('input[type="month"]');
+            var now = new Date();
+            var currentMonth = now.toISOString().slice(0, 7);
+
+            monthInputs.forEach(function (inp) {
+                if (!inp.value) {
+                    inp.value = currentMonth;
+                }
+            });
+        });
+    document.addEventListener("DOMContentLoaded", function () {
+
+            flatpickr("#monthPicker", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,
+                        dateFormat: "Y-m",
+                        altFormat: "F Y"
+                    })
+                ]
+            });
+
+        });
+
+    // Feature 3, 4, 10, 13, 14, 16: Real-time validation, pattern, green/red border, error message, safe check
+    function validateField(field) {
+        let val = field.value.trim();
+        let errorDiv = field.nextElementSibling;
+        let isValid = true, errorMsg = "";
+        field.style.borderColor = "#eee";
+        if (field.hasAttribute('required') && !val) {
+            isValid = false; errorMsg = "Required.";
+        }
+        if (field.type==="date" && val) {
+            var d = new Date(val);
+            if (isNaN(d.getTime())) { isValid=false; errorMsg = "Invalid date."; }
+        }
+        if (field.tagName==="SELECT" && field.hasAttribute('required') && !val) {
+            isValid = false; errorMsg = "Please select a user.";
+        }
+        if (isValid) {
+            field.classList.remove("is-invalid");
+            field.classList.add("is-valid");
+            field.style.borderColor = "#4caf50";
+            if (errorDiv) errorDiv.textContent = "";
+        } else {
+            field.classList.remove("is-valid");
+            field.classList.add("is-invalid");
+            field.style.borderColor = "#ef5350";
+            if (errorDiv) errorDiv.textContent = errorMsg;
+        }
+        return isValid;
+    }
+    document.querySelectorAll('#search_by_date_form input, #search_by_date_form select').forEach(function(input){
+        input.addEventListener('blur', function(){ validateField(this); });
+        input.addEventListener('input', function(){ validateField(this); });
+        input.addEventListener('change', function(){ validateField(this); });
+    });
+
+    // Feature 5: Scroll to first error field on submit
+    document.getElementById("mealSearchForm").addEventListener("submit", function(e) {
+        let valid = true, firstError = null;
+        this.querySelectorAll('input,select').forEach(function(inp){
+            if (!validateField(inp) && !firstError) firstError = inp, valid = false;
+        });
+        if (!valid) {
+            e.preventDefault();
+            firstError.focus();
+            firstError.scrollIntoView({behavior:'smooth',block:'center'});
+            return false;
+        } else {
+            let btn = this.querySelector("button[type='submit']");
+            if(btn){
+                btn.disabled=true;
+                btn.classList.add('processing');
+                btn.querySelector("#btnText").textContent='Searching...';
+                let spinner = btn.querySelector(".spinner");
+                if(spinner) spinner.style.display='inline-block';
+            }
+            formChanged = false;
+        }
+    });
+
+    // Feature 7: Prevents Form Resubmission on Refresh
+    if(window.history.replaceState){ window.history.replaceState(null,null,window.location.href); }
+    // Feature 8: Unsaved Changes Warning Before Leave
+    let formChanged = false;
+    document.querySelectorAll('#search_by_date_form input, #search_by_date_form select').forEach(function(i){
+        i.addEventListener('input',()=>formChanged=true);
+        i.addEventListener('change',()=>formChanged=true);
+    });
+    window.addEventListener('beforeunload',function(e){
+        if(formChanged){e.preventDefault();e.returnValue='';}
+    });
+</script>
+</body>
+
+</html>

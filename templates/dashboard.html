@@ -1,191 +1,1127 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Dashboard - Mess Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        /* Header with back button */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 14px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        /* Flash Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease-out;
+            border-left: 5px solid #667eea;
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Form Sections */
         .mode-section {
             margin-bottom: 20px;
-        }
-        .toggle-group, .customize-options {
-            margin-left: 20px;
-        }
-        .meal-table {
-            margin-top: 30px;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        .meal-table th, .meal-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-        .meal-table th {
-            background-color: #f2f2f2;
-        }
-        table {
-            border-collapse: collapse;
-            width: 60%;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .alert {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #d9edf7;
-            color: #31708f;
-            border: 1px solid #bce8f1;
-            border-radius: 4px;
-            width: 60%;
-        }
-        .total_meals {
-            margin-top: 30px;
             padding: 15px;
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-            border-radius: 5px;
-            font-weight: bold;
-            width: 60%;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
         }
-        .highlight {
-        background-color: #d4edda;
-        font-weight: bold;
+        
+        .mode-section:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
-        .today-row {
-        background-color: #d4edda !important; /* light green */
+        
+        .mode-section.active {
+            border-color: #667eea;
+            background: #f0f4ff;
         }
-        .today-tag {
-            background-color: #28a745;
+        
+        .row-nowrap-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .row-nowrap-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .radio-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-right: 15px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        input[type="radio"],
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin: 0;
+        }
+        
+        input[type="number"],
+        input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        input[type="number"]:focus,
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Success state */
+        input[type="number"].valid,
+        input[type="date"].valid {
+            border-color: #66bb6a;
+        }
+        
+        /* Error state */
+        input[type="number"].error,
+        input[type="date"].error {
+            border-color: #ef5350;
+            background-color: #ffebee;
+        }
+        
+        .toggle-group {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+        }
+        
+        /* Button Styles */
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button[type="submit"],
+        button[type="reset"] {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            min-width: 120px;
+        }
+        
+        button[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-size: 0.75rem;
-            padding: 2px 6px;
-            border-radius: 4px;
+        }
+        
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button[type="submit"]:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button[type="reset"] {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+        
+        button[type="reset"]:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        button[type="submit"]:disabled .spinner {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        /* Total Meals Section */
+        .total_meals {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .total_meals strong {
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        thead th {
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        tbody td {
+            padding: 12px 15px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* Today row highlight */
+        .today-row {
+            background-color: #fff9e6 !important;
+            font-weight: 600;
+        }
+        
+        .today-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
             margin-left: 8px;
         }
-
-        /* Blinking animation */
-        .blink {
-            animation: blink-animation 1.5s infinite;
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
         }
-
-        @keyframes blink-animation {
-            0%, 100% { background-color: #d4edda; }
-            50% { background-color: #c3e6cb; }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
-        .today-row {
-             animation: blink-animation 1.5s infinite;
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .dashboard-container {
+                padding: 20px 15px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+            
+            .row-nowrap-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            input[type="number"] {
+                width: 100% !important;
+                max-width: 200px;
+            }
+            
+            .button-row {
+                flex-direction: column;
+            }
+            
+            button[type="submit"],
+            button[type="reset"] {
+                width: 100%;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            thead th,
+            tbody td {
+                padding: 10px 8px;
+            }
         }
-        .today-tag {
-        background-color: #28a745;
-        color: white;
-        font-size: 0.75rem;
-        padding: 2px 6px;
-        border-radius: 4px;
-        margin-left: 8px;
+        
+        @media (max-width: 480px) {
+            .dashboard-container {
+                padding: 15px 10px;
+            }
+            
+            h2 {
+                font-size: 18px;
+            }
+            
+            .mode-section {
+                padding: 10px;
+            }
+            
+            table {
+                font-size: 11px;
+            }
+            
+            thead th,
+            tbody td {
+                padding: 8px 5px;
+            }
         }
     </style>
 </head>
 <body>
-    <h2>Welcome, {{ session.username }}!</h2>
-    <form method="POST">
-        <div class="mode-section">
-            <label>
-                <input type="radio" name="meal_mode" value="continue" required onchange="toggleSections()"> Continue
-            </label>
-            <div class="toggle-group" id="continue-options" style="display: none; margin-left: 20px;">
-                <label><input type="radio" name="continue_option" value="tonight" onclick="toggleRadio(this)"> Today Night</label><br>
-                <label><input type="radio" name="continue_option" value="tomorrow_morning" onclick="toggleRadio(this)"> Tomorrow Morning</label><br>
-                <label><input type="radio" name="continue_option" value="tomorrow_night" onclick="toggleRadio(this)"> Tomorrow Night</label><br>
-                <label><input type="checkbox" id="toggle-checkbox" name="toggle" value="on"> ON/OFF</label>
-            </div>
+    <div class="dashboard-container">
+        <!-- Header with Back Button -->
+        <div class="header-actions">
+            <h2>Welcome, {{ username }}!</h2>
+            <a href="/portal" class="back-btn">← Back to Portal</a>
         </div>
-
-
-        <div class="mode-section">
-            <label><input type="radio" name="meal_mode" value="just_night" onchange="toggleSections()"> Just Night</label>
-        </div>
-
-        <div class="mode-section">
-            <label><input type="radio" name="meal_mode" value="just_morning" onchange="toggleSections()"> Just Morning</label>
-        </div>
-        <div class="mode-section">
-            <label><input type="radio" name="meal_mode" value="tomorrow_night" onchange="toggleSections()"> Tomorrow Night</label>
-        </div>
-
-      
-        <button type="submit">Submit</button>
-    </form>
-
-
-    {% if message %}
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Legacy message support -->
+        {% if message %}
         <div class="alert">{{ message }}</div>
-    {% endif %}
+        {% endif %}
+        
+        <form method="POST" id="mealForm" novalidate>
+            <!-- Continue Mode -->
+            <div class="mode-section" data-mode="continue">
+                <div class="row-nowrap-group">
+                    <label>
+                        <input type="radio" name="meal_mode" value="continue"
+                            onchange="toggleSections(); enforceSingleSelection(this)"> Continue
+                    </label>
+                </div>
+                <div class="toggle-group" id="continue-options" style="display: none; margin-left: 20px;">
+                    <div class="row-nowrap-group">
+                        <label class="radio-inline"><input type="radio" name="continue_option" value="tonight"
+                                onclick="toggleRadio(this)"> Today Night</label>
+                    </div>
+                    <div class="row-nowrap-group">
+                        <label class="radio-inline"><input type="radio" name="continue_option" value="tomorrow_morning"
+                                onclick="toggleRadio(this)"> Tomorrow Morning</label>
+                    </div>
+                    <div class="row-nowrap-group">
+                        <label class="radio-inline"><input type="radio" name="continue_option" value="tomorrow_night"
+                                onclick="toggleRadio(this)"> Tomorrow Night</label>
+                    </div>
+                    <div class="row-nowrap-group">
+                        <label class="radio-inline"><input type="radio" name="toggle" value="on"> ON</label>
+                        <label class="radio-inline"><input type="radio" name="toggle" value="off"> OFF</label>
+                    </div>
+                </div>
+            </div>
 
-    <div class="total_meals">
-        <strong>Total meals from the beginning of the month to today:</strong><br>
-        Total morning meals: {{ total_morning }}<br>
-        Total night meals: {{ total_night }}<br>
-        Total meals: {{ total }}
+            <!-- Just Night Mode -->
+            <div class="mode-section" data-mode="just_night">
+                <div class="row-nowrap-group">
+                    <label><input type="radio" name="meal_mode" value="just_night"
+                            onchange="toggleSections(); enforceSingleSelection(this)"> Today Night</label>
+                    <input type="radio" name="guest" value="guest_night" onchange="enforceSingleSelection(this)">
+                    <input type="number" name="guest_night_count" min="0" max="3" placeholder="Guests meals"
+                        style="width: 100px;">
+                </div>
+            </div>
+
+            <!-- Just Morning Mode -->
+            <div class="mode-section" data-mode="just_morning">
+                <div class="row-nowrap-group">
+                    <label><input type="radio" name="meal_mode" value="just_morning"
+                            onchange="toggleSections(); enforceSingleSelection(this)"> Tomorrow Morning</label>
+                    <input type="radio" name="guest" value="guest_morning" onchange="enforceSingleSelection(this)">
+                    <input type="number" name="guest_morning_count" min="0" max="3" placeholder="Guests meals"
+                        style="width: 100px;">
+                </div>
+            </div>
+
+                        <!-- Tomorrow Night Mode -->
+            <div class="mode-section" data-mode="tomorrow_night">
+                <div class="row-nowrap-group">
+                    <label><input type="radio" name="meal_mode" value="tomorrow_night"
+                            onchange="toggleSections(); enforceSingleSelection(this)"> Tomorrow Night</label>
+                    <input type="radio" name="guest" value="guest_tomorrow_night"
+                        onchange="enforceSingleSelection(this)">
+                    <input type="number" name="guest_tomorrow_night_count" min="0" max="3" placeholder="Guests meals"
+                        style="width: 100px;">
+                </div>
+            </div>
+
+            <!-- One Continue Mode -->
+            <div class="mode-section" data-mode="one_continue">
+                <label class="radio-inline">
+                    <input type="radio" name="meal_mode" value="one_continue"
+                        onchange="toggleSections(); enforceSingleSelection(this)"> One Continue
+                </label>
+                <div class="toggle-group" id="one-continue-options" style="display: none; margin-left: 20px;">
+                    <label><input type="radio" name="one_part" value="morning"> Morning</label>
+                    <label><input type="radio" name="one_part" value="night"> Night</label>
+                </div>
+            </div>
+
+            <!-- Date Mode -->
+            <div class="mode-section" data-mode="date">
+                <label class="radio-inline"><input type="radio" name="meal_mode" value="date"
+                        onchange="toggleSections(); enforceSingleSelection(this)"> Date:</label>
+                <div class="toggle-group" id="date-options" style="display: none; margin-left: 20px;">
+                    <label>Date: <input type="date" name="date"></label><br>
+                    <label><input type="checkbox" name="morning"> Morning</label>
+                    <label><input type="checkbox" name="night"> Night</label>
+                </div>
+            </div>
+
+            <!-- Fetch Data Mode -->
+            <div id="all-user-radio" class="mode-section" data-mode="fatch_data">
+                <label class="radio-inline">
+                    <input type="radio" name="meal_mode" value="fatch_data"
+                        onchange="toggleSections(); enforceSingleSelection(this)"> Fetch Data
+                </label>
+                <div class="toggle-group" id="fatch_data-options" style="display: none; margin-left: 20px;">
+                    <label>Start Date: <input type="date" name="start_date"></label>
+                    <label>End Date: <input type="date" name="end_date"></label><br>
+                </div>
+            </div>
+
+            <!-- Submit and Reset Buttons -->
+            <div class="button-row">
+                <button type="submit" id="submitBtn">
+                    <span class="spinner"></span>
+                    <span id="btnText">Submit</span>
+                </button>
+                <button type="reset" onclick="toggleSections()">Reset</button>
+            </div>
+        </form>
+
+        <!-- Total Meals Summary -->
+        <div class="total_meals">
+            <strong>Total meals from the beginning of the month to today:</strong><br>
+            Total morning meals: {{ total_morning if total_morning is not none else 0 }}<br>
+            Total night meals: {{ total_night if total_night is not none else 0 }}<br>
+            Total meals: {{ total if total is not none else 0 }}
+        </div>
+
+        <!-- Meal Records Table -->
+        <h2>Meal Records</h2>
+        {% if meals %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Morning</th>
+                        <th>Night</th>
+                        <th>G_Morning</th>
+                        <th>G_Night</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meal in meals %}
+                    <tr class="{% if meal['date'] == today %}today-row{% endif %}">
+                        <td>
+                            {{ meal['date'] if meal['date'] else 'N/A' }}
+                            {% if meal['date'] == today %}
+                            <span class="today-tag">Today</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ meal['morning'] if meal['morning'] is not none else 0 }}</td>
+                        <td>{{ meal['night'] if meal['night'] is not none else 0 }}</td>
+                        <td>{{ meal['guest_morning'] if meal['guest_morning'] is not none else 0 }}</td>
+                        <td>{{ meal['guest_night'] if meal['guest_night'] is not none else 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p>No meal records found for this month.</p>
+        </div>
+        {% endif %}
     </div>
 
-    <h3>Meal Records</h3>
-    <table>
-        <tr>
-            <th>Date</th>
-            <th>Morning</th>
-            <th>Night</th>
-        </tr>
-        {% for meal in meals %}
-            {% set is_today = meal['date'] == today %}
-        <tr class="{{ 'today-row blink' if is_today else '' }}">
-            <td>
-                {{ meal['date'] }}
-                {% if is_today %}
-                    <span class="today-tag">Today</span>
-                {% endif %}
-            </td>
-            <td>{{ meal['morning'] }}</td>
-            <td>{{ meal['night'] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-<script>
-    function toggleSections() {
-        const mode = document.querySelector('input[name="meal_mode"]:checked');
-        if (!mode) return;
-        const selected = mode.value;
-        document.getElementById('continue-options').style.display = (selected === 'continue') ? 'block' : 'none';
-    }
-    window.onload = toggleSections;
-    // Allow re-clicking radio buttons to deselect
-function toggleRadio(radio) {
-    if (radio.checked && radio.dataset.wasChecked === "true") {
-        radio.checked = false;
-        radio.dataset.wasChecked = "false";
-    } else {
-        const radios = document.getElementsByName(radio.name);
-        radios.forEach(r => r.dataset.wasChecked = "false");
-        radio.dataset.wasChecked = "true";
-    }
-}
-</script>
-
-<script>
-    // Optional: hide alert after 4 seconds
-    setTimeout(() => {
-        const alert = document.querySelector('.alert');
-        if (alert) {
-            alert.style.display = 'none';
+    <script>
+        // ========== ORIGINAL JAVASCRIPT LOGIC (PRESERVED) ==========
+        function toggleSections() {
+            const selected = document.querySelector('input[name="meal_mode"]:checked')?.value;
+            const continueOpts = document.getElementById('continue-options');
+            const dateOpts = document.getElementById('date-options');
+            const oneContinueOpts = document.getElementById('one-continue-options');
+            const at_a_allOpts = document.getElementById('at_a_all-options');
+            const fatch_dataOpts = document.getElementById('fatch_data-options');
+            
+            if (continueOpts) continueOpts.style.display = 'none';
+            if (dateOpts) dateOpts.style.display = 'none';
+            if (oneContinueOpts) oneContinueOpts.style.display = 'none';
+            if (at_a_allOpts) at_a_allOpts.style.display = 'none';
+            if (fatch_dataOpts) fatch_dataOpts.style.display = 'none';
+            
+            // Remove active class from all sections
+            document.querySelectorAll('.mode-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            if (selected === 'continue' && continueOpts) {
+                continueOpts.style.display = 'block';
+                document.querySelector('[data-mode="continue"]')?.classList.add('active');
+            } else if (selected === 'date' && dateOpts) {
+                dateOpts.style.display = 'block';
+                document.querySelector('[data-mode="date"]')?.classList.add('active');
+            } else if (selected === 'one_continue' && oneContinueOpts) {
+                oneContinueOpts.style.display = 'block';
+                document.querySelector('[data-mode="one_continue"]')?.classList.add('active');
+            } else if (selected === 'all_user' && at_a_allOpts) {
+                at_a_allOpts.style.display = 'block';
+            } else if (selected === 'fatch_data' && fatch_dataOpts) {
+                fatch_dataOpts.style.display = 'block';
+                document.querySelector('[data-mode="fatch_data"]')?.classList.add('active');
+            }
+            
+            // Highlight active section
+            if (selected) {
+                const activeSection = document.querySelector(`[data-mode="${selected}"]`);
+                if (activeSection) {
+                    activeSection.classList.add('active');
+                }
+            }
         }
-    }, 4000);
-</script>
+        
+        window.onload = toggleSections;
+        
+        function toggleRadio(radio) {
+            if (radio.checked && radio.dataset.wasChecked === "true") {
+                radio.checked = false;
+                radio.dataset.wasChecked = "false";
+            } else {
+                const radios = document.getElementsByName(radio.name);
+                radios.forEach(r => r.dataset.wasChecked = "false");
+                radio.dataset.wasChecked = "true";
+            }
+        }
+        
+        function enforceSingleSelection(clickedRadio) {
+            const mealModeRadios = document.querySelectorAll('input[name="meal_mode"]');
+            const guestRadios = document.querySelectorAll('input[name="guest"]');
+            const selectedMealMode = document.querySelector('input[name="meal_mode"]:checked')?.value;
+            const selectedGuest = document.querySelector('input[name="guest"]:checked')?.value;
+            
+            const allowedPairs = [
+                { meal: "just_night", guest: "guest_night" },
+                { meal: "just_morning", guest: "guest_morning" },
+                { meal: "tomorrow_night", guest: "guest_tomorrow_night" }
+            ];
+            
+            const isException = allowedPairs.some(pair =>
+                selectedMealMode === pair.meal && selectedGuest === pair.guest
+            );
+            
+            if (clickedRadio.name === "meal_mode" && !isException) {
+                guestRadios.forEach(r => r.checked = false);
+            } else if (clickedRadio.name === "guest" && !isException) {
+                mealModeRadios.forEach(r => r.checked = false);
+            }
+            
+            toggleSections();
+        }
 
+        // ========== NEW ENHANCED FEATURES ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('mealForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            
+            // 1. Auto-dismiss flash messages after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                }, 5000);
+            });
+
+            // 2. Form validation before submission
+            form.addEventListener('submit', function(e) {
+                const selectedMode = document.querySelector('input[name="meal_mode"]:checked');
+                const selectedGuest = document.querySelector('input[name="guest"]:checked');
+                
+                if (!selectedMode && !selectedGuest) {
+                    e.preventDefault();
+                    alert('Please select a meal update option.');
+                    return false;
+                }
+                
+                // Validate continue mode
+                if (selectedMode?.value === 'continue') {
+                    const continueOption = document.querySelector('input[name="continue_option"]:checked');
+                    const toggleOption = document.querySelector('input[name="toggle"]:checked');
+                    
+                    if (!continueOption) {
+                        e.preventDefault();
+                        alert('Please select a continue option (Today Night, Tomorrow Morning, or Tomorrow Night).');
+                        return false;
+                    }
+                    
+                    if (!toggleOption) {
+                        e.preventDefault();
+                        alert('Please select ON or OFF for continue mode.');
+                        return false;
+                    }
+                }
+                
+                // Validate one_continue mode
+                if (selectedMode?.value === 'one_continue') {
+                    const onePart = document.querySelector('input[name="one_part"]:checked');
+                    if (!onePart) {
+                        e.preventDefault();
+                        alert('Please select Morning or Night for one continue mode.');
+                        return false;
+                    }
+                }
+                
+                // Validate date mode
+                if (selectedMode?.value === 'date') {
+                    const dateInput = document.querySelector('input[name="date"]');
+                    const morningChecked = document.querySelector('input[name="morning"]')?.checked;
+                    const nightChecked = document.querySelector('input[name="night"]')?.checked;
+                    
+                    if (!dateInput?.value) {
+                        e.preventDefault();
+                        alert('Please select a date.');
+                        dateInput?.focus();
+                        return false;
+                    }
+                    
+                    if (!morningChecked && !nightChecked) {
+                        e.preventDefault();
+                        alert('Please select at least Morning or Night for the selected date.');
+                        return false;
+                    }
+                }
+                
+                // Validate fetch data mode
+                if (selectedMode?.value === 'fatch_data') {
+                    const startDate = document.querySelector('input[name="start_date"]');
+                    const endDate = document.querySelector('input[name="end_date"]');
+                    
+                    if (!startDate?.value || !endDate?.value) {
+                        e.preventDefault();
+                        alert('Please select both start and end dates.');
+                        if (!startDate?.value) startDate?.focus();
+                        else endDate?.focus();
+                        return false;
+                    }
+                    
+                    if (new Date(startDate.value) > new Date(endDate.value)) {
+                        e.preventDefault();
+                        alert('Start date must be before or equal to end date.');
+                        startDate?.focus();
+                        return false;
+                    }
+                }
+                
+                // Validate guest counts
+                const guestInputs = document.querySelectorAll('input[type="number"]');
+                for (let input of guestInputs) {
+                    if (input.value && (parseInt(input.value) < 0 || parseInt(input.value) > 3)) {
+                        e.preventDefault();
+                        alert('Guest meal count must be between 0 and 3.');
+                        input.focus();
+                        return false;
+                    }
+                }
+                
+                // 3. Disable submit button during processing
+                submitBtn.disabled = true;
+                btnText.textContent = 'Processing...';
+            });
+
+            // 4. Real-time validation and success state styling
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    this.classList.remove('valid', 'error');
+                    
+                    if (this.value === '') {
+                        return;
+                    }
+                    
+                    if (value >= 0 && value <= 3) {
+                        this.classList.add('valid');
+                    } else {
+                        this.classList.add('error');
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (this.value && (parseInt(this.value) < 0 || parseInt(this.value) > 3)) {
+                        alert('Guest meal count must be between 0 and 3.');
+                        this.focus();
+                    }
+                });
+            });
+
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    this.classList.remove('valid', 'error');
+                    if (this.value) {
+                        this.classList.add('valid');
+                    }
+                });
+            });
+
+            // 5. Input sanitization
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Remove non-numeric characters
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                                        // Enforce max value
+                    if (parseInt(this.value) > 3) {
+                        this.value = '3';
+                    }
+                    
+                    // Prevent negative values
+                    if (parseInt(this.value) < 0) {
+                        this.value = '0';
+                    }
+                });
+            });
+
+            // 6. Scroll to first error field
+            function scrollToFirstError() {
+                const firstError = document.querySelector('.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+
+            // 7. Prevent form resubmission on refresh
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
+
+            // 8. Unsaved changes warning before leaving page
+            let formModified = false;
+            const allInputs = form.querySelectorAll('input');
+            
+            allInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    formModified = true;
+                });
+            });
+            
+            window.addEventListener('beforeunload', function(e) {
+                if (formModified && !submitBtn.disabled) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            // Reset formModified flag on submit
+            form.addEventListener('submit', function() {
+                formModified = false;
+            });
+
+            // Reset button handler
+            form.addEventListener('reset', function() {
+                formModified = false;
+                // Clear validation classes
+                document.querySelectorAll('.valid, .error').forEach(el => {
+                    el.classList.remove('valid', 'error');
+                });
+                // Remove active class from sections
+                document.querySelectorAll('.mode-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                setTimeout(toggleSections, 0);
+            });
+
+            // 9. Enhanced table interactions
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // Highlight clicked row
+                    tableRows.forEach(r => {
+                        if (r !== this && !r.classList.contains('today-row')) {
+                            r.style.backgroundColor = '';
+                        }
+                    });
+                    if (!this.classList.contains('today-row')) {
+                        this.style.backgroundColor = '#e3f2fd';
+                    }
+                });
+            });
+
+            // 10. Pre-fill today's date for date inputs when date mode is selected
+            const dateRadio = document.querySelector('input[name="meal_mode"][value="date"]');
+            if (dateRadio) {
+                dateRadio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const dateInput = document.querySelector('input[name="date"]');
+                        if (dateInput && !dateInput.value) {
+                            const today = new Date();
+                            const tomorrow = new Date(today);
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            dateInput.value = tomorrow.toISOString().split('T')[0];
+                        }
+                    }
+                });
+            }
+
+            // 11. Enhanced mode section highlighting on radio change
+            const modeRadios = document.querySelectorAll('input[name="meal_mode"]');
+            modeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('.mode-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    const parentSection = this.closest('.mode-section');
+                    if (parentSection) {
+                        parentSection.classList.add('active');
+                    }
+                });
+            });
+
+            // 12. Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + Enter to submit form
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!submitBtn.disabled) {
+                        form.submit();
+                    }
+                }
+                
+                // Escape to reset form
+                if (e.key === 'Escape') {
+                    if (confirm('Reset the form?')) {
+                        form.reset();
+                        toggleSections();
+                    }
+                }
+            });
+
+            // 13. Touch-friendly interactions for mobile
+            if ('ontouchstart' in window) {
+                document.querySelectorAll('.mode-section').forEach(section => {
+                    section.style.minHeight = '44px'; // iOS touch target minimum
+                });
+                
+                document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+                    const label = input.closest('label');
+                    if (label) {
+                        label.style.minHeight = '44px';
+                        label.style.display = 'flex';
+                        label.style.alignItems = 'center';
+                    }
+                });
+            }
+
+            // 14. Loading overlay (optional enhancement)
+            function createLoadingOverlay() {
+                const overlay = document.createElement('div');
+                overlay.id = 'loadingOverlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: none;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                `;
+                overlay.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 15px; text-align: center;">
+                        <div style="width: 40px; height: 40px; border: 4px solid #667eea; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px;"></div>
+                        <p style="color: #333; font-weight: 600; margin: 0;">Processing your request...</p>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+            
+            createLoadingOverlay();
+            
+            form.addEventListener('submit', function() {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    setTimeout(() => {
+                        overlay.style.display = 'flex';
+                    }, 100);
+                }
+            });
+
+            // 15. Guest count quick buttons (optional enhancement)
+            numberInputs.forEach(input => {
+                const container = input.parentElement;
+                if (container && input.name.includes('guest')) {
+                    const quickBtns = document.createElement('div');
+                    quickBtns.style.cssText = 'display: inline-flex; gap: 5px; margin-left: 10px;';
+                    
+                    for (let i = 0; i <= 3; i++) {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.textContent = i;
+                        btn.style.cssText = `
+                            padding: 5px 10px;
+                            border: 2px solid #e0e0e0;
+                            background: white;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            transition: all 0.2s;
+                        `;
+                        
+                        btn.addEventListener('click', function() {
+                            input.value = i;
+                            input.dispatchEvent(new Event('input'));
+                            input.classList.add('valid');
+                        });
+                        
+                        btn.addEventListener('mouseenter', function() {
+                            this.style.background = '#667eea';
+                            this.style.color = 'white';
+                            this.style.borderColor = '#667eea';
+                        });
+                        
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.background = 'white';
+                            this.style.color = '#333';
+                            this.style.borderColor = '#e0e0e0';
+                        });
+                        
+                        quickBtns.appendChild(btn);
+                    }
+                    
+                    container.appendChild(quickBtns);
+                }
+            });
+
+            // 16. Smooth scroll on page load
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 17. Dynamic date validation
+            const startDateInput = document.querySelector('input[name="start_date"]');
+            const endDateInput = document.querySelector('input[name="end_date"]');
+            
+            if (startDateInput && endDateInput) {
+                startDateInput.addEventListener('change', function() {
+                    endDateInput.min = this.value;
+                    if (endDateInput.value && new Date(endDateInput.value) < new Date(this.value)) {
+                        endDateInput.value = this.value;
+                    }
+                });
+            }
+
+            // 18. Empty state check
+            const tableBody = document.querySelector('tbody');
+            if (tableBody && tableBody.children.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+                        <p>No meal records found</p>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+            }
+
+            // 19. Form accessibility improvements
+            allInputs.forEach(input => {
+                // Add aria labels
+                if (!input.getAttribute('aria-label')) {
+                    const label = input.closest('label');
+                    if (label) {
+                        input.setAttribute('aria-label', label.textContent.trim());
+                    }
+                }
+            });
+
+            // 20. Performance optimization - debounce validation
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Apply debounced validation to inputs
+            const debouncedValidation = debounce(function(input) {
+                if (input.value) {
+                    input.classList.remove('error');
+                    input.classList.add('valid');
+                }
+            }, 300);
+
+            allInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    debouncedValidation(this);
+                });
+            });
+
+            // Initialize on load
+            toggleSections();
+            
+            console.log('Dashboard enhanced features loaded successfully!');
+        });
+
+        // Legacy timeout for alert (preserved from original)
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.style.display = 'none';
+        }, 4000);
+    </script>
 </body>
 </html>
+
+

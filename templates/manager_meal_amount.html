@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Meal Amount</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+    <style>
+        :root {
+            --main-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --white: #fff;
+            --header-shadow: 0 2px 10px rgba(0, 0, 0, 0.075);
+            --card-shadow: 0 4px 22px rgba(102, 126, 234, 0.1);
+            --green-main: #4caf50;
+            --error-main: #ef5350;
+            --gray-bg: #f8f9fa;
+            --border-radius: 15px;
+            --input-padding: 12px 17px;
+            --purple-main: #667eea;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--main-bg);
+            min-height: 100vh;
+            padding: 20px;
+            color: #222;
+        }
+
+        .header {
+            background: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0;
+            box-shadow: var(--header-shadow);
+            padding: 15px 30px;
+            margin: -20px -20px 32px -20px;
+            animation: slideDown 0.5s ease;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            color: var(--purple-main);
+            font-size: 1.7rem;
+        }
+
+        .portal-btn {
+            background: var(--main-bg);
+            color: var(--white);
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.28s;
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.16);
+        }
+
+        .portal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(102, 126, 234, 0.16);
+        }
+
+        .card,
+        .previous-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 32px 24px;
+            margin-bottom: 28px;
+            animation: fadeIn 0.6s;
+        }
+
+        h2 {
+            color: var(--white);
+            text-shadow: 1px 1.2px 4px rgba(0, 0, 0, 0.17);
+            font-size: 1.35rem;
+            margin-bottom: 11px;
+            text-align: center;
+        }
+
+        h3 {
+            color: var(--purple-main);
+            margin-bottom: 18px;
+            font-size: 1.15rem;
+            border-bottom: 3px solid var(--purple-main);
+            padding-bottom: 9px;
+            cursor: pointer;
+            transition: all 0.16s;
+        }
+
+        h3:not(.flip):hover,
+        h2:hover {
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.04);
+        }
+
+        .highlight-h4 {
+            background: var(--main-bg) !important;
+            color: var(--white) !important;
+            box-shadow: 0 3px 15px rgba(102, 126, 234, 0.12);
+            border-left: none !important;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #555;
+            margin: 11px 0;
+            font-size: .98rem;
+            font-weight: 500;
+            padding: 12px 20px;
+            background: var(--gray-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--purple-main);
+            transition: all 0.27s;
+        }
+
+        h4:hover {
+            background: #e3f2fd;
+            transform: translateX(6px);
+        }
+
+        .responsive-table {
+            overflow-x: auto;
+        }
+
+        table.meal-charge-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 13px 0;
+            background: var(--white);
+        }
+
+        table.meal-charge-table th,
+        table.meal-charge-table td {
+            text-align: left;
+            padding: 10px 18px 10px 0;
+            white-space: nowrap;
+        }
+
+        table.meal-charge-table tr {
+            border-bottom: 1px solid #eee;
+            transition: background .11s;
+        }
+
+        table.meal-charge-table tr:hover {
+            background: #f2f7fa;
+        }
+
+        /* Success, Error, Warning Messages & Badges */
+        .flash-messages {
+            position: fixed;
+            top: 24px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 420px;
+        }
+
+        .flash-message {
+            background: #fff;
+            padding: 13px 16px;
+            border-radius: 11px;
+            box-shadow: 0 5px 13px rgba(0, 0, 0, 0.25);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideInRight 0.6s;
+            border-left: 5px solid;
+        }
+
+        .flash-message.success {
+            border-color: var(--green-main);
+            color: #2e7d32;
+        }
+
+        .flash-message.error {
+            border-color: var(--error-main);
+            color: #c62828;
+        }
+
+        .flash-message.warning {
+            border-color: #ff9800;
+            color: #e65100;
+        }
+
+        .empty-state {
+            color: #999;
+            text-align: center;
+            padding: 39px 12px;
+        }
+
+        /* Form & Inputs */
+        form {
+            margin: 28px 0 0 0;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px 18px;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.7s;
+        }
+
+        form label {
+            margin-right: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.14s;
+        }
+
+        form label input[type="radio"] {
+            accent-color: var(--purple-main);
+            margin-right: 6px;
+        }
+
+        select,
+        input[type="number"],
+        input[type="month"],
+        input[type="text"] {
+            width: 95%;
+            padding: var(--input-padding);
+            margin-bottom: 13px;
+            font-size: 1rem;
+            border-radius: 7px;
+            border: 2px solid #ddd;
+            outline: none;
+            transition: border-color 0.2s, background 0.13s;
+        }
+
+        select:disabled,
+        input:disabled {
+            background: #f1f1f1;
+        }
+
+        /* Valid/Invalid Input Styling */
+        .is-valid {
+            border-color: var(--green-main) !important;
+        }
+
+        .is-invalid {
+            border-color: var(--error-main) !important;
+        }
+
+        .input-error-msg {
+            color: var(--error-main);
+            font-size: .86rem;
+            margin: -8px 0 10px 0;
+            display: block;
+            padding-left: 8px;
+        }
+
+        /* Submit Button */
+        input[type="submit"],
+        button[type="submit"] {
+            background: var(--main-bg);
+            color: var(--white);
+            font-size: 1rem;
+            border: none;
+            padding: 11px 36px;
+            border-radius: 25px;
+            margin: 7px 0 0 0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.07s;
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.12);
+            position: relative;
+        }
+
+        input[type="submit"]:disabled,
+        button[type="submit"]:disabled {
+            background: #bdbecb;
+            color: #65708a;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-spinner {
+            border: 3px solid #fff;
+            border-top: 3px solid var(--purple-main);
+            border-radius: 50%;
+            width: 19px;
+            height: 19px;
+            display: inline-block;
+            animation: spin 1.1s linear infinite;
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width:768px) {
+            body {
+                padding: 9px;
+            }
+
+            .header {
+                padding: 13px;
+                margin: -9px -9px 18px -9px;
+            }
+
+            .header h1 {
+                font-size: 1.15rem;
+            }
+
+            .card,
+            .previous-section,
+            form {
+                padding: 14px 4vw;
+                margin-bottom: 18px;
+            }
+
+            h2 {
+                font-size: 1.12rem;
+            }
+
+            h3 {
+                font-size: 1.01rem;
+            }
+
+            h4,
+            select,
+            input {
+                font-size: .91rem;
+            }
+
+            .flash-messages {
+                right: 7px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .responsive-table {
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width:500px) {
+            .header h1 {
+                font-size: .91rem;
+            }
+
+            .portal-btn {
+                padding: 7px 10px;
+                font-size: .87rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-80%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Meal Amount Dashboard</h1>
+        <a href="/portal" class="portal-btn">← Back to Portal</a>
+    </div>
+
+    <div class="card">
+        {% if message %}
+        <h3 class="flash-message success">{{ message }}</h3>
+        {% endif %}
+        <h3>Meal Amount Details</h3>
+        <h4 class="highlight-h4">Total Meals: {{ moneydata.total_meals }}</h4>
+        <h4>Total Deposit: {{ moneydata.total_deposit }}</h4>
+        <h4>Total Alive: {{ moneydata.amount_alive }}</h4>
+        <h4>Total Shope Expenses: {{ moneydata.total_shop }}</h4>
+        <h4>Total Veg Expenses: {{ moneydata.total_veg }}</h4>
+        <h4>Total NonVeg Expenses: {{ moneydata.total_nonveg }}</h4>
+        <h4>Total Common Expenses: {{ moneydata.total_deposit }}</h4>
+        <h4>Total Guest Amount: {{ moneydata.guest_amount }}</h4>
+        <h4>Total Guests: {{ moneydata.total_guests }}</h4>
+        <h4>Meal Charge: {{ moneydata.mealcharge }}</h4>
+    </div>
+    <div>
+        <form action="/meal_amount" method="post">
+            <div id="find_meal_data">
+                <select name="SelectedId">
+                    <option value="" disabled selected>--Select--</option>
+                    {% for active_user in active_users %}
+                    <option value="{{ active_user.id }}">{{ active_user.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" value="1" name="manager_to_user">
+                <button type="submit"> Show </button>
+            </div>
+        </form>
+    </div>
+    <h2>Previous Month Data</h2>
+    <div class="previous-section">
+        {% if previous_variable_data %}
+        <h3 class="flip" onclick="myFunction()">Click to Show(Meal Amount Details)</h3>
+        <div id="myDIV1" style="display:none;">
+            <h4>Date: {{ previous_variable_data[0].date }}</h4>
+            <h4>Manager Name: {{ previous_variable_data[0].manager_name }}</h4>
+            <h4>Total Meals: {{ previous_variable_data[0].total_meal }}</h4>
+            <h4>Total Veg Guests: {{ previous_variable_data[0].total_guest_veg_meal }}</h4>
+            <h4>Total Egg Guests: {{ previous_variable_data[0].total_guest_egg_meal }}</h4>
+            <h4>Total Fish Guests: {{ previous_variable_data[0].total_guest_fish_meal }}</h4>
+            <h4>Total Chicken Guests: {{ previous_variable_data[0].total_guest_chicken_meal }}</h4>
+            <h4>Total Beef Guests: {{ previous_variable_data[0].total_guest_beef_meal }}</h4>
+            <h4>Total Other Guests: {{ previous_variable_data[0].total_guest_other_meal }}</h4>
+            <h4>Total Guests: {{ previous_variable_data[0].total_guest_meal }}</h4>
+            <h4>Meal Charge: {{ previous_variable_data[0].meal_charge }}</h4>
+            <h4>Common Charge: {{ previous_variable_data[0].common_charge }}</h4>
+            <h4>Veg Guests charge: {{ previous_variable_data[0].veg_guest_charge }}</h4>
+            <h4>Egg Guests charge: {{ previous_variable_data[0].egg_guest_charge }}</h4>
+            <h4>Fish Guests charge: {{ previous_variable_data[0].fish_guest_charge }}</h4>
+            <h4>Chicken Guests charge: {{ previous_variable_data[0].chicken_guest_charge }}</h4>
+            <h4>Beef Guests charge: {{ previous_variable_data[0].beef_guest_charge }}</h4>
+            <h4>Other Guests charge: {{ previous_variable_data[0].other_guest_charge }}</h4>
+            {% else %}
+            <h3 class="empty-state">No data found for the previous month.</h3>
+            {% endif %}
+        </div>
+    </div>
+    <div class="previous-section">
+        {% if search_meal_charge_data %}
+        <h3 class="flip" onclick="myFunction2()">Click to Show(Your Meal Amount Details)</h3>
+        <div id="myDIV2" style="display:none;">
+            <h4 class="highlight-h4">Your Total Meals: {{ search_meal_charge_data[0].total_meals }}</h4>
+            <h4>Your Total Deposit: {{ search_meal_charge_data[0].deposit }}</h4>
+            <h4>Your Total Veg Guests: {{ search_meal_charge_data[0].T_veg_guest_meal }}</h4>
+            <h4>Your Total Egg Guests: {{ search_meal_charge_data[0].T_egg_guest_meal }}</h4>
+            <h4>Your Total Fish Guests: {{ search_meal_charge_data[0].T_fish_guest_meal }}</h4>
+            <h4>Your Total Chicken Guests: {{ search_meal_charge_data[0].T_chicken_guest_meal }}</h4>
+            <h4>Your Total Beef Guests: {{ search_meal_charge_data[0].T_beef_guest_meal }}</h4>
+            <h4>Your Total Other Guests: {{ search_meal_charge_data[0].T_other_guest_meal }}</h4>
+            <h4>Your Guest Amount: {{ search_meal_charge_data[0].T_guest_amount }}</h4>
+            <h4>Common charge: {{ search_meal_charge_data[0].common_charge }}</h4>
+            <h4>Your Amount: {{ search_meal_charge_data[0].amount }}</h4>
+            {% endif %}
+        </div>
+    </div>
+    <div class="previous-section">
+        {% if previous_meal_charge_datas %}
+        <h3>Meal Charge Table</h3>
+        <div class="responsive-table">
+            <table class="meal-charge-table">
+                <tr>
+                    <th style="text-align:left; padding-right:20px;">NAME</th>
+                    <th style="text-align:left; padding-right:20px;">MEALS</th>
+                    <th style="text-align:left; padding-right:20px;">GUESTS</th>
+                    <th style="text-align:left; padding-right:20px;">C_charge</th>
+                    <th style="text-align:left; padding-right:20px;">DEPOSIT</th>
+                    <th style="text-align:left; padding-right:20px;">AMOUNT</th>
+                </tr>
+                {% for previous_meal_charge_data in previous_meal_charge_datas %}
+                <tr>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.name }}</td>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.total_meal }}</td>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.T_guest_amount }}</td>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.common_charge }}</td>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.deposit }}</td>
+                    <td style="padding-right:20px;">{{ previous_meal_charge_data.amount }}</td>
+                </tr>
+                {% endfor %}
+                <h4 style="color: #667eea;">Total Meal Amount: {{ total_meal_amount }}</h4>
+            </table>
+        </div>
+        {% else %}
+        <h3 class="empty-state">No data found for the previous month.</h3>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('manager_meal_amount') }}" autocomplete="off">
+        <label><input type="radio" name="update" value="meal_charge_update" onchange="toggleMarketingForm()"> Update
+            Meal charge update </label><br>
+        <label><input type="radio" name="update" value="meal_data_update" onchange="toggleMarketingForm()"> Update Meal
+            charge Data </label><br>
+        <label><input type="radio" name="update" value="search_by_date" onchange="toggleMarketingForm()"> User Meal
+            Charge Data </label><br>
+        <label><input type="radio" name="update" value="search_by_date_for_meal" onchange="toggleMarketingForm()"> Meal
+            Charge Data </label><br>
+        <div id="meal_charge_form" style="display: none;">
+            <br>
+            <h2 style="color: #667eea;">Update Meal Charge</h2><br>
+            <input type="number" name="meal_charge_amount" step="any" placeholder="Enter Meal Charge"><br>
+            <div class="input-error-msg"></div>
+            <input type="number" name="common_charge" step="any" placeholder="Enter Common Charge"><br>
+            <div class="input-error-msg"></div>
+        </div>
+        <div id="meal_data_form" style="display: none;">
+            <br>
+            <h2 style="color: #667eea;">Update Meal Charge Data for a User</h2><br>
+            <select name="selected_id">
+                <option value="" disabled selected>--Select--</option>
+                {% for active_user in active_users %}
+                <option value="{{ active_user.id }}">{{ active_user.name }}</option>
+                {% endfor %}
+            </select><br>
+            <div class="input-error-msg"></div>
+            <input type=number name="number_of_meals" placeholder="Enter number of meals"><br>
+            <div class="input-error-msg"></div>
+            <input type=number name="guest_amount" placeholder="Enter guest amount"><br>
+            <div class="input-error-msg"></div>
+            <input type=number name="user_common_charge" placeholder="Enter common charge"><br>
+            <div class="input-error-msg"></div>
+            <input type=number name="deposit_amount" placeholder="Enter deposit amount"><br>
+            <div class="input-error-msg"></div>
+            <input type=number name="calculated_amount" placeholder="Enter calculated amount"><br>
+            <div class="input-error-msg"></div>
+        </div>
+        <div id="search_by_date_form" style="display: none;">
+            <br>
+            <select name="selected_id">
+                <option value="" disabled selected>--Select--</option>
+                {% for active_user in active_users %}
+                <option value="{{ active_user.id }}">{{ active_user.name }}</option>
+                {% endfor %}
+            </select><br>
+            <div class="input-error-msg"></div>
+            <input type="text" id="monthPicker" name="meal_charge_date" placeholder="Select Month"><br>
+            <div class="input-error-msg"></div>
+        </div>
+        <div id="search_by_date_for_meal_form" style="display: none;">
+            <br>
+            <input type="text" id="monthPicker" name="meal_charge_by_date" placeholder="Select Month"><br>
+            <div class="input-error-msg"></div>
+        </div>
+        <input type="submit" value="Update">
+        <div class="input-error-msg" style="display: none;"></div>
+    </form>
+
+    <!-- FLASH MESSAGES AUTO-DISMISS -->
+    <div class="flash-messages" id="flashMessages" style="display:none"></div>
+
+    <script>
+        // --- Feature: Retain Existing JavaScript
+        function toggleMarketingForm() {
+            var mealChargeForm = document.getElementById("meal_charge_form");
+            var mealDataForm = document.getElementById("meal_data_form");
+            var searchByDateForm = document.getElementById("search_by_date_form");
+            var searchByDateForMealForm = document.getElementById("search_by_date_for_meal_form");
+            var selectedOption = document.querySelector('input[name="update"]:checked');
+
+            if (selectedOption) {
+                if (selectedOption.value === "meal_charge_update") {
+                    mealChargeForm.style.display = "block";
+                    mealDataForm.style.display = "none";
+                    searchByDateForm.style.display = "none";
+                    searchByDateForMealForm.style.display = "none";
+                } else if (selectedOption.value === "meal_data_update") {
+                    mealChargeForm.style.display = "none";
+                    searchByDateForm.style.display = "none";
+                    searchByDateForMealForm.style.display = "none";
+                    mealDataForm.style.display = "block";
+                } else if (selectedOption.value === "search_by_date") {
+                    mealChargeForm.style.display = "none";
+                    mealDataForm.style.display = "none";
+                    searchByDateForMealForm.style.display = "none";
+                    searchByDateForm.style.display = "block";
+                } else if (selectedOption.value === "search_by_date_for_meal") {
+                    mealChargeForm.style.display = "none";
+                    mealDataForm.style.display = "none";
+                    searchByDateForm.style.display = "none";
+                    searchByDateForMealForm.style.display = "block";
+                }
+            }
+        }
+        function myFunction() {
+            var x = document.getElementById("myDIV1");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+        function myFunction2() {
+            var y = document.getElementById("myDIV2");
+            if (y.style.display === "none") {
+                y.style.display = "block";
+            } else {
+                y.style.display = "none";
+            }
+        }
+        // --- End Existing JavaScript
+
+        // Feature 2: Pre-filled Form Fields (registration date)
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     var dateInputs = document.querySelectorAll('input[type="month"]');
+        //     var now = new Date();
+        //     var today = now.toISOString().split('T')[0];
+        //     dateInputs.forEach(function (inp) {
+        //         if (!inp.value) {
+        //             inp.value = today;
+        //         }
+        //     });
+        // });
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     const monthInputs = document.querySelectorAll('input[type="month"]');
+
+        //     const now = new Date();
+
+        //     // format: YYYY-MM
+        //     const currentMonth =
+        //         now.getFullYear() + "-" +
+        //         String(now.getMonth() + 1).padStart(2, "0");
+
+        //     monthInputs.forEach(function (inp) {
+        //         if (!inp.value) {
+        //             inp.value = currentMonth;
+        //         }
+        //     });
+        // });
+        document.addEventListener('DOMContentLoaded', function () {
+            var monthInputs = document.querySelectorAll('input[type="month"]');
+            var now = new Date();
+            var currentMonth = now.toISOString().slice(0, 7);
+
+            monthInputs.forEach(function (inp) {
+                if (!inp.value) {
+                    inp.value = currentMonth;
+                }
+            });
+        });
+        
+        document.addEventListener("DOMContentLoaded", function () {
+
+            flatpickr("#monthPicker", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: true,
+                        dateFormat: "Y-m",
+                        altFormat: "F Y"
+                    })
+                ]
+            });
+
+        });
+
+
+
+
+        // Feature 3, 4, 10: Instant Validation, Green Success, Red Error
+        function validateField(input) {
+            let value = input.value;
+            let isValid = true;
+            let parent = input.parentElement;
+            let errorMsg = "";
+
+            if (input.required && !value.trim()) {
+                isValid = false;
+                errorMsg = "This field is required.";
+            }
+            // Number Inputs: non-negatives
+            if (input.type == "number" && value) {
+                if (isNaN(value) || value < 0) {
+                    isValid = false;
+                    errorMsg = "Enter a valid number.";
+                }
+            }
+            // Phone pattern sanitize (if any phone fields added)
+            if (input.name && input.name.toLowerCase().includes('phone')) {
+                input.value = value.replace(/\D/g, "");
+                if (input.value.length < 10) {
+                    isValid = false;
+                    errorMsg = "Enter a valid phone number.";
+                }
+            }
+            // Date: restrict future, if needed
+            // if (input.type == "date" && value) {
+            //     let inputDate = new Date(value);
+            //     let now = new Date();
+            //     if (inputDate > now) {
+            //         isValid = false;
+            //         errorMsg = "Date cannot be in the future.";
+            //     }
+            // }
+            // Set borders & error message
+            if (isValid) {
+                input.classList.remove("is-invalid");
+                input.classList.add("is-valid");
+                if (input.nextElementSibling && input.nextElementSibling.classList.contains('input-error-msg'))
+                    input.nextElementSibling.textContent = "";
+            } else {
+                input.classList.remove("is-valid");
+                input.classList.add("is-invalid");
+                if (input.nextElementSibling && input.nextElementSibling.classList.contains('input-error-msg'))
+                    input.nextElementSibling.textContent = errorMsg;
+            }
+            return isValid;
+        }
+        // on blur + input validate
+        document.querySelectorAll("input,select").forEach(function (input) {
+            input.addEventListener('blur', function () { validateField(this); });
+            input.addEventListener('input', function () { validateField(this); });
+        });
+
+        // Feature 6/7/8/9/11/12: More UI/UX Enhance
+        // Prevent form resubmission on refresh
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Warn Unsaved Changes
+        let formChanged = false;
+        document.querySelectorAll('form input, form select').forEach(function (inp) {
+            inp.addEventListener('change', function () { formChanged = true; });
+            inp.addEventListener('input', function () { formChanged = true; });
+        });
+        window.addEventListener('beforeunload', function (e) {
+            if (formChanged) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // Feature 5: Scroll to first error
+        document.querySelector('form').addEventListener('submit', function (e) {
+            let firstError = null;
+            let allInputs = this.querySelectorAll('input,select');
+            let valid = true;
+            allInputs.forEach(function (inp) {
+                if (!validateField(inp) && !firstError) firstError = inp, valid = false;
+            });
+            if (!valid) {
+                e.preventDefault();
+                firstError.focus();
+                firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+                // Feature 11: Loading/Disabled Button
+                let btn = this.querySelector('input[type="submit"], button[type="submit"]');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.value = "Processing...";
+                    let spinner = document.createElement("span");
+                    spinner.className = "btn-spinner";
+                    btn.parentNode.insertBefore(spinner, btn);
+                }
+                // Remove unsaved warn
+                formChanged = false;
+            }
+        });
+
+        // Feature 13: Null/Undefined Safe Checks are handled via Jinja in template
+        // Feature 14: Input Sanitization (already in real-time validateField above)
+
+        // Feature 15: Loading States handled in submit event above
+
+        // Feature 16: Clear Error Message handled in validateField above
+
+        // Feature 18: Auto-dismiss Flash Messages
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashes = document.querySelectorAll('.flash-message');
+            flashes.forEach(function (message) {
+                setTimeout(function () {
+                    message.style.opacity = 0;
+                    setTimeout(function () { message.style.display = "none"; }, 600);
+                }, 5000);
+            });
+        });
+
+
+        // Feature 12: Empty state in template
+        // Feature 17: Status Badges for Approval/Active
+        // (example badge usage - add a <span class="badge status-active">Active</span>)
+    </script>
+</body>
+
+</html>

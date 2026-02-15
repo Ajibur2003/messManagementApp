@@ -11,9 +11,9 @@ def get_db():
     try:
         return mysql.connector.connect(
         host='sql12.freesqldatabase.com',
-        user='sql12778676',
-        password='UawsEyNqL7',
-        database='sql12778676'
+        user='sql12817134',
+        password='hncPv6SSlu',
+        database='sql12817134'
         )
     except mysql.connector.Error as err:
         print(f"Database connection error: {err}")

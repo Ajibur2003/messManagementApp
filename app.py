@@ -3,22 +3,30 @@ import mysql.connector
 import bcrypt
 import json
 from datetime import datetime, timedelta, date
+import pytz
+import os
 
 app = Flask(__name__)
 app.secret_key = '9a4a5e2f4b123ca81b83f7cfb6c5a8d8e64db3dd564f5a2f137e6d2f3cc60cda'
 
+
 def get_db():
     try:
         return mysql.connector.connect(
-        host='sql12.freesqldatabase.com',
-        user='sql12817134',
-        password='hncPv6SSlu',
-        database='sql12817134'
+            host=os.environ.get('MYSQL_HOST', 'mess-management-db.mysql.database.azure.com'),
+            user=os.environ.get('MYSQL_USER', 'messadmin'),
+            password=os.environ.get('MYSQL_PASSWORD', 'BCA@Project#2026'),
+            database=os.environ.get('MYSQL_DB', 'messdb'),
+            port=int(os.environ.get('MYSQL_PORT', 3306)),
+            ssl_disabled=False,
+            ssl_verify_cert=False
         )
     except mysql.connector.Error as err:
         print(f"Database connection error: {err}")
         return None
 
+# for same time zone
+ist = pytz.timezone("Asia/Kolkata")
 def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, marketing):
     count = 0
     
@@ -77,10 +85,12 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                 if marketing_datas:
                     for marketing_data in marketing_datas:
                         count += 1
-                        if count == len(marketing_datas):
-                            marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
-                            marketing_night = str(marketing_night).strip()
-                            
+                        marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
+                        marketing_night = str(marketing_night).strip()
+                        if marketing_night not in ['no_need', 'selected']:
+                            current_marketing_night = marketing_night 
+
+                        def update_guest_night():
                             if marketing_night in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_night_parts[1] if len(guest_night_parts) > 1 else ''
                                 if current_type != marketing_night:
@@ -91,16 +101,26 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                                 if current_type != 'veg':
                                     update_night = f"{guest_night_count} veg"
                                     update_guest(guest_morning, update_night)
+
+
+                        if count == len(marketing_datas):
+                            if marketing_night in ['no_need', 'selected']:
+                                marketing_night = current_marketing_night
+                            update_guest_night()
+                            
                     count = 0
                     
             elif guest_morning_count != 0 and guest_night_count == 0:
                 if marketing_datas:
                     for marketing_data in marketing_datas:
                         count += 1
-                        if count == len(marketing_datas):
-                            marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
-                            marketing_morning = str(marketing_morning).strip()
-                            
+                        marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
+                        marketing_morning = str(marketing_morning).strip()
+
+                        if marketing_morning not in ['no_need', 'selected']:
+                            current_marketing_morning = marketing_morning 
+
+                        def update_guest_morning():
                             if marketing_morning in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_morning_parts[1] if len(guest_morning_parts) > 1 else ''
                                 if current_type != marketing_morning:
@@ -111,19 +131,30 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                                 if current_type != 'veg':
                                     update_morning = f"{guest_morning_count} veg"
                                     update_guest(update_morning, guest_night)
+
+                        if count == len(marketing_datas):
+                            if marketing_morning in ['no_need', 'selected']:
+                                marketing_morning = current_marketing_morning
+                            update_guest_morning()
                     count = 0
                     
             elif guest_morning_count != 0 and guest_night_count != 0:
                 if marketing_datas:
                     for marketing_data in marketing_datas:
                         count += 1
-                        if count == len(marketing_datas):
-                            marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
-                            marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
-                            
-                            marketing_morning = str(marketing_morning).strip()
-                            marketing_night = str(marketing_night).strip()
-                            
+
+                        marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
+                        marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
+                        
+                        marketing_morning = str(marketing_morning).strip()
+                        marketing_night = str(marketing_night).strip()
+
+                        if marketing_morning  not in ['no_need', 'selected']:
+                            current_marketing_morning = marketing_morning
+                        if marketing_night not in ['no_need', 'selected']:
+                            current_marketing_night = marketing_night
+
+                        def update_guests():
                             update_guest_morning = None
                             update_guest_night = None
                             
@@ -149,6 +180,19 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                                 final_morning = update_guest_morning if update_guest_morning else guest_morning
                                 final_night = update_guest_night if update_guest_night else guest_night
                                 update_guest(final_morning, final_night)
+
+                        if marketing_morning in ['no_need', 'selected'] or marketing_night in ['no_need', 'selected']:
+                            if count == len(marketing_datas) and marketing_morning in ['no_need', 'selected'] and marketing_night in ['no_need', 'selected']:
+                                marketing_morning = current_marketing_morning
+                                marketing_night = current_marketing_night
+                            elif count == len(marketing_datas) and marketing_morning in ['no_need', 'selected']:
+                                marketing_morning = current_marketing_morning
+                            elif count == len(marketing_datas) and marketing_night in ['no_need', 'selected']:
+                                marketing_night = current_marketing_night
+                            update_guests()
+                        elif count == len(marketing_datas):
+                            update_guests()
+
                     count = 0
                     
         except Exception as e:
@@ -168,19 +212,19 @@ def login():
             password = request.form.get('password', '')
             
             if not phone_number or not password:
-                message = "All fields are required"
-                return render_template('login.html', message=message)
+                flash("All fields are required", 'error')
+                return render_template('login.html')
             
             try:
                 phone_number = int(phone_number)
             except ValueError:
-                message = "Invalid phone number"
-                return render_template('login.html', message=message)
+                flash("Invalid phone number", 'error')
+                return render_template('login.html')
             
             conn = get_db()
             if not conn:
-                message = "Database connection error"
-                return render_template('login.html', message=message)
+                flash("Database connection error", 'error')
+                return render_template('login.html')
                 
             cursor = conn.cursor(dictionary=True)
             
@@ -189,20 +233,24 @@ def login():
             
             user = None
             blocked = None
+            mess_code1 = None
             if mess_code:
                 cursor.execute("SELECT mess_code, blocked FROM messes WHERE mess_code = %s", (mess_code,))
                 mess_details = cursor.fetchone()
-                mess_code = mess_details['mess_code'] if mess_details else None
+                mess_code1 = mess_details['mess_code'] if mess_details else None
                 blocked = int(mess_details['blocked']) if mess_details else None
-            if mess_code:
-                users = f"{mess_code}_users"
-                cursor.execute(f"SELECT * FROM `{users}` WHERE phone_number = %s", (phone_number,))
-                user = cursor.fetchone()
+                if mess_code1:
+                    users = f"{mess_code}_users"
+                    cursor.execute(f"SELECT * FROM `{users}` WHERE phone_number = %s", (phone_number,))
+                    user = cursor.fetchone()
+                else:
+                    flash("Invalid phone number or mess code", 'error')
+                    return render_template('login.html')
             
             conn.close()
             
             if user and blocked == 0:
-                if bcrypt.checkpw(password.encode(), user['password'].encode()):
+                if bcrypt.checkpw(password.encode(), user['password'] if isinstance(user['password'], bytes) else user['password'].encode()):
                     session['user_id'] = user['id']
                     session['name'] = user['name']
                     session['phone_number'] = user['phone_number']
@@ -212,7 +260,7 @@ def login():
                     session['mess_blocked'] = blocked
                     return redirect(url_for('portal'))
                 else:
-                    message = "Invalid login credentials"
+                    flash("Invalid login credentials", 'error')
             elif owner:
                 if bcrypt.checkpw(password.encode(), owner['password'].encode()):
                     session['owner_id'] = owner['id']
@@ -220,15 +268,15 @@ def login():
                     session['role'] = 'owner'
                     return redirect(url_for('owner_dashboard'))
                 else:
-                    message = "Invalid login credentials"
+                    flash("Invalid login credentials", 'error')
             else:
-                message = "Invalid login credentials"
+                flash("Invalid login credentials", 'error')
                 
         except Exception as e:
             print(f"Login error: {e}")
-            message = "An error occurred during login"
+            flash("An error occurred during login", 'error')
     
-    return render_template('login.html', message=message)
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -483,7 +531,7 @@ def owner_dashboard():
         
     cursor = conn.cursor(dictionary=True, buffered=True)
 
-    today = datetime.today().date()
+    today = datetime.now(ist).date()
     month_start = today.replace(day=1)
     next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
     last_day_of_month = next_month - timedelta(days=1)
@@ -724,7 +772,7 @@ def owner_dashboard():
                 flash(f'Error: {e}', 'error')
                 return redirect('/owner_dashboard')
             try:
-                cursor.execute(f"INSERT INTO `{variables}` (date) VALUES (%s)", (last_day_of_month,))
+                cursor.execute(f"INSERT INTO `{variables}` (date, meal_calculation_date) VALUES (%s, %s)", (last_day_of_month, last_day_of_month))
                 conn.commit()
             except Exception as e:
                 pass
@@ -836,7 +884,7 @@ def set_values():
     
     cursor = conn.cursor(dictionary=True)
     
-    today = datetime.today().date()
+    today = datetime.now(ist).date()
     month_start = today.replace(day=1)
     next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
     last_day_of_month = next_month - timedelta(days=1)
@@ -916,9 +964,9 @@ def dashboard():
         meals_data = []
 
         # Get today's date and month boundaries
-        today = datetime.today().date()
+        today = datetime.now(ist).date()
         privious_day = today - timedelta(days=1)
-        now = datetime.now().time()
+        now = datetime.now(ist).time()
         month_start = today.replace(day=1)
         next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
         last_day_of_month = next_month - timedelta(days=1)
@@ -1485,8 +1533,8 @@ def manager_dashboard():
         deposit_pending = str(mess_code) + "_deposit_pending"
 
         # Date calculations
-        today = datetime.today().date()
-        now = datetime.now().time()
+        today = datetime.now(ist).date()
+        now = datetime.now(ist).time()
         month_start = today.replace(day=1)
         next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
         last_day_of_month = next_month - timedelta(days=1)
@@ -2132,7 +2180,7 @@ def user_marketing_dashboard():
             cursor = conn.cursor(dictionary=True)
 
             # Date calculations
-            today = datetime.today().date()
+            today = datetime.now(ist).date()
             month_start = today.replace(day=1)
             next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
             last_day_of_month = next_month - timedelta(days=1)
@@ -2405,7 +2453,7 @@ def manager_marketing_dashboard():
         deposit_pending = str(mess_code + "_deposit_pending")
 
         # Date calculations
-        today = datetime.today().date()
+        today = datetime.now(ist).date()
         month_start = today.replace(day=1)
         next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
         last_day_of_month = next_month - timedelta(days=1)
@@ -2799,7 +2847,7 @@ def user_deposit_dashboard():
 
         # Get today's date and month start
         try:
-            today = datetime.today().date()
+            today = datetime.now(ist).date()
             month_start = today.replace(day=1)
         except Exception as date_err:
             print(f"Error getting current date: {str(date_err)}")
@@ -3069,7 +3117,7 @@ def manager_deposit_dashboard():
 
         # Get today's date and month start
         try:
-            today = datetime.today().date()
+            today = datetime.now(ist).date()
             month_start = today.replace(day=1)
         except Exception as date_err:
             print(f"Error getting current date: {str(date_err)}")
@@ -3624,8 +3672,8 @@ def user_meal_amount(unknow=None, know=None):
 
         # Get date information
         try:
-            today = datetime.today().date()
-            now = datetime.now().time()
+            today = datetime.now(ist).date()
+            now = datetime.now(ist).time()
             month_start = today.replace(day=1)
             next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
             last_day_of_month = next_month - timedelta(days=1)
@@ -4020,7 +4068,7 @@ def user_meal_amount(unknow=None, know=None):
                 total_nonveg = int(marketing_data[0].get('SUM(non_veg_money)') or 0)
                 total_other = int(marketing_data[0].get('SUM(other_money)') or 0)
                 total_common = int(marketing_data[0].get('SUM(common_money)') or 0)
-                total_marketing = total_shop + total_veg + total_other
+                total_marketing = total_shop + total_veg + total_other + total_nonveg + total_common
         except mysql.connector.Error as db_err:
             print(f"Database error fetching marketing data: {str(db_err)}")
 
@@ -4044,7 +4092,7 @@ def user_meal_amount(unknow=None, know=None):
         mealcharge = 0
         try:
             if total_meals > 0:
-                mealcharge = (((total_marketing - guest_amount) - total_deposit) / total_meals)
+                mealcharge = (((total_marketing - guest_amount)) / total_meals)
             else:
                 mealcharge = 0
         except ZeroDivisionError:
@@ -4314,6 +4362,7 @@ def user_meal_amount(unknow=None, know=None):
             "total_shop": total_shop,
             "total_veg": total_veg,
             "total_nonveg": total_nonveg,
+            "total_other": total_other,
             "total_common": total_common
         }
 
@@ -4429,8 +4478,8 @@ def manager_meal_amount():
     meal_charge = str((mess_code) + "_meal_charge")
     variables = str((mess_code) + "_variables")
 
-    today = datetime.today().date()
-    now = datetime.now().time()
+    today = datetime.now(ist).date()
+    now = datetime.now(ist).time()
     month_start = today.replace(day=1)
     next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
     last_day_of_month = next_month - timedelta(days=1)
@@ -4758,10 +4807,10 @@ def today_update():
     meal_charge = str((mess_code) + "_meal_charge")
     variables = str((mess_code) + "_variables")
 
-    today = datetime.today().date()
+    today = datetime.now(ist).date()
     tomorrow = today + timedelta(days=1)
     yesterday = today - timedelta(days=1)
-    now = datetime.now().time()
+    now = datetime.now(ist).time()
     month_start = today.replace(day=1)
     next_month = (today.replace(day=28) + timedelta(days=4)).replace(day=1)
     last_day_of_month = next_month - timedelta(days=1)
@@ -4884,7 +4933,7 @@ def today_update():
             message = "Please select a date."
             session['message'] = message
             return redirect(url_for('today_update'))
-    
+    print("Server IST time:", now)
     return render_template('today_update.html', 
                             todayOrSearch_morning_datas = search_date_morning_datas if search_date_morning_datas else today_morning_datas, 
                             todayOrSearch_total_morning=search_date_total_morning if search_date_total_morning else today_total_morning,   

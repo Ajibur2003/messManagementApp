@@ -677,7 +677,7 @@ def owner_dashboard():
 
             try:
                 cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{marketing_pending}` (
-                    sl_no BIGINT UNIQUE AUTO_INCREMENT,
+                    sl_no BIGINT AUTO_INCREMENT PRIMARY KEY,
                     id BIGINT,
                     username VARCHAR(60),
                     date DATE,
@@ -693,6 +693,7 @@ def owner_dashboard():
                 )""")
                 conn.commit()
             except Exception as e:
+                print(e)
                 flash(f'Error: {e}', 'error')
                 return redirect('/owner_dashboard')
             
@@ -714,7 +715,7 @@ def owner_dashboard():
 
             try:
                 cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{deposit_pending}` (
-                    SL_no BIGINT UNIQUE AUTO_INCREMENT,
+                    SL_no BIGINT AUTO_INCREMENT PRIMARY KEY,
                     id BIGINT,
                     name VARCHAR(100),
                     date DATE,
@@ -730,7 +731,7 @@ def owner_dashboard():
 
             try:
                 cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{variables}` (
-                    id BIGINT UNIQUE AUTO_INCREMENT,
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     manager_name VARCHAR(100) DEFAULT NULL,
                     date DATE UNIQUE,
                     meal_charge DECIMAL(10,2) DEFAULT 0,

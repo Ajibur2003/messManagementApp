@@ -4167,7 +4167,7 @@ def user_meal_amount(unknow=None, know=None):
         total_user_meals, total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest, total_user_guests, user_guest_amount, total_user_deposit, total_common, amount = find_meal_charge(user_id, total_common)
 
         # Update meal charge data
-        if (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
+        if (today == calculation_date and datetime.strptime('23:55', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('23:55', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
             try:
                 # Fetch active users
                 active_users_update = []

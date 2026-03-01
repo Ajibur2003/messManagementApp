@@ -391,7 +391,7 @@
         <!-- Register New Mess -->
         <div class="form-card">
             <h2>📋 Register New Mess</h2>
-            <form method="POST" id="registerMessForm" novalidate onsubmit="return validateRegisterMessForm();">
+            <form method="POST" id="registerMessForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');;">
                 <input type="hidden" name="form_type" value="register_mess">
                 
                 <div class="form-grid">
@@ -533,7 +533,7 @@
         <!-- Create Table -->
         <div class="form-card">
             <h2>🗂️ Create Table</h2>
-            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="createTableForm" novalidate onsubmit="return validateCreateTableForm();">
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="createTableForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
                 <input type="hidden" name="create_table" value="submit">
                 
                 <div class="form-group">
@@ -560,7 +560,7 @@
         <!-- Assign Head Manager -->
         <div class="form-card">
             <h2>👨‍💼 Assign Head Manager to Mess</h2>
-            <form method="POST" id="assignManagerForm" novalidate onsubmit="return validateAssignManagerForm();">
+            <form method="POST" id="assignManagerForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
                 <input type="hidden" name="form_type" value="assign_manager">
                 
                 <div class="form-group">
@@ -679,7 +679,7 @@
         <!-- Set Date -->
         <div class="form-card">
             <h2>📅 Set Dates</h2>
-            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="setDateForm" novalidate onsubmit="return validateSetDateForm();">
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="setDateForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
                 <input type="hidden" name="form_type" value="set_dates">
                 
                 <div class="form-group">

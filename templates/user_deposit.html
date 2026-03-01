@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>User Deposit</title>
@@ -24,7 +25,7 @@
             background: white;
             padding: 15px 30px;
             margin: -20px -20px 30px -20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -65,7 +66,7 @@
             background: white;
             border-radius: 15px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             margin-bottom: 30px;
             animation: fadeIn 0.6s ease-out;
         }
@@ -111,7 +112,7 @@
             padding: 15px 20px;
             margin-bottom: 10px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -267,7 +268,7 @@
             display: none;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -289,7 +290,7 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow-x: auto;
         }
 
@@ -377,7 +378,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -390,7 +391,7 @@
         .loading-spinner {
             width: 60px;
             height: 60px;
-            border: 5px solid rgba(255,255,255,0.3);
+            border: 5px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -402,6 +403,7 @@
                 transform: translateY(-100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -413,6 +415,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -424,6 +427,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -485,7 +489,8 @@
                 font-size: 0.85rem;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 10px 8px;
             }
         }
@@ -508,12 +513,14 @@
                 font-size: 0.75rem;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 8px 5px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Header with Back to Portal Button -->
     <div class="header">
@@ -528,15 +535,15 @@
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages" id="flashMessages">
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        <span>{{ message }}</span>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="flash-messages" id="flashMessages">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
     <!-- Deposit Form Section -->
@@ -545,7 +552,7 @@
         {% if message %}
         <h4>{{ message }}</h4>
         {% endif %}
-        <form method="POST" id="depositForm" novalidate onsubmit="return validateDepositForm();">
+        <form method="POST" id="depositForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
             <div class="radio-group">
                 <label>
                     <input type="radio" name="meal_deposit" value="yes_deposit" onchange="toggleDepositForm()">
@@ -571,7 +578,8 @@
 
                 <div class="form-group">
                     <label>Money <span style="color: red;">*</span></label>
-                    <input type="number" step="0.01" name="money" id="money" placeholder="Enter deposit amount" min="0.01">
+                    <input type="number" step="0.01" name="money" id="money" placeholder="Enter deposit amount"
+                        min="0.01">
                     <span class="error-message" id="money-error">Please enter a valid amount greater than 0</span>
                 </div>
 
@@ -583,13 +591,15 @@
                         <option value="nagad">Nagad</option>
                         <option value="cash">Cash</option>
                         <option value="bank">Bank Transfer</option>
+                        <option value="marketing">Marketing</option>
                     </select>
                     <span class="error-message" id="payment_by-error">Please select a payment method</span>
                 </div>
 
                 <div class="form-group">
                     <label>Other Notes</label>
-                    <input type="text" name="other_note" id="other_note" placeholder="Enter any other notes" maxlength="255">
+                    <input type="text" name="other_note" id="other_note" placeholder="Enter any other notes"
+                        maxlength="255">
                     <span class="error-message" id="other_note-error">Note is too long</span>
                 </div>
             </div>
@@ -619,627 +629,615 @@
     <h3 style="color: #e0e0e0;">Your Deposits</h3>
     <div class="table-container">
         {% if (entries and entries|length > 0) or (deposit_datas and deposit_datas|length > 0) %}
-            <table border="1">
-                <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Payment By</th>
-                    <th>Other Notes</th>
-                    <th>Status</th>
-                </tr>
-                {% for entry in entries %}
-                    {% if entry.status == 'pending' %}
-                    <tr>
-                        <td>{{ entry.date if entry.date else 'N/A' }}</td>
-                        <td>{{ entry.money if entry.money is not none else '0.00' }}</td>
-                        <td>{{ entry.payment_by if entry.payment_by else 'N/A' }}</td>
-                        <td>{{ entry.note if entry.note else '-' }}</td>
-                        <td><span class="status-badge status-{{ entry.status }}">{{ entry.status }}</span></td>
-                    </tr>
-                    {% endif %}
-                {% endfor %}
-                {% for data in deposit_datas %}
-                <tr>
-                    <td>{{ data.date if data.date else 'N/A' }}</td>
-                    <td>{{ data.money if data.money is not none else '0.00' }}</td>
-                    <td>{{ data.payment_by if data.payment_by else 'N/A' }}</td>
-                    <td>{{ data.note if data.note else '-' }}</td>
-                    <td><span class="status-badge status-{{ data.status }}">{{ data.status }}</span></td>
-                </tr>
-                {% endfor %}
-            </table>
+        <table border="1">
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Payment By</th>
+                <th>Other Notes</th>
+                <th>Status</th>
+            </tr>
+            {% for entry in entries %}
+            {% if entry.status == 'pending' %}
+            <tr>
+                <td>{{ entry.date if entry.date else 'N/A' }}</td>
+                <td>{{ entry.money if entry.money is not none else '0.00' }}</td>
+                <td>{{ entry.payment_by if entry.payment_by else 'N/A' }}</td>
+                <td>{{ entry.note if entry.note else '-' }}</td>
+                <td><span class="status-badge status-{{ entry.status }}">{{ entry.status }}</span></td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            {% for data in deposit_datas %}
+            <tr>
+                <td>{{ data.date if data.date else 'N/A' }}</td>
+                <td>{{ data.money if data.money is not none else '0.00' }}</td>
+                <td>{{ data.payment_by if data.payment_by else 'N/A' }}</td>
+                <td>{{ data.note if data.note else '-' }}</td>
+                <td><span class="status-badge status-{{ data.status }}">{{ data.status }}</span></td>
+            </tr>
+            {% endfor %}
+        </table>
         {% else %}
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <p>No deposit records found</p>
-            </div>
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p>No deposit records found</p>
+        </div>
         {% endif %}
     </div>
 
     <script>
-    // Original JavaScript - Preserved
-    function toggleDepositForm() {
-        const depositForm = document.getElementById('deposit_form');
-        const fetchDataForm = document.getElementById('fetch_data_form');
-        const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
-        
-        if (!mealDeposit) {
-            depositForm.style.display = 'none';
-            fetchDataForm.style.display = 'none';
-            return;
-        }
-        
-        if (mealDeposit.value === 'yes_deposit') {
-            depositForm.style.display = 'block';
-            fetchDataForm.style.display = 'none';
-        } else if (mealDeposit.value === 'fetch_data') {
-            depositForm.style.display = 'none';
-            fetchDataForm.style.display = 'block';
-        } else {
-            depositForm.style.display = 'none';
-            fetchDataForm.style.display = 'none';
-        }
-    }
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleDepositForm();
-    });
+        // Original JavaScript - Preserved
+        function toggleDepositForm() {
+            const depositForm = document.getElementById('deposit_form');
+            const fetchDataForm = document.getElementById('fetch_data_form');
+            const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
 
-    // NEW ADDED JavaScript for 18 Features (Does not modify existing logic)
+            if (!mealDeposit) {
+                depositForm.style.display = 'none';
+                fetchDataForm.style.display = 'none';
+                return;
+            }
 
-    // Feature 18: Auto-dismiss Flash Messages After 5 Seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        const flashMessages = document.querySelectorAll('.flash-message');
-        flashMessages.forEach(function(message) {
-            setTimeout(function() {
-                message.style.animation = 'slideInRight 0.5s ease-out reverse';
-                message.style.opacity = '0';
-                setTimeout(function() {
-                    message.remove();
-                }, 500);
-            }, 5000);
+            if (mealDeposit.value === 'yes_deposit') {
+                depositForm.style.display = 'block';
+                fetchDataForm.style.display = 'none';
+            } else if (mealDeposit.value === 'fetch_data') {
+                depositForm.style.display = 'none';
+                fetchDataForm.style.display = 'block';
+            } else {
+                depositForm.style.display = 'none';
+                fetchDataForm.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleDepositForm();
         });
-    });
 
-    // Feature 8: Unsaved Changes Warning Before Leaving Page
-    let formModified = false;
-    const form = document.getElementById('depositForm');
-    
-    if (form) {
-        const formInputs = form.querySelectorAll('input, select, textarea');
-        formInputs.forEach(function(input) {
-            if (!input.hasAttribute('readonly')) {
-                input.addEventListener('change', function() {
-                    formModified = true;
-                });
+        // NEW ADDED JavaScript for 18 Features (Does not modify existing logic)
+
+        // Feature 18: Auto-dismiss Flash Messages After 5 Seconds
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                setTimeout(function () {
+                    message.style.animation = 'slideInRight 0.5s ease-out reverse';
+                    message.style.opacity = '0';
+                    setTimeout(function () {
+                        message.remove();
+                    }, 500);
+                }, 5000);
+            });
+        });
+
+        // Feature 8: Unsaved Changes Warning Before Leaving Page
+        let formModified = false;
+        const form = document.getElementById('depositForm');
+
+        if (form) {
+            const formInputs = form.querySelectorAll('input, select, textarea');
+            formInputs.forEach(function (input) {
+                if (!input.hasAttribute('readonly')) {
+                    input.addEventListener('change', function () {
+                        formModified = true;
+                    });
+                }
+            });
+
+            window.addEventListener('beforeunload', function (e) {
+                if (formModified) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
+            });
+
+            form.addEventListener('submit', function () {
+                formModified = false;
+            });
+        }
+
+        // Feature 2: Pre-filled Form Fields - Set today's date
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateField = document.getElementById('date');
+            if (dateField && !dateField.value) {
+                const today = new Date().toISOString().split('T')[0];
+                dateField.value = today;
             }
         });
 
-        window.addEventListener('beforeunload', function(e) {
-            if (formModified) {
-                e.preventDefault();
-                e.returnValue = '';
-                return '';
+        // Feature 3 & 4: Real-time Validation Feedback & Success State Styling
+        function validateField(field) {
+            const value = field.value.trim();
+            const fieldId = field.id;
+            const errorElement = document.getElementById(fieldId + '-error');
+            let isValid = true;
+            let errorMessage = '';
+
+            // Number validation
+            if (field.type === 'number' && fieldId === 'money') {
+                if (value && parseFloat(value) <= 0) {
+                    isValid = false;
+                    errorMessage = 'Amount must be greater than 0';
+                }
             }
-        });
 
-        form.addEventListener('submit', function() {
-            formModified = false;
-        });
-    }
+            // Select validation
+            if (field.tagName === 'SELECT' && fieldId === 'payment_by') {
+                if (value === '' || value === 'selected') {
+                    isValid = false;
+                    errorMessage = 'Please select a payment method';
+                }
+            }
 
-    // Feature 2: Pre-filled Form Fields - Set today's date
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateField = document.getElementById('date');
-        if (dateField && !dateField.value) {
-            const today = new Date().toISOString().split('T')[0];
-            dateField.value = today;
-        }
-    });
-
-    // Feature 3 & 4: Real-time Validation Feedback & Success State Styling
-    function validateField(field) {
-        const value = field.value.trim();
-        const fieldId = field.id;
-        const errorElement = document.getElementById(fieldId + '-error');
-        let isValid = true;
-        let errorMessage = '';
-
-        // Date validation
-        if (field.type === 'date' && value) {
-            const selectedDate = new Date(value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (selectedDate > today) {
+            // Note length validation
+            if (fieldId === 'other_note' && value.length > 255) {
                 isValid = false;
-                errorMessage = 'Date cannot be in the future';
+                errorMessage = 'Note is too long (max 255 characters)';
             }
-        }
 
-        // Number validation
-        if (field.type === 'number' && fieldId === 'money') {
-            if (value && parseFloat(value) <= 0) {
-                isValid = false;
-                errorMessage = 'Amount must be greater than 0';
-            }
-        }
-
-        // Select validation
-        if (field.tagName === 'SELECT' && fieldId === 'payment_by') {
-            if (value === '' || value === 'selected') {
-                isValid = false;
-                errorMessage = 'Please select a payment method';
-            }
-        }
-
-        // Note length validation
-        if (fieldId === 'other_note' && value.length > 255) {
-            isValid = false;
-            errorMessage = 'Note is too long (max 255 characters)';
-        }
-
-        // Apply styling
-        if (value) {
-            if (isValid) {
-                field.classList.add('valid');
-                field.classList.remove('invalid');
+            // Apply styling
+            if (value) {
+                if (isValid) {
+                    field.classList.add('valid');
+                    field.classList.remove('invalid');
+                    if (errorElement) {
+                        errorElement.classList.remove('show');
+                    }
+                } else {
+                    field.classList.add('invalid');
+                    field.classList.remove('valid');
+                    if (errorElement) {
+                        errorElement.textContent = errorMessage;
+                        errorElement.classList.add('show');
+                    }
+                }
+            } else {
+                field.classList.remove('valid', 'invalid');
                 if (errorElement) {
                     errorElement.classList.remove('show');
                 }
-            } else {
-                field.classList.add('invalid');
-                field.classList.remove('valid');
-                if (errorElement) {
-                    errorElement.textContent = errorMessage;
-                    errorElement.classList.add('show');
-                }
             }
-        } else {
-            field.classList.remove('valid', 'invalid');
-            if (errorElement) {
-                errorElement.classList.remove('show');
-            }
+
+            return isValid;
         }
 
-        return isValid;
-    }
-
-    // Add validation listeners to all form fields
-    document.addEventListener('DOMContentLoaded', function() {
-        const allFields = document.querySelectorAll('#depositForm input:not([readonly]), #depositForm select');
-        allFields.forEach(function(field) {
-            field.addEventListener('blur', function() {
-                validateField(this);
-            });
-            
-            field.addEventListener('input', function() {
-                if (this.classList.contains('invalid')) {
+        // Add validation listeners to all form fields
+        document.addEventListener('DOMContentLoaded', function () {
+            const allFields = document.querySelectorAll('#depositForm input:not([readonly]), #depositForm select');
+            allFields.forEach(function (field) {
+                field.addEventListener('blur', function () {
                     validateField(this);
-                }
+                });
+
+                field.addEventListener('input', function () {
+                    if (this.classList.contains('invalid')) {
+                        validateField(this);
+                    }
+                });
             });
         });
-    });
 
-    // Feature 10 & 5: Form Validation Before Submission & Scroll to First Error
-    form.addEventListener('submit', function(e) {
-        const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
-        
-        if (!mealDeposit) {
-            e.preventDefault();
-            alert('Please select either Deposit Form or Fetch Deposit Data');
-            return false;
-        }
+        // Feature 10 & 5: Form Validation Before Submission & Scroll to First Error
+        form.addEventListener('submit', function (e) {
+            const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
 
-        let isValid = true;
-        let firstInvalidField = null;
+            if (!mealDeposit) {
+                e.preventDefault();
+                alert('Please select either Deposit Form or Fetch Deposit Data');
+                return false;
+            }
 
-        if (mealDeposit.value === 'yes_deposit') {
-            const requiredFields = ['date', 'money', 'payment_by'];
-            
-            requiredFields.forEach(function(fieldId) {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    const value = field.value.trim();
-                    
-                    if (!value || (field.tagName === 'SELECT' && value === '')) {
-                        isValid = false;
-                        field.classList.add('invalid');
-                        const errorElement = document.getElementById(fieldId + '-error');
-                        if (errorElement) {
-                            errorElement.classList.add('show');
-                        }
-                        if (!firstInvalidField) {
-                            firstInvalidField = field;
-                        }
-                    } else {
-                        if (!validateField(field)) {
+            let isValid = true;
+            let firstInvalidField = null;
+
+            if (mealDeposit.value === 'yes_deposit') {
+                const requiredFields = ['date', 'money', 'payment_by'];
+
+                requiredFields.forEach(function (fieldId) {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        const value = field.value.trim();
+
+                        if (!value || (field.tagName === 'SELECT' && value === '')) {
                             isValid = false;
+                            field.classList.add('invalid');
+                            const errorElement = document.getElementById(fieldId + '-error');
+                            if (errorElement) {
+                                errorElement.classList.add('show');
+                            }
                             if (!firstInvalidField) {
                                 firstInvalidField = field;
                             }
+                        } else {
+                            if (!validateField(field)) {
+                                isValid = false;
+                                if (!firstInvalidField) {
+                                    firstInvalidField = field;
+                                }
+                            }
                         }
                     }
-                }
-            });
+                });
 
-        } else if (mealDeposit.value === 'fetch_data') {
-            const startDateField = document.getElementById('start_date');
-            const endDateField = document.getElementById('end_date');
+            } else if (mealDeposit.value === 'fetch_data') {
+                const startDateField = document.getElementById('start_date');
+                const endDateField = document.getElementById('end_date');
 
-            if (!startDateField.value) {
-                isValid = false;
-                startDateField.classList.add('invalid');
-                const errorElement = document.getElementById('start_date-error');
-                if (errorElement) {
-                    errorElement.classList.add('show');
+                if (!startDateField.value) {
+                    isValid = false;
+                    startDateField.classList.add('invalid');
+                    const errorElement = document.getElementById('start_date-error');
+                    if (errorElement) {
+                        errorElement.classList.add('show');
+                    }
+                    if (!firstInvalidField) {
+                        firstInvalidField = startDateField;
+                    }
                 }
-                if (!firstInvalidField) {
-                    firstInvalidField = startDateField;
-                }
-            }
 
-            if (!endDateField.value) {
-                isValid = false;
-                endDateField.classList.add('invalid');
-                const errorElement = document.getElementById('end_date-error');
-                if (errorElement) {
-                    errorElement.classList.add('show');
-                }
-                if (!firstInvalidField) {
-                    firstInvalidField = endDateField;
-                }
-            }
-
-            // Date range validation
-            if (startDateField.value && endDateField.value) {
-                const startDate = new Date(startDateField.value);
-                const endDate = new Date(endDateField.value);
-                
-                if (startDate > endDate) {
+                if (!endDateField.value) {
                     isValid = false;
                     endDateField.classList.add('invalid');
                     const errorElement = document.getElementById('end_date-error');
                     if (errorElement) {
-                        errorElement.textContent = 'End date must be after start date';
                         errorElement.classList.add('show');
                     }
                     if (!firstInvalidField) {
                         firstInvalidField = endDateField;
                     }
                 }
-            }
-        }
 
-        if (!isValid) {
-            e.preventDefault();
-            
-            // Feature 5: Scroll to first error field
-            if (firstInvalidField) {
-                firstInvalidField.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-                setTimeout(function() {
-                    firstInvalidField.focus();
-                }, 500);
-            }
-            
-            return false;
-        }
-
-        // Feature 11 & 15: Disabled Submit Buttons During Processing & Loading States
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
-        
-        // Show loading overlay
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.classList.add('active');
-        }
-
-        return true;
-    });
-
-    // Feature 7: Prevents Form Resubmission on Refresh
-    if (window.history.replaceState) {
-        window.history.replaceState(null, null, window.location.href);
-    }
-
-    // Feature 14: Input Sanitization
-    document.addEventListener('DOMContentLoaded', function() {
-        // Sanitize number inputs
-        const moneyInput = document.getElementById('money');
-        if (moneyInput) {
-            moneyInput.addEventListener('input', function() {
-                // Remove any non-numeric characters except decimal point
-                this.value = this.value.replace(/[^0-9.]/g, '');
-                
-                // Ensure only one decimal point
-                const parts = this.value.split('.');
-                if (parts.length > 2) {
-                    this.value = parts[0] + '.' + parts.slice(1).join('');
-                }
-                
-                // Limit to 2 decimal places
-                if (parts.length === 2 && parts[1].length > 2) {
-                    this.value = parts[0] + '.' + parts[1].substring(0, 2);
-                }
-            });
-        }
-
-        // Sanitize text inputs (trim whitespace)
-        const textInputs = document.querySelectorAll('input[type="text"]:not([readonly])');
-        textInputs.forEach(function(input) {
-            input.addEventListener('blur', function() {
-                this.value = this.value.trim();
-            });
-        });
-
-        // Sanitize note field length
-        const noteField = document.getElementById('other_note');
-        if (noteField) {
-            noteField.addEventListener('input', function() {
-                if (this.value.length > 255) {
-                    this.value = this.value.substring(0, 255);
-                    const errorElement = document.getElementById('other_note-error');
-                    if (errorElement) {
-                        errorElement.textContent = 'Note has been trimmed to 255 characters';
-                        errorElement.classList.add('show');
-                        setTimeout(function() {
-                            errorElement.classList.remove('show');
-                        }, 3000);
-                    }
-                }
-            });
-        }
-    });
-
-    // Validate date ranges for fetch data form
-    document.addEventListener('DOMContentLoaded', function() {
-        const startDateField = document.getElementById('start_date');
-        const endDateField = document.getElementById('end_date');
-
-        if (startDateField && endDateField) {
-            function validateDateRange() {
+                // Date range validation
                 if (startDateField.value && endDateField.value) {
                     const startDate = new Date(startDateField.value);
                     const endDate = new Date(endDateField.value);
-                    
+
                     if (startDate > endDate) {
+                        isValid = false;
                         endDateField.classList.add('invalid');
-                        endDateField.classList.remove('valid');
                         const errorElement = document.getElementById('end_date-error');
                         if (errorElement) {
                             errorElement.textContent = 'End date must be after start date';
                             errorElement.classList.add('show');
                         }
-                    } else {
-                        endDateField.classList.remove('invalid');
-                        if (endDateField.value) {
-                            endDateField.classList.add('valid');
-                        }
-                        const errorElement = document.getElementById('end_date-error');
-                        if (errorElement) {
-                            errorElement.classList.remove('show');
+                        if (!firstInvalidField) {
+                            firstInvalidField = endDateField;
                         }
                     }
                 }
             }
 
-            startDateField.addEventListener('change', validateDateRange);
-            endDateField.addEventListener('change', validateDateRange);
-        }
-    });
+            if (!isValid) {
+                e.preventDefault();
 
-    // Enhanced validation for money field
-    document.addEventListener('DOMContentLoaded', function() {
-        const moneyField = document.getElementById('money');
-        if (moneyField) {
-            moneyField.addEventListener('blur', function() {
-                const value = parseFloat(this.value);
-                if (this.value && value <= 0) {
-                    this.classList.add('invalid');
-                    this.classList.remove('valid');
-                    const errorElement = document.getElementById('money-error');
-                    if (errorElement) {
-                        errorElement.textContent = 'Amount must be greater than 0';
-                        errorElement.classList.add('show');
-                    }
-                } else if (this.value) {
-                    this.classList.add('valid');
-                    this.classList.remove('invalid');
-                    const errorElement = document.getElementById('money-error');
-                    if (errorElement) {
-                        errorElement.classList.remove('show');
-                    }
+                // Feature 5: Scroll to first error field
+                if (firstInvalidField) {
+                    firstInvalidField.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    setTimeout(function () {
+                        firstInvalidField.focus();
+                    }, 500);
                 }
-            });
-        }
-    });
 
-    // Enhanced validation for payment method
-    document.addEventListener('DOMContentLoaded', function() {
-        const paymentField = document.getElementById('payment_by');
-        if (paymentField) {
-            paymentField.addEventListener('change', function() {
-                if (this.value && this.value !== '') {
-                    this.classList.add('valid');
-                    this.classList.remove('invalid');
-                    const errorElement = document.getElementById('payment_by-error');
-                    if (errorElement) {
-                        errorElement.classList.remove('show');
+                return false;
+            }
+
+            // Feature 11 & 15: Disabled Submit Buttons During Processing & Loading States
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('active');
+            }
+
+            return true;
+        });
+
+        // Feature 7: Prevents Form Resubmission on Refresh
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        // Feature 14: Input Sanitization
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sanitize number inputs
+            const moneyInput = document.getElementById('money');
+            if (moneyInput) {
+                moneyInput.addEventListener('input', function () {
+                    // Remove any non-numeric characters except decimal point
+                    this.value = this.value.replace(/[^0-9.]/g, '');
+
+                    // Ensure only one decimal point
+                    const parts = this.value.split('.');
+                    if (parts.length > 2) {
+                        this.value = parts[0] + '.' + parts.slice(1).join('');
                     }
-                }
-            });
-        }
-    });
 
-    // Enhanced date validation
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateField = document.getElementById('date');
-        if (dateField) {
-            dateField.addEventListener('change', function() {
-                if (this.value) {
-                    const selectedDate = new Date(this.value);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    
-                    if (selectedDate >= today) {
-                        this.classList.add('invalid');
-                        this.classList.remove('valid');
-                        const errorElement = document.getElementById('date-error');
+                    // Limit to 2 decimal places
+                    if (parts.length === 2 && parts[1].length > 2) {
+                        this.value = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                });
+            }
+
+            // Sanitize text inputs (trim whitespace)
+            const textInputs = document.querySelectorAll('input[type="text"]:not([readonly])');
+            textInputs.forEach(function (input) {
+                input.addEventListener('blur', function () {
+                    this.value = this.value.trim();
+                });
+            });
+
+            // Sanitize note field length
+            const noteField = document.getElementById('other_note');
+            if (noteField) {
+                noteField.addEventListener('input', function () {
+                    if (this.value.length > 255) {
+                        this.value = this.value.substring(0, 255);
+                        const errorElement = document.getElementById('other_note-error');
                         if (errorElement) {
-                            errorElement.textContent = 'Date cannot be in the future';
+                            errorElement.textContent = 'Note has been trimmed to 255 characters';
                             errorElement.classList.add('show');
-                        }
-                    } else {
-                        this.classList.add('valid');
-                        this.classList.remove('invalid');
-                        const errorElement = document.getElementById('date-error');
-                        if (errorElement) {
-                            errorElement.classList.remove('show');
+                            setTimeout(function () {
+                                errorElement.classList.remove('show');
+                            }, 3000);
                         }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
 
-        const startDateField = document.getElementById('start_date');
-        if (startDateField) {
-            startDateField.addEventListener('change', function() {
-                if (this.value) {
-                    this.classList.add('valid');
-                    this.classList.remove('invalid');
-                    const errorElement = document.getElementById('start_date-error');
-                    if (errorElement) {
-                        errorElement.classList.remove('show');
-                    }
-                }
-            });
-        }
+        // Validate date ranges for fetch data form
+        document.addEventListener('DOMContentLoaded', function () {
+            const startDateField = document.getElementById('start_date');
+            const endDateField = document.getElementById('end_date');
 
-        const endDateField = document.getElementById('end_date');
-        if (endDateField) {
-            endDateField.addEventListener('change', function() {
-                if (this.value) {
-                    const startDate = document.getElementById('start_date').value;
-                    if (startDate) {
-                        const start = new Date(startDate);
-                        const end = new Date(this.value);
-                        
-                        if (end >= start) {
-                            this.classList.add('valid');
-                            this.classList.remove('invalid');
+            if (startDateField && endDateField) {
+                function validateDateRange() {
+                    if (startDateField.value && endDateField.value) {
+                        const startDate = new Date(startDateField.value);
+                        const endDate = new Date(endDateField.value);
+
+                        if (startDate > endDate) {
+                            endDateField.classList.add('invalid');
+                            endDateField.classList.remove('valid');
+                            const errorElement = document.getElementById('end_date-error');
+                            if (errorElement) {
+                                errorElement.textContent = 'End date must be after start date';
+                                errorElement.classList.add('show');
+                            }
+                        } else {
+                            endDateField.classList.remove('invalid');
+                            if (endDateField.value) {
+                                endDateField.classList.add('valid');
+                            }
                             const errorElement = document.getElementById('end_date-error');
                             if (errorElement) {
                                 errorElement.classList.remove('show');
                             }
                         }
+                    }
+                }
+
+                startDateField.addEventListener('change', validateDateRange);
+                endDateField.addEventListener('change', validateDateRange);
+            }
+        });
+
+        // Enhanced validation for money field
+        document.addEventListener('DOMContentLoaded', function () {
+            const moneyField = document.getElementById('money');
+            if (moneyField) {
+                moneyField.addEventListener('blur', function () {
+                    const value = parseFloat(this.value);
+                    if (this.value && value <= 0) {
+                        this.classList.add('invalid');
+                        this.classList.remove('valid');
+                        const errorElement = document.getElementById('money-error');
+                        if (errorElement) {
+                            errorElement.textContent = 'Amount must be greater than 0';
+                            errorElement.classList.add('show');
+                        }
                     } else if (this.value) {
                         this.classList.add('valid');
                         this.classList.remove('invalid');
+                        const errorElement = document.getElementById('money-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
                     }
-                }
-            });
-        }
-    });
+                });
+            }
+        });
 
-    // Clear validation on radio button change
-    document.addEventListener('DOMContentLoaded', function() {
-        const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
-        radioButtons.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                // Clear all validation states
-                const allInputs = document.querySelectorAll('#depositForm input, #depositForm select');
-                allInputs.forEach(function(input) {
-                    input.classList.remove('valid', 'invalid');
+        // Enhanced validation for payment method
+        document.addEventListener('DOMContentLoaded', function () {
+            const paymentField = document.getElementById('payment_by');
+            if (paymentField) {
+                paymentField.addEventListener('change', function () {
+                    if (this.value && this.value !== '') {
+                        this.classList.add('valid');
+                        this.classList.remove('invalid');
+                        const errorElement = document.getElementById('payment_by-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
+                    }
                 });
-                
-                // Clear all error messages
-                const allErrors = document.querySelectorAll('.error-message');
-                allErrors.forEach(function(error) {
-                    error.classList.remove('show');
+            }
+        });
+
+        // Enhanced date validation
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateField = document.getElementById('date');
+            if (dateField) {
+                dateField.addEventListener('change', function () {
+                    if (this.value) {
+                        const selectedDate = new Date(this.value);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        if (selectedDate > today) {
+                            this.classList.add('invalid');
+                            this.classList.remove('valid');
+                            const errorElement = document.getElementById('date-error');
+                            if (errorElement) {
+                                errorElement.textContent = 'Date cannot be in the future';
+                                errorElement.classList.add('show');
+                            }
+                        } else {
+                            this.classList.add('valid');
+                            this.classList.remove('invalid');
+                            const errorElement = document.getElementById('date-error');
+                            if (errorElement) {
+                                errorElement.classList.remove('show');
+                            }
+                        }
+                    }
                 });
-                
-                // Reset form modified flag
-                formModified = false;
+            }
+
+            const startDateField = document.getElementById('start_date');
+            if (startDateField) {
+                startDateField.addEventListener('change', function () {
+                    if (this.value) {
+                        this.classList.add('valid');
+                        this.classList.remove('invalid');
+                        const errorElement = document.getElementById('start_date-error');
+                        if (errorElement) {
+                            errorElement.classList.remove('show');
+                        }
+                    }
+                });
+            }
+
+            const endDateField = document.getElementById('end_date');
+            if (endDateField) {
+                endDateField.addEventListener('change', function () {
+                    if (this.value) {
+                        const startDate = document.getElementById('start_date').value;
+                        if (startDate) {
+                            const start = new Date(startDate);
+                            const end = new Date(this.value);
+
+                            if (end >= start) {
+                                this.classList.add('valid');
+                                this.classList.remove('invalid');
+                                const errorElement = document.getElementById('end_date-error');
+                                if (errorElement) {
+                                    errorElement.classList.remove('show');
+                                }
+                            }
+                        } else if (this.value) {
+                            this.classList.add('valid');
+                            this.classList.remove('invalid');
+                        }
+                    }
+                });
+            }
+        });
+
+        // Clear validation on radio button change
+        document.addEventListener('DOMContentLoaded', function () {
+            const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
+            radioButtons.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    // Clear all validation states
+                    const allInputs = document.querySelectorAll('#depositForm input, #depositForm select');
+                    allInputs.forEach(function (input) {
+                        input.classList.remove('valid', 'invalid');
+                    });
+
+                    // Clear all error messages
+                    const allErrors = document.querySelectorAll('.error-message');
+                    allErrors.forEach(function (error) {
+                        error.classList.remove('show');
+                    });
+
+                    // Reset form modified flag
+                    formModified = false;
+                });
             });
         });
-    });
 
-    // Prevent multiple form submissions
-    let isSubmitting = false;
-    document.addEventListener('DOMContentLoaded', function() {
-        const depositForm = document.getElementById('depositForm');
-        if (depositForm) {
-            depositForm.addEventListener('submit', function(e) {
-                if (isSubmitting) {
-                    e.preventDefault();
-                    return false;
-                }
-                
-                // Check if validation passes
+        // Prevent multiple form submissions
+        let isSubmitting = false;
+        document.addEventListener('DOMContentLoaded', function () {
+            const depositForm = document.getElementById('depositForm');
+            if (depositForm) {
+                depositForm.addEventListener('submit', function (e) {
+                    if (isSubmitting) {
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // Check if validation passes
+                    const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
+                    if (mealDeposit) {
+                        isSubmitting = true;
+                    }
+                });
+            }
+        });
+
+        // Add visual feedback for radio button selection
+        document.addEventListener('DOMContentLoaded', function () {
+            const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
+            radioButtons.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    // Remove selected style from all labels
+                    const allLabels = document.querySelectorAll('.radio-group label');
+                    allLabels.forEach(function (label) {
+                        label.style.borderColor = '#e0e0e0';
+                        label.style.backgroundColor = 'white';
+                    });
+
+                    // Add selected style to checked radio's label
+                    if (this.checked) {
+                        const parentLabel = this.parentElement;
+                        parentLabel.style.borderColor = '#667eea';
+                        parentLabel.style.backgroundColor = '#f5f7ff';
+                    }
+                });
+            });
+        });
+
+        // Auto-focus first field when form is toggled
+        document.addEventListener('DOMContentLoaded', function () {
+            const originalToggle = window.toggleDepositForm;
+            window.toggleDepositForm = function () {
+                originalToggle();
+
                 const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
                 if (mealDeposit) {
-                    isSubmitting = true;
+                    setTimeout(function () {
+                        if (mealDeposit.value === 'yes_deposit') {
+                            const dateField = document.getElementById('date');
+                            if (dateField) {
+                                dateField.focus();
+                            }
+                        } else if (mealDeposit.value === 'fetch_data') {
+                            const startDateField = document.getElementById('start_date');
+                            if (startDateField) {
+                                startDateField.focus();
+                            }
+                        }
+                    }, 100);
                 }
-            });
-        }
-    });
-
-    // Add visual feedback for radio button selection
-    document.addEventListener('DOMContentLoaded', function() {
-        const radioButtons = document.querySelectorAll('input[name="meal_deposit"]');
-        radioButtons.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                // Remove selected style from all labels
-                const allLabels = document.querySelectorAll('.radio-group label');
-                allLabels.forEach(function(label) {
-                    label.style.borderColor = '#e0e0e0';
-                    label.style.backgroundColor = 'white';
-                });
-                
-                // Add selected style to checked radio's label
-                if (this.checked) {
-                    const parentLabel = this.parentElement;
-                    parentLabel.style.borderColor = '#667eea';
-                    parentLabel.style.backgroundColor = '#f5f7ff';
-                }
-            });
+            };
         });
-    });
-
-    // Auto-focus first field when form is toggled
-    document.addEventListener('DOMContentLoaded', function() {
-        const originalToggle = window.toggleDepositForm;
-        window.toggleDepositForm = function() {
-            originalToggle();
-            
-            const mealDeposit = document.querySelector('input[name="meal_deposit"]:checked');
-            if (mealDeposit) {
-                setTimeout(function() {
-                    if (mealDeposit.value === 'yes_deposit') {
-                        const dateField = document.getElementById('date');
-                        if (dateField) {
-                            dateField.focus();
-                        }
-                    } else if (mealDeposit.value === 'fetch_data') {
-                        const startDateField = document.getElementById('start_date');
-                        if (startDateField) {
-                            startDateField.focus();
-                        }
-                    }
-                }, 100);
-            }
-        };
-    });
 
     </script>
 </body>
+
 </html>
-
-

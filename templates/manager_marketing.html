@@ -617,7 +617,7 @@
                             <td>{{ entry.note if entry.note else '-' }}</td>
                             <td>
                                 {% if entry.status == 'pending' %}
-                                <form method="POST" action="/manager/marketing" style="padding:0px; margin:0px;" class="approval-form" onsubmit="return handleApprovalSubmit(this);">
+                                <form method="POST" action="/manager/marketing" style="padding:0px; margin:0px;" class="approval-form" onsubmit="return confirm('Are you sure you want to approve/reject this entry?');">
                                     <input type="hidden" name="entry_sl_no" value="{{ entry.sl_no }}">
                                     <div class="action-buttons">
                                         <button type="submit" name="action" value="accept" class="accept-btn" style="margin-top:0px; padding: 4px;">Accept</button>
@@ -648,7 +648,7 @@
             {% if message %}
             <h4 style="color: #ef5350; text-align:center; margin-bottom: 20px;">{{ message }}</h4>
             {% endif %}
-            <form method="POST" action="/manager/marketing" id="marketingForm" novalidate onsubmit="return validateMarketingForm();">
+            <form method="POST" action="/manager/marketing" id="marketingForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="meal_marketing" value="yes_marketing" onchange="toggleMarketingForm()">

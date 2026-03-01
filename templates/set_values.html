@@ -456,7 +456,7 @@
             {% endif %}
         {% endwith %}
         
-        <form method="POST" action="{{ url_for('set_values') }}" id="setValuesForm" novalidate onsubmit="return validateSetValuesForm();">
+        <form method="POST" action="{{ url_for('set_values') }}" id="setValuesForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
             
             <div class="form-group">
                 <label for="masi_m">

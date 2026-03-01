@@ -522,7 +522,7 @@
         {% endif %}
     </div>
 
-    <form method="POST" action="{{ url_for('manager_meal_amount') }}" autocomplete="off">
+    <form method="POST" action="{{ url_for('manager_meal_amount') }}" autocomplete="off" onsubmit="return confirm('Are you sure all input is correct?');">
         <label><input type="radio" name="update" value="meal_charge_update" onchange="toggleMarketingForm()"> Update
             Meal charge update </label><br>
         <label><input type="radio" name="update" value="meal_data_update" onchange="toggleMarketingForm()"> Update Meal

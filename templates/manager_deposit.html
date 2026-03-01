@@ -623,7 +623,7 @@
                             </td>
                             <td>
                                 {% if entry.status == 'pending' %}
-                                <form method="POST" action="" style="padding:0px; margin:0px;" class="approval-form" onsubmit="return handleApprovalSubmit(this);">
+                                <form method="POST" action="" style="padding:0px; margin:0px;" class="approval-form" onsubmit="return confirm('Are you sure you want to approve/reject this entry?');">
                                     <input type="hidden" name="entry_sl_no" value="{{ entry.SL_no }}">
                                     <div class="action-buttons">
                                         <button type="submit" name="action" value="accept" class="accept-btn" style="margin-top:0px; padding: 4px;">Accept</button>
@@ -654,7 +654,7 @@
             {% if message %}
             <h4>{{ message }}</h4>
             {% endif %}
-            <form method="POST" id="depositForm" novalidate onsubmit="return validateDepositForm();">
+            <form method="POST" id="depositForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="meal_deposit" value="yes_deposit" onchange="toggleDepositForm()">
@@ -701,6 +701,7 @@
                             <option value="nagad">Nagad</option>
                             <option value="cash">Cash</option>
                             <option value="bank">Bank Transfer</option>
+                            <option value="marketing">Marketing</option>
                         </select>
                         <span class="error-message" id="payment_by-error">Please select a payment method</span>
                     </div>

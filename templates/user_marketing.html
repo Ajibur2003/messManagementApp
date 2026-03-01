@@ -386,7 +386,7 @@
         {% endwith %}
         
         
-        <form method="POST" action="{{ url_for('user_marketing_dashboard') }}" id="marketingForm" novalidate onsubmit="return validateMarketingForm();">
+        <form method="POST" action="{{ url_for('user_marketing_dashboard') }}" id="marketingForm" novalidate onsubmit="return confirm('Are you sure all input is correct?');">
             <!-- Mode Selection -->
             <div class="mode-selection">
                 <label>

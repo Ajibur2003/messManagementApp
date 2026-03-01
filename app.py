@@ -370,16 +370,8 @@ def register():
         try:
             registration_date = request.form.get('registration_date')
             name = request.form.get('name')
-            father_name = request.form.get('father_name', 'none')
-            father_number = request.form.get('father_number', 0)
             phone_number = request.form.get('phone_number')
-            whatsapp_number = request.form.get('whatsapp_number', 0)
-            insta_id = request.form.get('insta_id', 'none')
-            address = request.form.get('address', 'none')
             occupation = request.form.get('occupation', 'none')
-            university_name = request.form.get('university_name', 'none')
-            department_name = request.form.get('department_name', 'none')
-            university_id = request.form.get('university_id', 'none')
             instrument_amount = request.form.get('instrument_amount', 0)
             paid = request.form.get('paid', 'unpaid')
             payment_method = request.form.get('payment_method', 'none')
@@ -405,13 +397,11 @@ def register():
             
             cursor.execute(
                 f"""INSERT INTO `{users}` 
-                (registration_date, name, father_name, father_number, phone_number, whatsapp_number, 
-                insta_id, address, occupation, university_name, department_name, university_id, 
+                (registration_date, name, phone_number, occupation,
                 instrument_amount, paid, payment_method, payment_by, refund_amount, note, password, 
-                mess_code, role) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (registration_date, name, father_name, father_number, phone_number, whatsapp_number,
-                 insta_id, address, occupation, university_name, department_name, university_id,
+                mess_code, role)
+                VALUES (%s, %s, %s,  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (registration_date, name, phone_number, occupation,
                  instrument_amount, paid, payment_method, payment_by, refund_amount, note,
                  hashed_password, mess_code, 'user')
             )
@@ -927,6 +917,15 @@ def set_values():
     cursor.execute(f"SELECT * FROM `{variables}` WHERE date=%s", (last_day_of_month,))
     variables_data = cursor.fetchone()
     conn.close()
+
+    if not variables_data or len(variables_data) == 0:
+        try:
+            cursor.execute("INSERT INTO `{variables}` (date, meal_calculation_date) VALUES (%s,%s)".format(variables=variables), (last_day_of_month, last_day_of_month))
+            conn.commit()
+            cursor.execute("SELECT * FROM `{variables}` WHERE date = %s".format(variables=variables), (last_day_of_month,))
+            variables_data = cursor.fetchall()
+        except mysql.connector.Error as insert_err:
+            conn.rollback()
     
     return render_template('set_values.html', variables=variables_data)
 
@@ -3612,17 +3611,24 @@ def manager_deposit_dashboard():
 
 # this function are called two times first user meal amount (line no 4255) and second time in manager meal amount (line no 4442) to get previous month calculation date for meal charge calculation and update
 
-def get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month):
+def get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month, conn):
     try:
         cursor.execute("SELECT meal_calculation_date FROM `{variables}` ORDER BY meal_calculation_date DESC LIMIT 2".format(variables=variables))
         result = cursor.fetchall()
-        print("Fetched calculation dates:", result)
+        if not result or len(result) == 0:
+                try:
+                    cursor.execute("INSERT INTO `{variables}` (date, meal_calculation_date) VALUES (%s,%s)".format(variables=variables), (last_day_of_month, last_day_of_month))
+                    conn.commit()
+                    cursor.execute("SELECT meal_calculation_date FROM `{variables}` WHERE date = %s".format(variables=variables), (last_day_of_month,))
+                    result = cursor.fetchall()
+                except mysql.connector.Error as insert_err:
+                    conn.rollback()
         if result:
             latest_calculation_date = result[0]['meal_calculation_date'] 
             previous_month_calculation_date = result[1]['meal_calculation_date'] if len(result) > 1 else None
         
     except mysql.connector.Error as db_err:
-        print(f"Database error fetching calculation date: {str(db_err)}")
+        pass
     if latest_calculation_date > today:
         previous_calculation_date = previous_month_calculation_date
         previous_variable_date = previous_month_last_day
@@ -3715,7 +3721,7 @@ def user_meal_amount(unknow=None, know=None):
 
             if not variables_data:
                 try:
-                    cursor.execute("INSERT INTO `{variables}` (date, meal_calculation_date) VALUES (%s)".format(variables=variables), (last_day_of_month, last_day_of_month))
+                    cursor.execute("INSERT INTO `{variables}` (date, meal_calculation_date) VALUES (%s, %s)".format(variables=variables), (last_day_of_month, last_day_of_month))
                     conn.commit()
                     cursor.execute("SELECT * FROM `{variables}` WHERE date = %s".format(variables=variables), (last_day_of_month,))
                     variables_data = cursor.fetchall()
@@ -4176,7 +4182,7 @@ def user_meal_amount(unknow=None, know=None):
         total_user_meals, total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest, total_user_guests, user_guest_amount, total_user_deposit, total_common, amount = find_meal_charge(user_id, total_common)
 
         # Update meal charge data
-        if (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
+        if (today == calculation_date and datetime.strptime('21:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('21:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
             try:
                 # Fetch active users
                 active_users_update = []
@@ -4304,7 +4310,7 @@ def user_meal_amount(unknow=None, know=None):
                 conn.rollback()
 
         # Get previous month data
-        previous_calculation_date, latest_calculation_date, previous_variable_date = get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month)
+        previous_calculation_date, latest_calculation_date, previous_variable_date = get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month, conn)
 
         # Fetch previous meal charge data
         previous_meal_charge_data = []
@@ -4495,7 +4501,7 @@ def manager_meal_amount():
 
     # Fetch previous meal charge data, robust error handling
     try:
-        previous_calculation_date, latest_calculation_date, previous_variable_date = get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month)
+        previous_calculation_date, latest_calculation_date, previous_variable_date = get_previous_month_date(cursor, variables, today, previous_month_last_day, last_day_of_month, conn)
         cursor.execute("SELECT * FROM `{meal_charge}` WHERE date = %s".format(meal_charge=meal_charge), (previous_calculation_date,))
         previous_meal_charge_datas = cursor.fetchall()
         if not previous_meal_charge_datas:

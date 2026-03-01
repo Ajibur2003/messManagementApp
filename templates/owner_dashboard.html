@@ -391,7 +391,7 @@
         <!-- Register New Mess -->
         <div class="form-card">
             <h2>📋 Register New Mess</h2>
-            <form method="POST" id="registerMessForm" novalidate>
+            <form method="POST" id="registerMessForm" novalidate onsubmit="return validateRegisterMessForm();">
                 <input type="hidden" name="form_type" value="register_mess">
                 
                 <div class="form-grid">
@@ -523,14 +523,6 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password_register">Password *</label>
-                    <input type="password" id="password_register" name="password" required 
-                           minlength="4"
-                           placeholder="Minimum 4 characters">
-                    <span class="error-message">Minimum 4 characters required</span>
-                </div>
-                
                 <button type="submit" id="submitRegisterBtn">
                     <span class="spinner"></span>
                     <span class="btn-text">Register Mess</span>
@@ -541,7 +533,7 @@
         <!-- Create Table -->
         <div class="form-card">
             <h2>🗂️ Create Table</h2>
-            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="createTableForm" novalidate>
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="createTableForm" novalidate onsubmit="return validateCreateTableForm();">
                 <input type="hidden" name="create_table" value="submit">
                 
                 <div class="form-group">
@@ -568,7 +560,7 @@
         <!-- Assign Head Manager -->
         <div class="form-card">
             <h2>👨‍💼 Assign Head Manager to Mess</h2>
-            <form method="POST" id="assignManagerForm" novalidate>
+            <form method="POST" id="assignManagerForm" novalidate onsubmit="return validateAssignManagerForm();">
                 <input type="hidden" name="form_type" value="assign_manager">
                 
                 <div class="form-group">
@@ -657,7 +649,7 @@
                             </td>
                             <td>
                                 {% if mess.blocked %}
-                                    <form method="post" action="{{ url_for('owner_dashboard') }}" style="display:inline">
+                                    <form method="post" action="{{ url_for('owner_dashboard') }}" style="display:inline" onsubmit="return confirm('Are you sure you want to unblock this mess?');">
                                         <input type="hidden" name="mess_code" value="{{ mess.mess_code }}">
                                         <input type="hidden" name="action" value="unblock">
                                         <button type="submit" class="btn-action btn-unblock">Unblock</button>
@@ -687,7 +679,7 @@
         <!-- Set Date -->
         <div class="form-card">
             <h2>📅 Set Dates</h2>
-            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="setDateForm" novalidate>
+            <form method="POST" action="{{ url_for('owner_dashboard') }}" id="setDateForm" novalidate onsubmit="return validateSetDateForm();">
                 <input type="hidden" name="form_type" value="set_dates">
                 
                 <div class="form-group">

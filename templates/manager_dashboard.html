@@ -369,11 +369,6 @@
             {% endif %}
         {% endwith %}
         
-        <!-- Legacy message support -->
-        {% if message %}
-        <div class="alert">{{ message }}</div>
-        {% endif %}
-        
         <!-- User Selection -->
         <form method="GET" action="{{ url_for('manager_dashboard') }}" id="userSelectForm">
             <label for="user-select">Select User:</label>
@@ -413,18 +408,18 @@
                         </div>
                         <div class="row-nowrap-group">
                             <label class="radio-inline">
-                                <input type="radio" name="continue_option" value="tonight" onclick="toggleRadio()"> Today Night
-                            </label>
-                            <input type="radio" name="continue_guest" value="continue_guest_night">
-                            <input type="number" name="continue_guest_night_count" min="0" max="3" placeholder="Guests meals">
-                        </div>
-                        <div class="row-nowrap-group">
-                            <label class="radio-inline">
-                                <input type="radio" name="continue_option" value="tomorrow_morning" onclick="toggleRadio()">
-                                Today Morning
+                                <input type="radio" name="continue_option" value="morning" onclick="toggleRadio()">
+                                Morning
                             </label>
                             <input type="radio" name="continue_guest" value="continue_guest_morning">
                             <input type="number" name="continue_guest_morning_count" min="0" max="3" placeholder="Guests meals">
+                        </div>
+                        <div class="row-nowrap-group">
+                            <label class="radio-inline">
+                                <input type="radio" name="continue_option" value="night" onclick="toggleRadio()"> Night
+                            </label>
+                            <input type="radio" name="continue_guest" value="continue_guest_night">
+                            <input type="number" name="continue_guest_night_count" min="0" max="3" placeholder="Guests meals">
                         </div>
                         <div class="row-nowrap-group">
                             <label class="radio-inline" style="font-weight: 600;"><input type="radio" name="toggle" value="on"> ON</label>
@@ -637,9 +632,9 @@
         
         function toggleRadio() {
             const pairs = {
-                'tonight': 'continue_guest_night',
-                'tomorrow_morning': 'continue_guest_morning',
-                'tomorrow_night': 'continue_guest_tomorrow_night'
+                'night': 'continue_guest_night',
+                'morning': 'continue_guest_morning',
+                // 'night': 'continue_guest_tomorrow_night'
             };
             
             const optionRadios = document.querySelectorAll('input[name="continue_option"]');

@@ -286,7 +286,7 @@
         <div class="msg">{{ message }}</div>
         {% endif %}
         
-        <form action="/register" method="POST" id="registerForm" novalidate>
+        <form action="/register" method="POST" id="registerForm" novalidate onsubmit="return validateRegisterForm();">
             <div class="form-group">
                 <label for="registration_date">Registration Date *</label>
                 <input type="date" id="registration_date" name="registration_date" required>

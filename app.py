@@ -22,7 +22,6 @@ def get_db():
             ssl_verify_cert=False
         )
     except mysql.connector.Error as err:
-        print(f"Database connection error: {err}")
         return None
 
 # for same time zone
@@ -38,7 +37,6 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
             )
             conn.commit()
         except mysql.connector.Error as e:
-            print(f"Error updating guest meals: {e}")
             conn.rollback()
     
     today_guest_meal = month_start
@@ -196,7 +194,7 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                     count = 0
                     
         except Exception as e:
-            print(f"Error processing guest meals for {today_guest_meal}: {e}")
+            pass
         
         today_guest_meal += timedelta(days=1)
         previous_day_guest_meal += timedelta(days=1)
@@ -273,7 +271,6 @@ def login():
                 flash("Invalid login credentials", 'error')
                 
         except Exception as e:
-            print(f"Login error: {e}")
             flash("An error occurred during login", 'error')
     
     return render_template('login.html')
@@ -319,7 +316,6 @@ def forgot_password():
                             else:
                                 message = "Phone number not found or blocked"
                     except Exception as e:
-                        print(f"Error during password reset: {e}")
                         message = "An error occurred during password reset"
                     conn.close()
     return render_template('forgot_password.html', message=message)
@@ -353,7 +349,6 @@ def reset_password():
                     flash("Password reset successfully", "success")
                     return render_template('login.html', message=message)
                 except Exception as e:
-                    print(f"Error resetting password: {e}")
                     message = "An error occurred while resetting password"
                 finally:
                     conn.close()
@@ -417,7 +412,6 @@ def register():
             return redirect(url_for('register'))
             
         except Exception as e:
-            print(f"Registration error: {e}")
             message = f"An error occurred: {str(e)}"
     
     return render_template('register.html', message=message)
@@ -557,7 +551,6 @@ def owner_dashboard():
             second_person_insta_id = request.form.get('second_person_insta_id', 'none')
             start_date = request.form.get('start_date', 'none')
             end_date = request.form.get('end_date', 'none')
-            mess_password = bcrypt.hashpw(request.form['password'].encode(), bcrypt.gensalt()).decode()
             
             try:
                 cursor.execute(
@@ -565,16 +558,15 @@ def owner_dashboard():
                     (registration_date, mess_code, mess_name, mess_address, address_link, 
                     manager_name, phone_number, whatsapp_number, insta_id, 
                     manager_name2, phone_number2, whatsapp_number2, insta_id2, 
-                    start_date, end_date, password) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    start_date, end_date) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                     (registration_date, mess_code, mess_name, mess_address, address_link,
                         first_person_name, first_person_phone_number, first_person_whatsapp_number, first_person_insta_id,
                         second_person_name, second_person_phone_number, second_person_whatsapp_number, second_person_insta_id,
-                        start_date, end_date, mess_password)
+                        start_date, end_date)
                 )
                 conn.commit()
             except Exception as e:
-                print("error:",e)
                 flash('Mess code already exists!', 'error')
                 return redirect('/owner_dashboard')
 
@@ -685,7 +677,6 @@ def owner_dashboard():
                 )""")
                 conn.commit()
             except Exception as e:
-                print(e)
                 flash(f'Error: {e}', 'error')
                 return redirect('/owner_dashboard')
             
@@ -791,7 +782,6 @@ def owner_dashboard():
                 )""")
                 conn.commit()
             except Exception as e:
-                print("error:",e)
                 flash(f'Error: {e}', 'error')
                 return redirect('/owner_dashboard')
             
@@ -1038,11 +1028,11 @@ def dashboard():
 
                         # Time boundaries
                         tonight_start = datetime.strptime('00:00', '%H:%M').time()
-                        tonight_end = datetime.strptime('16:00', '%H:%M').time()
+                        tonight_end = datetime.strptime('15:00', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
                         tomorrow_morning_start = datetime.strptime('00:00', '%H:%M').time()
-                        tomorrow_morning_day_end = datetime.strptime('23:59', '%H:%M').time()
-                        tomorrow_morning_day_start = datetime.strptime('00:00', '%H:%M').time()
-                        tomorrow_morning_end = datetime.strptime('04:00', '%H:%M').time()
+                        tomorrow_morning_day_end = datetime.strptime('15:59', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
+                        # tomorrow_morning_day_start = datetime.strptime('00:00', '%H:%M').time() #just for ramadan, then comment this line and uncomment the next line for normal days
+                        # tomorrow_morning_end = datetime.strptime('04:00', '%H:%M').time()
 
                         # TONIGHT OPTION
                         if selected_option == 'tonight' and toggle is not None and tonight_start <= now <= tonight_end:
@@ -1079,7 +1069,7 @@ def dashboard():
                         # TOMORROW MORNING OPTION
                         elif selected_option == 'tomorrow_morning' and toggle is not None:
                             try:
-                                if tomorrow_morning_start <= now <= tomorrow_morning_day_end:
+                                if tomorrow_morning_start <= now <= tomorrow_morning_day_end: #just for ramadan, but this line can't be changed. just changed the tomorrow_morning_day_end time.
                                     current_day = today + timedelta(days=1)
                                     while current_day <= last_day_of_month:
                                         morning = toggle
@@ -1099,28 +1089,29 @@ def dashboard():
                                     message = f"Meals updated from tomorrow morning to {last_day_of_month}."
                                     flash(message, 'success')
                                     
-                                elif tomorrow_morning_day_start <= now <= tomorrow_morning_end:
-                                    current_day = today
-                                    while current_day <= last_day_of_month:
-                                        morning = toggle
-                                        night = toggle
+                                # just for ramadan, then comment this block and uncomment for normal days
+                                # elif tomorrow_morning_day_start <= now <= tomorrow_morning_end:
+                                #     current_day = today
+                                #     while current_day <= last_day_of_month:
+                                #         morning = toggle
+                                #         night = toggle
                                         
-                                        cursor.execute(
-                                            "SELECT guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
-                                            (current_day, user_id)
-                                        )
-                                        result = cursor.fetchone()
-                                        guest_morning = result['guest_morning'] if result else 0
-                                        guest_night = result['guest_night'] if result else 0
+                                #         cursor.execute(
+                                #             "SELECT guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
+                                #             (current_day, user_id)
+                                #         )
+                                #         result = cursor.fetchone()
+                                #         guest_morning = result['guest_morning'] if result else 0
+                                #         guest_night = result['guest_night'] if result else 0
                                         
-                                        update_global_meals_table(username, current_day, morning, night, guest_morning, guest_night, user_id)
-                                        current_day += timedelta(days=1)
+                                #         update_global_meals_table(username, current_day, morning, night, guest_morning, guest_night, user_id)
+                                #         current_day += timedelta(days=1)
                                     
-                                    message = f"Meals updated from tomorrow morning to {last_day_of_month}."
-                                    flash(message, 'success')
-                                else:
-                                    message = "Time out. Cannot update meals at this time."
-                                    flash(message, 'danger')
+                                #     message = f"Meals updated from tomorrow morning to {last_day_of_month}."
+                                #     flash(message, 'success')
+                                # else:
+                                #     message = "Time out. Cannot update meals at this time."
+                                #     flash(message, 'danger')
                             except Exception as e:
                                 flash(f"Error updating tomorrow morning meals: {str(e)}", 'danger')
                                 conn.rollback()
@@ -1163,7 +1154,7 @@ def dashboard():
                     # JUST NIGHT MODE OR GUEST NIGHT
                     elif mode == 'just_night' or guest == 'guest_night':
                         try:
-                            if datetime.strptime('00:00', '%H:%M').time() <= now <= datetime.strptime('23:59', '%H:%M').time(): #need change
+                            if datetime.strptime('00:00', '%H:%M').time() <= now <= datetime.strptime('15:00', '%H:%M').time(): #just for ramadan, change to 16:00 for normal days
                                 cursor.execute(
                                     "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
                                     (today, user_id)
@@ -1203,43 +1194,12 @@ def dashboard():
                     # JUST MORNING MODE OR GUEST MORNING
                     elif mode == 'just_morning' or guest == 'guest_morning':
                         try:
-                            six_am = datetime.strptime('06:00', '%H:%M').time()
-                            end_day = datetime.strptime('23:59', '%H:%M').time()
-                            midnight = datetime.strptime('00:00', '%H:%M').time()
-                            three_am = datetime.strptime('03:00', '%H:%M').time()
+                            six_am = datetime.strptime('00:00', '%H:%M').time() #just for ramadan, change to 06:00 for normal days
+                            end_day = datetime.strptime('15:00', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
+                            # midnight = datetime.strptime('00:00', '%H:%M').time() # just for ramadan, then comment this line and uncomment the next line for normal days
+                            # three_am = datetime.strptime('03:00', '%H:%M').time()
 
-                            if midnight <= now <= three_am:
-                                # Toggle today's morning meal
-                                cursor.execute(
-                                    "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
-                                    (today, user_id)
-                                )
-                                result = cursor.fetchone()
-
-                                current_morning = result['morning'] if result else 0
-                                night = result['night'] if result else 0
-                                guest_morning = result['guest_morning'] if result else 0
-                                guest_night = result['guest_night'] if result else 0
-                                new_morning = current_morning
-
-                                if guest == 'guest_morning':
-                                    guest_morning_input = request.form.get('guest_morning_count', 0)
-                                    try:
-                                        guest_morning = int(guest_morning_input)
-                                        if guest_morning < 0:
-                                            guest_morning = 0
-                                    except (ValueError, TypeError):
-                                        guest_morning = 0
-                                
-                                if mode == 'just_morning':
-                                    new_morning = 0 if current_morning == 1 else 1
-
-                                update_global_meals_table(username, today, new_morning, night, guest_morning, guest_night, user_id)
-
-                                message = f"Today's morning meal {'ON' if new_morning else 'OFF'}." if mode == 'just_morning' else f"Today morning {guest_morning} guest meal added"
-                                flash(message, 'success')
-
-                            elif six_am <= now <= end_day:
+                            if six_am <= now <= end_day: # NOT change this line, just change time
                                 # Toggle tomorrow's morning meal
                                 tomorrow = today + timedelta(days=1)
 
@@ -1274,6 +1234,40 @@ def dashboard():
                             else:
                                 message = "Just Morning updates are allowed from 12:00 AM–3:00 AM or 6:00 AM–11:59 PM."
                                 flash(message, 'danger')
+
+                            # For ramadan this block comment after ramadan this block uncomment 
+
+                            # elif midnight <= now <= three_am:
+                            #     # Toggle today's morning meal
+                            #     cursor.execute(
+                            #         "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
+                            #         (today, user_id)
+                            #     )
+                            #     result = cursor.fetchone()
+
+                            #     current_morning = result['morning'] if result else 0
+                            #     night = result['night'] if result else 0
+                            #     guest_morning = result['guest_morning'] if result else 0
+                            #     guest_night = result['guest_night'] if result else 0
+                            #     new_morning = current_morning
+
+                            #     if guest == 'guest_morning':
+                            #         guest_morning_input = request.form.get('guest_morning_count', 0)
+                            #         try:
+                            #             guest_morning = int(guest_morning_input)
+                            #             if guest_morning < 0:
+                            #                 guest_morning = 0
+                            #         except (ValueError, TypeError):
+                            #             guest_morning = 0
+                                
+                            #     if mode == 'just_morning':
+                            #         new_morning = 0 if current_morning == 1 else 1
+
+                            #     update_global_meals_table(username, today, new_morning, night, guest_morning, guest_night, user_id)
+
+                            #     message = f"Today's morning meal {'ON' if new_morning else 'OFF'}." if mode == 'just_morning' else f"Today morning {guest_morning} guest meal added"
+                            #     flash(message, 'success')
+
                         except Exception as e:
                             flash(f"Error updating morning meal: {str(e)}", 'danger')
                             conn.rollback()
@@ -1495,8 +1489,7 @@ def dashboard():
         return render_template(
             'dashboard.html', 
             meals=meals_data, 
-            username=username, 
-            message=message, 
+            username=username,
             total_morning=total_morning,
             total_night=total_night, 
             total=total, 
@@ -1668,7 +1661,7 @@ def manager_dashboard():
                             tomorrow_morning_end = datetime.strptime('04:00', '%H:%M').time()
 
                             # TONIGHT OPTION
-                            if selected_option == 'tonight' or continue_guest == 'continue_guest_night':
+                            if selected_option == 'night' or continue_guest == 'continue_guest_night':
                                 if month_start <= continue_date <= last_day_of_month:
                                     cursor.execute(
                                         "SELECT morning, guest_morning FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
@@ -1680,9 +1673,9 @@ def manager_dashboard():
 
                                     current_day = continue_date
                                     while current_day <= last_day_of_month:
-                                        if selected_option == 'tonight':
+                                        if selected_option == 'night':
                                             if toggle is not None:
-                                                morning = preserved_morning if current_day == today else toggle
+                                                morning = preserved_morning if current_day == continue_date else toggle
                                                 night = toggle
                                                 
                                                 cursor.execute(
@@ -1707,7 +1700,7 @@ def manager_dashboard():
                                             except (ValueError, TypeError):
                                                 guest_night = 0
                                             
-                                            guest_morning = preserved_guest_morning if current_day == today else guest_night
+                                            guest_morning = preserved_guest_morning if current_day == continue_date else guest_night
                                             
                                             cursor.execute(
                                                 "SELECT morning, night FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
@@ -1726,13 +1719,13 @@ def manager_dashboard():
                                 else:
                                     flash("Invalid time or selection for Continue option.", 'danger')
 
-                            # TOMORROW MORNING OPTION
-                            elif selected_option == 'tomorrow_morning' or continue_guest == 'continue_guest_morning':
+                            # MORNING OPTION
+                            elif selected_option == 'morning' or continue_guest == 'continue_guest_morning':
                                 if month_start <= continue_date <= last_day_of_month:
                                     current_day = continue_date
                                     
                                     while current_day <= last_day_of_month:
-                                        if selected_option == 'tomorrow_morning':
+                                        if selected_option == 'morning':
                                             if toggle is not None:
                                                 morning = toggle
                                                 night = toggle
@@ -2134,7 +2127,6 @@ def manager_dashboard():
             users=users_data,
             selected_id=selected_id,
             meals=meals_data,
-            message=message,
             today=today
         )
 
@@ -2256,7 +2248,6 @@ def user_marketing_dashboard():
                                 flash('Your marketing entry has been submitted for review.', 'success')
                                 
                             except Exception as e:
-                                print("error:",e)
                                 conn.rollback()
                                 flash(f'Error submitting marketing entry: {str(e)}', 'danger')
                         else:
@@ -2410,18 +2401,15 @@ def user_marketing_dashboard():
 
         # Get message from session
         message = session.pop('message', None)
-        print("marketing data:",marketing_datas)
         return render_template(
             'user_marketing.html', 
             entries=entries if entries else [], 
             marketing_datas=marketing_datas if marketing_datas else [], 
-            username=username, 
-            message=message, 
+            username=username,
             meal_marketing=meal_marketing
         )
 
     except Exception as e:
-        print("error:",e)
         flash(f'Unexpected error: {str(e)}', 'danger')
         return redirect('/')
 
@@ -2802,7 +2790,6 @@ def manager_marketing_dashboard():
         )
 
     except Exception as e:
-        print("error:",e)
         flash(f'Unexpected error: {str(e)}', 'danger')
         return redirect('/')
 
@@ -2852,7 +2839,6 @@ def user_deposit_dashboard():
             today = datetime.now(ist).date()
             month_start = today.replace(day=1)
         except Exception as date_err:
-            print(f"Error getting current date: {str(date_err)}")
             flash('Error processing date. Please try again.', 'error')
             return redirect('/')
 
@@ -2870,7 +2856,6 @@ def user_deposit_dashboard():
                     return redirect(url_for('user_deposit_dashboard'))
                 
                 session['meal_deposit'] = meal_deposit
-                print("meal_deposit:", meal_deposit)
 
                 # Handle deposit submission
                 if meal_deposit != 'fetch_data':
@@ -2885,7 +2870,6 @@ def user_deposit_dashboard():
                     try:
                         date_obj = datetime.strptime(date_string, '%Y-%m-%d').date()
                     except (ValueError, TypeError) as date_err:
-                        print(f"Date parsing error: {str(date_err)}")
                         message = "Invalid date format. Please select a valid date."
                         session['message'] = message
                         return redirect(url_for('user_deposit_dashboard'))
@@ -2941,7 +2925,6 @@ def user_deposit_dashboard():
                         session['message'] = message
                     except mysql.connector.Error as db_err:
                         conn.rollback()
-                        print(f"Database error inserting deposit: {str(db_err)}")
                         message = "Error submitting deposit entry. Please try again."
                         session['message'] = message
                     
@@ -2962,7 +2945,6 @@ def user_deposit_dashboard():
                         start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
                         end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
                     except (ValueError, TypeError) as date_err:
-                        print(f"Date parsing error: {str(date_err)}")
                         message = "Invalid date format. Please select valid dates."
                         session['message'] = message
                         return redirect(url_for('user_deposit_dashboard'))
@@ -2987,7 +2969,6 @@ def user_deposit_dashboard():
                         message = f"Data fetched from {start_date} to {end_date}."
                         session['message'] = message
                     except mysql.connector.Error as db_err:
-                        print(f"Database error fetching deposit data: {str(db_err)}")
                         message = "Error fetching deposit data. Please try again."
                         session['message'] = message
                         deposit_datas = []
@@ -2997,13 +2978,11 @@ def user_deposit_dashboard():
             except mysql.connector.Error as db_err:
                 if conn:
                     conn.rollback()
-                print(f"Database error in POST request: {str(db_err)}")
                 flash('Database error occurred. Please try again.', 'error')
                 return redirect(url_for('user_deposit_dashboard'))
             except Exception as e:
                 if conn:
                     conn.rollback()
-                print(f"Unexpected error in POST request: {str(e)}")
                 flash('An unexpected error occurred. Please try again.', 'error')
                 return redirect(url_for('user_deposit_dashboard'))
 
@@ -3028,7 +3007,6 @@ def user_deposit_dashboard():
                         conn.commit()
                     except mysql.connector.Error as db_err:
                         conn.rollback()
-                        print(f"Error deleting accepted entries: {str(db_err)}")
 
             # Fetch deposit data if not from fetch_data request
             if meal_deposit != 'fetch_data':
@@ -3041,7 +3019,6 @@ def user_deposit_dashboard():
                     if not deposit_datas:
                         deposit_datas = []
                 except mysql.connector.Error as db_err:
-                    print(f"Error fetching deposit data: {str(db_err)}")
                     deposit_datas = []
 
             # Format dates in deposit_datas
@@ -3054,16 +3031,13 @@ def user_deposit_dashboard():
                     except ValueError:
                         pass  # Not a date string, skip
                     except Exception as format_err:
-                        print(f"Error formatting date: {str(format_err)}")
                         pass
 
         except mysql.connector.Error as db_err:
-            print(f"Database error in GET request: {str(db_err)}")
             flash('Error loading deposit data. Please try again.', 'error')
             entries = []
             deposit_datas = []
         except Exception as e:
-            print(f"Unexpected error in GET request: {str(e)}")
             flash('An unexpected error occurred. Please try again.', 'error')
             entries = []
             deposit_datas = []
@@ -3077,13 +3051,11 @@ def user_deposit_dashboard():
     except mysql.connector.Error as db_err:
         if conn:
             conn.rollback()
-        print(f"Database error in /user/deposit: {str(db_err)}")
         flash('Database error occurred. Please try again later.', 'error')
         return redirect('/')
     except Exception as e:
         if conn:
             conn.rollback()
-        print(f"Unexpected error in /user/deposit: {str(e)}")
         flash('An unexpected error occurred. Please try again.', 'error')
         return redirect('/')
     finally:
@@ -3122,7 +3094,6 @@ def manager_deposit_dashboard():
             today = datetime.now(ist).date()
             month_start = today.replace(day=1)
         except Exception as date_err:
-            print(f"Error getting current date: {str(date_err)}")
             flash('Error processing date. Please try again.', 'error')
             return redirect('/')
 
@@ -3147,12 +3118,10 @@ def manager_deposit_dashboard():
             if not members:
                 members = []
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching users: {str(db_err)}")
             message = "Error fetching users. Please try again."
             session['message'] = message
             members = []
         except Exception as e:
-            print(f"Unexpected error fetching users: {str(e)}")
             message = "Error fetching users: {}".format(e)
             session['message'] = message
             members = []
@@ -3195,13 +3164,11 @@ def manager_deposit_dashboard():
                             """.format(deposit_pending=deposit_pending), (entry_sl_no,))
                             existing_row = cursor.fetchone()
                         except mysql.connector.Error as db_err:
-                            print(f"Database error fetching from deposit_pending: {str(db_err)}")
                             message = "Error fetching deposit entry. Please try again."
                             session['message'] = message
                             conn.rollback()
                             return redirect(url_for('manager_deposit_dashboard'))
                         except Exception as e:
-                            print(f"Unexpected error fetching from deposit_pending: {str(e)}")
                             message = "Error fetching from deposit_pending: {}".format(e)
                             session['message'] = message
                             conn.rollback()
@@ -3215,13 +3182,11 @@ def manager_deposit_dashboard():
                                 """.format(deposit_pending=deposit_pending), (entry_sl_no,))
                                 row = cursor.fetchone()
                             except mysql.connector.Error as db_err:
-                                print(f"Database error re-fetching from deposit_pending: {str(db_err)}")
                                 message = "Error processing deposit entry. Please try again."
                                 session['message'] = message
                                 conn.rollback()
                                 return redirect(url_for('manager_deposit_dashboard'))
                             except Exception as e:
-                                print(f"Unexpected error re-fetching from deposit_pending: {str(e)}")
                                 message = "Error fetching from deposit_pending: {}".format(e)
                                 session['message'] = message
                                 conn.rollback()
@@ -3250,13 +3215,11 @@ def manager_deposit_dashboard():
                                         'accepted'
                                     ))
                                 except mysql.connector.Error as db_err:
-                                    print(f"Database error inserting into deposit table: {str(db_err)}")
                                     message = "Error accepting deposit entry. Please try again."
                                     session['message'] = message
                                     conn.rollback()
                                     return redirect(url_for('manager_deposit_dashboard'))
                                 except Exception as e:
-                                    print(f"Unexpected error inserting into deposit table: {str(e)}")
                                     message = "Error inserting into deposit table: {}".format(e)
                                     session['message'] = message
                                     conn.rollback()
@@ -3276,13 +3239,11 @@ def manager_deposit_dashboard():
                             message = "Deposit entry accepted successfully."
                             session['message'] = message
                         except mysql.connector.Error as db_err:
-                            print(f"Database error updating deposit_pending status: {str(db_err)}")
                             message = "Error updating deposit status. Please try again."
                             session['message'] = message
                             conn.rollback()
                             return redirect(url_for('manager_deposit_dashboard'))
                         except Exception as e:
-                            print(f"Unexpected error updating deposit_pending status: {str(e)}")
                             message = "Error updating deposit_pending status: {}".format(e)
                             session['message'] = message
                             conn.rollback()
@@ -3308,13 +3269,11 @@ def manager_deposit_dashboard():
                             message = "Deposit entry rejected successfully."
                             session['message'] = message
                         except mysql.connector.Error as db_err:
-                            print(f"Database error deleting from deposit_pending: {str(db_err)}")
                             message = "Error rejecting deposit entry. Please try again."
                             session['message'] = message
                             conn.rollback()
                             return redirect(url_for('manager_deposit_dashboard'))
                         except Exception as e:
-                            print(f"Unexpected error deleting from deposit_pending: {str(e)}")
                             message = "Error deleting from deposit_pending: {}".format(e)
                             session['message'] = message
                             conn.rollback()
@@ -3335,7 +3294,6 @@ def manager_deposit_dashboard():
                     try:
                         date_obj = datetime.strptime(date_string, '%Y-%m-%d').date()
                     except (ValueError, TypeError) as date_err:
-                        print(f"Date parsing error: {str(date_err)}")
                         message = "Invalid date format. Please select a valid date."
                         session['message'] = message
                         return redirect(url_for('manager_deposit_dashboard'))
@@ -3372,13 +3330,11 @@ def manager_deposit_dashboard():
                             session['message'] = message
                             return redirect(url_for('manager_deposit_dashboard'))
                     except mysql.connector.Error as db_err:
-                        print(f"Database error fetching username: {str(db_err)}")
                         message = "Error fetching user information. Please try again."
                         session['message'] = message
                         conn.rollback()
                         return redirect(url_for('manager_deposit_dashboard'))
                     except Exception as e:
-                        print(f"Unexpected error fetching username: {str(e)}")
                         message = "Error fetching username: {}".format(e)
                         session['message'] = message
                         conn.rollback()
@@ -3429,12 +3385,10 @@ def manager_deposit_dashboard():
                         session['message'] = message
                     except mysql.connector.Error as db_err:
                         conn.rollback()
-                        print(f"Database error inserting into deposit table: {str(db_err)}")
                         message = "An error occurred while adding the deposit entry. Please try again."
                         session['message'] = message
                     except Exception as e:
                         conn.rollback()
-                        print(f"Unexpected error inserting into deposit table: {str(e)}")
                         message = "An error occurred while adding the deposit entry."
                         session['message'] = message
 
@@ -3455,7 +3409,6 @@ def manager_deposit_dashboard():
                         start_date_obj = datetime.strptime(start_date, '%Y-%m-%d').date()
                         end_date_obj = datetime.strptime(end_date, '%Y-%m-%d').date()
                     except (ValueError, TypeError) as date_err:
-                        print(f"Date parsing error: {str(date_err)}")
                         message = "Invalid date format. Please select valid dates."
                         session['message'] = message
                         return redirect(url_for('manager_deposit_dashboard'))
@@ -3487,12 +3440,10 @@ def manager_deposit_dashboard():
                         session['deposit_data'] = deposit_data
                         session['message'] = message
                     except mysql.connector.Error as db_err:
-                        print(f"Database error fetching deposit data: {str(db_err)}")
                         message = "Error fetching deposit data. Please try again."
                         session['message'] = message
                         deposit_data = []
                     except Exception as e:
-                        print(f"Unexpected error fetching deposit data: {str(e)}")
                         message = "Error fetching deposit data: {}".format(e)
                         session['message'] = message
                         deposit_data = []
@@ -3508,13 +3459,11 @@ def manager_deposit_dashboard():
             except mysql.connector.Error as db_err:
                 if conn:
                     conn.rollback()
-                print(f"Database error in POST request: {str(db_err)}")
                 flash('Database error occurred. Please try again.', 'error')
                 return redirect(url_for('manager_deposit_dashboard'))
             except Exception as e:
                 if conn:
                     conn.rollback()
-                print(f"Unexpected error in POST request: {str(e)}")
                 flash('An unexpected error occurred. Please try again.', 'error')
                 return redirect(url_for('manager_deposit_dashboard'))
 
@@ -3531,12 +3480,10 @@ def manager_deposit_dashboard():
                     if not deposit_data:
                         deposit_data = []
                 except mysql.connector.Error as db_err:
-                    print(f"Database error fetching deposit data: {str(db_err)}")
                     message = "Error fetching deposit data. Please try again."
                     session['message'] = message
                     deposit_data = []
                 except Exception as e:
-                    print(f"Unexpected error fetching deposit data: {str(e)}")
                     message = "Error fetching deposit data: {}".format(e)
                     session['message'] = message
                     deposit_data = []
@@ -3552,12 +3499,10 @@ def manager_deposit_dashboard():
                 if not pending_entries:
                     pending_entries = []
             except mysql.connector.Error as db_err:
-                print(f"Database error fetching pending entries: {str(db_err)}")
                 message = "Error fetching pending entries. Please try again."
                 session['message'] = message
                 pending_entries = []
             except Exception as e:
-                print(f"Unexpected error fetching pending entries: {str(e)}")
                 message = "Error fetching pending entries: {}".format(e)
                 session['message'] = message
                 pending_entries = []
@@ -3573,16 +3518,13 @@ def manager_deposit_dashboard():
                         except ValueError:
                             pass  # Not a date string, skip
                         except Exception as format_err:
-                            print(f"Error formatting date: {str(format_err)}")
                             pass
 
         except mysql.connector.Error as db_err:
-            print(f"Database error in GET request: {str(db_err)}")
             flash('Error loading deposit data. Please try again.', 'error')
             deposit_data = []
             pending_entries = []
         except Exception as e:
-            print(f"Unexpected error in GET request: {str(e)}")
             flash('An unexpected error occurred. Please try again.', 'error')
             deposit_data = []
             pending_entries = []
@@ -3596,13 +3538,11 @@ def manager_deposit_dashboard():
     except mysql.connector.Error as db_err:
         if conn:
             conn.rollback()
-        print(f"Database error in /manager/deposit: {str(db_err)}")
         flash('Database error occurred. Please try again later.', 'error')
         return redirect('/')
     except Exception as e:
         if conn:
             conn.rollback()
-        print(f"Unexpected error in /manager/deposit: {str(e)}")
         flash('An unexpected error occurred. Please try again.', 'error')
         return redirect('/')
     finally:
@@ -3650,7 +3590,6 @@ def user_meal_amount(unknow=None, know=None):
 
     do_not_entry_value = request.args.get('DoNotEntery', 0) 
     do_not_entry_value = int(do_not_entry_value)
-    print(f"The value is: {do_not_entry_value}")
     try:
         # Get mess code and validate
         mess_code = session.get('mess_code')
@@ -3688,7 +3627,6 @@ def user_meal_amount(unknow=None, know=None):
             last_day_of_month = next_month - timedelta(days=1)
             previous_month_last_day = month_start - timedelta(days=1)
         except Exception as date_err:
-            print(f"Error calculating dates: {str(date_err)}")
             flash('Error processing dates. Please try again.', 'error')
             return redirect('/')
 
@@ -3711,7 +3649,6 @@ def user_meal_amount(unknow=None, know=None):
             if not active_users:
                 active_users = []
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching active users: {str(db_err)}")
             flash('Error fetching user data. Please try again.', 'error')
             active_users = []
 
@@ -3728,10 +3665,8 @@ def user_meal_amount(unknow=None, know=None):
                     cursor.execute("SELECT * FROM `{variables}` WHERE date = %s".format(variables=variables), (last_day_of_month,))
                     variables_data = cursor.fetchall()
                 except mysql.connector.Error as insert_err:
-                    print(f"Error inserting variables: {str(insert_err)}")
                     conn.rollback()
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching variables: {str(db_err)}")
             variables_data = []
 
         if not variables_data or len(variables_data) == 0:
@@ -3753,7 +3688,6 @@ def user_meal_amount(unknow=None, know=None):
             one_time_meal_charge_update = variables_data[0].get('one_time_meal_charge_update', 0)
             calculation_date = variables_data[0].get('meal_calculation_date', last_day_of_month)
         except (KeyError, ValueError, TypeError) as var_err:
-            print(f"Error extracting variables: {str(var_err)}")
             flash('Error loading configuration. Please contact administrator.', 'error')
             masi_M_on_off = 'per_head'
             masi_charge = 0
@@ -3794,7 +3728,6 @@ def user_meal_amount(unknow=None, know=None):
                         total_user_night = int(meals_user_aggregate[0].get('total_night') or 0)
                         total_user_meals = total_user_morning + total_user_night
                     except mysql.connector.Error as db_err:
-                        print(f"Error fetching meals for user {for_user_id}: {str(db_err)}")
                         continue
 
                     # Common meal adjustment
@@ -3828,7 +3761,6 @@ def user_meal_amount(unknow=None, know=None):
                                                     conn.commit()
                                                     break
                                         except mysql.connector.Error as db_err:
-                                            print(f"Error updating meal for user {for_user_id}: {str(db_err)}")
                                             conn.rollback()
                                             break
                                         
@@ -3875,7 +3807,6 @@ def user_meal_amount(unknow=None, know=None):
                                                 """.format(meals=meals), (guest, for_user_id, current_day))
                                                 conn.commit()
                                             except mysql.connector.Error as db_err:
-                                                print(f"Error updating guest morning: {str(db_err)}")
                                                 conn.rollback()
 
                                         # Handle night meal
@@ -3906,15 +3837,12 @@ def user_meal_amount(unknow=None, know=None):
                                                 """.format(meals=meals), (guest, for_user_id, current_day))
                                                 conn.commit()
                                             except mysql.connector.Error as db_err:
-                                                print(f"Error updating guest night: {str(db_err)}")
                                                 conn.rollback()
                                 except mysql.connector.Error as db_err:
-                                    print(f"Error processing guest meals: {str(db_err)}")
                                     break
                                 
                                 current_day += timedelta(days=1)
             except Exception as e:
-                print(f"Error in meal adjustment logic: {str(e)}")
                 conn.rollback()
 
         # Define helper function for guest meal categorization
@@ -3969,7 +3897,6 @@ def user_meal_amount(unknow=None, know=None):
                             except ValueError:
                                 pass
                     except Exception as e:
-                        print(f"Error processing guest_morning: {str(e)}")
                         continue
 
                 # Process night guest
@@ -4003,7 +3930,6 @@ def user_meal_amount(unknow=None, know=None):
                             except ValueError:
                                 pass
                     except Exception as e:
-                        print(f"Error processing guest_night: {str(e)}")
                         continue
             
             return (total_veg_guest, total_egg_guest, total_fish_guest, 
@@ -4020,7 +3946,6 @@ def user_meal_amount(unknow=None, know=None):
             if not total_guest_meals:
                 total_guest_meals = []
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching guest meals: {str(db_err)}")
             total_guest_meals = []
 
         total_veg_guest, total_egg_guest, total_fish_guest, total_chicken_guest, total_beef_guest, total_other_guest = find_veg_nonveg(total_guest_meals)
@@ -4041,7 +3966,6 @@ def user_meal_amount(unknow=None, know=None):
                 total_night = int(meals_aggregate[0].get('total_night') or 0)
                 total_meals = total_morning + total_night
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching meal aggregates: {str(db_err)}")
             total_morning = 0
             total_night = 0
             total_meals = 0
@@ -4079,8 +4003,7 @@ def user_meal_amount(unknow=None, know=None):
                 total_common = int(marketing_data[0].get('SUM(common_money)') or 0)
                 total_marketing = total_shop + total_veg + total_other + total_nonveg + total_common
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching marketing data: {str(db_err)}")
-
+            pass
         # Calculate deposit totals
         total_deposit = 0
         try:
@@ -4093,8 +4016,7 @@ def user_meal_amount(unknow=None, know=None):
             if deposit_data and deposit_data[0]:
                 total_deposit = int(deposit_data[0].get('SUM(money)') or 0)
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching deposit data: {str(db_err)}")
-
+            pass
         amount_alive = total_deposit - total_marketing
 
         # Calculate meal charge
@@ -4107,7 +4029,6 @@ def user_meal_amount(unknow=None, know=None):
         except ZeroDivisionError:
             mealcharge = 0
         except Exception as e:
-            print(f"Error calculating meal charge: {str(e)}")
             mealcharge = 0
 
         # Define function to find meal charge for a user
@@ -4125,7 +4046,6 @@ def user_meal_amount(unknow=None, know=None):
                 if not user_guest_meals:
                     user_guest_meals = []
             except mysql.connector.Error as db_err:
-                print(f"Error fetching user guest meals: {str(db_err)}")
                 user_guest_meals = []
 
             total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest = find_veg_nonveg(user_guest_meals)
@@ -4146,8 +4066,7 @@ def user_meal_amount(unknow=None, know=None):
                     total_user_night = int(meals_user_aggregate[0].get('total_night') or 0)
                     total_user_meals = total_user_morning + total_user_night
             except mysql.connector.Error as db_err:
-                print(f"Error fetching user meals: {str(db_err)}")
-
+                pass
             total_user_guests = total_user_veg_guest + total_user_egg_guest + total_user_fish_guest + total_user_chicken_guest + total_user_beef_guest + total_user_other_guest
             user_guest_amount = (total_user_veg_guest * veg_guest_money) + (total_user_egg_guest * egg_guest_money) + (total_user_fish_guest * fish_guest_money) + (total_user_chicken_guest * chicken_guest_money) + (total_user_beef_guest * beef_guest_money) + (total_user_other_guest * other_guest_money)
 
@@ -4163,7 +4082,7 @@ def user_meal_amount(unknow=None, know=None):
                 if user_deposit_data and user_deposit_data[0]:
                     total_user_deposit = int(user_deposit_data[0].get('SUM(money)') or 0)
             except mysql.connector.Error as db_err:
-                print(f"Error fetching user deposit: {str(db_err)}")
+                pass
 
             # Calculate amount
             amount = 0
@@ -4194,7 +4113,6 @@ def user_meal_amount(unknow=None, know=None):
                     if not active_users_update:
                         active_users_update = []
                 except mysql.connector.Error as db_err:
-                    print(f"Error fetching active users for update: {str(db_err)}")
                     active_users_update = []
 
                 total_members = len(active_users_update)
@@ -4220,7 +4138,6 @@ def user_meal_amount(unknow=None, know=None):
                             if total_user_meals > 0:
                                 count_meal_member += 1
                     except mysql.connector.Error as db_err:
-                        print(f"Error counting meal members: {str(db_err)}")
                         continue
 
                 # Adjust masi charge
@@ -4249,7 +4166,6 @@ def user_meal_amount(unknow=None, know=None):
                                 manager_name = user_data.get('name')
                                 break
                     except mysql.connector.Error as db_err:
-                        print(f"Error fetching user role: {str(db_err)}")
                         continue
 
                 # Update variables table
@@ -4269,7 +4185,6 @@ def user_meal_amount(unknow=None, know=None):
                     total_marketing, total_deposit, last_day_of_month))
                     conn.commit()
                 except mysql.connector.Error as db_err:
-                    print(f"Database error updating variables: {str(db_err)}")
                     conn.rollback()
 
                 # Insert meal charge for all active users
@@ -4298,17 +4213,13 @@ def user_meal_amount(unknow=None, know=None):
                         total_user_other_guest, user_guest_amount, T_common, total_user_deposit, amount))
                         conn.commit()
                     except mysql.connector.Error as db_err:
-                        print(f"Database error inserting meal charge for user {user.get('id')}: {str(db_err)}")
                         conn.rollback()
                         continue
                     except Exception as e:
-                        print(f"Error processing meal charge for user {user.get('id')}: {str(e)}")
                         continue
             except mysql.connector.IntegrityError as integrity_err:
-                print(f"Integrity error in meal charge update: {str(integrity_err)}")
                 pass
             except Exception as e:
-                print(f"Error in meal charge update section: {str(e)}")
                 conn.rollback()
 
         # Get previous month data
@@ -4324,7 +4235,6 @@ def user_meal_amount(unknow=None, know=None):
             if not previous_meal_charge_data:
                 previous_meal_charge_data = []
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching previous meal charge: {str(db_err)}")
             previous_meal_charge_data = []
 
         # Fetch previous variable data
@@ -4337,7 +4247,6 @@ def user_meal_amount(unknow=None, know=None):
             if not previous_variable_data:
                 previous_variable_data = []
         except mysql.connector.Error as db_err:
-            print(f"Database error fetching previous variables: {str(db_err)}")
             previous_variable_data = []
 
         # Prepare money data dictionary
@@ -4388,9 +4297,7 @@ def user_meal_amount(unknow=None, know=None):
                 previous_meal_charge_datas = cursor.fetchall()
                 if not previous_meal_charge_datas:
                     previous_meal_charge_datas = []
-                print("previous_meal_charge_data:", previous_meal_charge_datas)
             except mysql.connector.Error as db_err:
-                print(f"Database error fetching all meal charges: {str(db_err)}")
                 previous_meal_charge_datas = []
             
             return (moneydata, session.pop('message', None), previous_meal_charge_datas, previous_variable_data)
@@ -4445,13 +4352,11 @@ def user_meal_amount(unknow=None, know=None):
     except mysql.connector.Error as db_err:
         if conn:
             conn.rollback()
-        print(f"Database error in /meal_amount: {str(db_err)}")
         flash('Database error occurred. Please try again later.', 'error')
         return redirect('/')
     except Exception as e:
         if conn:
             conn.rollback()
-        print(f"Unexpected error in /meal_amount: {str(e)}")
         flash('An unexpected error occurred. Please try again.', 'error')
         return redirect('/')
     finally:
@@ -4513,11 +4418,9 @@ def manager_meal_amount():
             moneydata, messages, previous_variable_data = user_meal_amount(unknow=None, know=1)
     except mysql.connector.Error as e:
         # Future-proof: handles SQL error and prints error details for debugging
-        print("MySQL error:", e)
         return render_template('manager_meal_amount.html', moneydata=None, message=f"Error fetching data: {str(e)}", previous_meal_charge_datas=None, previous_variable_data=None)
     except Exception as e:
         # Any unknown error handled clearly
-        print("General error:", e)
         return render_template('manager_meal_amount.html', moneydata=None, message=f"Unexpected error occurred: {str(e)}", previous_meal_charge_datas=None, previous_variable_data=None)
 
     try:
@@ -4565,7 +4468,6 @@ def manager_meal_amount():
                             user_meal_charge = cursor.fetchone()
                             return float(user_meal_charge[name]) if user_meal_charge else 0.0
                         except Exception as e:
-                            print("Error converting to float:", e)
                             return 0.0
 
                 number_of_meals = number_of_meals if number_of_meals else to_float(None, 'total_meal')
@@ -4587,11 +4489,9 @@ def manager_meal_amount():
                     """, (selected_id, perfect_date, number_of_meals, guest_amount, common_charge, deposit_amount, calculated_amount))
                     conn.commit()
                 except mysql.connector.Error as e:
-                    print("MySQL error:", e)
                     message = f"Database error while updating meal charge: {str(e)}"
                     return render_template('manager_meal_amount.html', role=session['role'], moneydata=moneydata, message=message, previous_meal_charge_datas=previous_meal_charge_datas, previous_variable_data=previous_variable_data, active_users=active_users)
                 except Exception as e:
-                    print("General error:", e)
                     message = f"Unexpected error while updating meal charge: {str(e)}"
                     return render_template('manager_meal_amount.html', role=session['role'], moneydata=moneydata, message=message, previous_meal_charge_datas=previous_meal_charge_datas, previous_variable_data=previous_variable_data, active_users=active_users)
                 finally:
@@ -4604,7 +4504,7 @@ def manager_meal_amount():
                         message = "successfully Update !"
                         session['message'] = message
                     except Exception as e:
-                        print("Error updating variables:", e)
+                        pass
                     cursor.close()
                     conn.close()
                 return redirect(url_for('manager_meal_amount'))
@@ -4629,7 +4529,6 @@ def manager_meal_amount():
                         user_meal_charge = cursor.fetchone()
                         return float(user_meal_charge[name]) if user_meal_charge else 0.0
                     except Exception as e:
-                        print("Error converting to float:", e)
                         return 0.0
 
             meal_charge_amount = to_float(meal_charge_amount, 'meal_charge')
@@ -4674,7 +4573,6 @@ def manager_meal_amount():
                             else:
                                 amount = 0 - deposit
                         except Exception as e:
-                            print("Amount calculation failed:", e)
                             amount = 0.0 - float(user_meal_charge.get('deposit', 0))
 
                         cursor.execute(f"""
@@ -4683,11 +4581,9 @@ def manager_meal_amount():
                         """, (float(amount), user_id, perfect_date))
                         conn.commit()
             except mysql.connector.Error as e:
-                print("MySQL error:", e)
                 message = f"Database error during charge update: {str(e)}"
                 return render_template('manager_meal_amount.html', role=session['role'], moneydata=moneydata, message=message, previous_meal_charge_datas=previous_meal_charge_datas, previous_variable_data=previous_variable_data, active_users=active_users)
             except Exception as e:
-                print("Charge update general error:", e)
                 message = f"Unexpected error during charge update: {str(e)}"
                 return render_template('manager_meal_amount.html', role=session['role'], moneydata=moneydata, message=message, previous_meal_charge_datas=previous_meal_charge_datas, previous_variable_data=previous_variable_data, active_users=active_users)
             finally:
@@ -4700,7 +4596,7 @@ def manager_meal_amount():
                     message = "successfully Update !"
                     session['message'] = message
                 except Exception as e:
-                    print("Error updating meal charge variable flag:", e)
+                    pass
                 cursor.close()
                 conn.close()
             return redirect(url_for('manager_meal_amount'))
@@ -4837,13 +4733,10 @@ def today_update():
         try:
             cursor.execute("SELECT name, SUM(CASE WHEN date = %s AND morning = 1 THEN 1 ELSE 0 END) AS morning_sum, SUM(CASE WHEN date = %s THEN guest_morning ELSE 0 END) AS guest_morning_sum FROM `{meals}` GROUP BY name".format(meals=meals), (which_date, which_date))
             todayOrSearch_morning_datas = cursor.fetchall()
-            print("todayOrSearch_morning_datas:", todayOrSearch_morning_datas)
             todayOrSearch_total_morning = sum(row['morning_sum'] + int(row['guest_morning_sum']) for row in todayOrSearch_morning_datas)
         except mysql.connector.Error as e:
-            print(f"Database error fetching today's morning meals: {str(e)}")
             todayOrSearch_morning_datas = []
         except Exception as e:
-            print(f"Unexpected error fetching today's morning meals: {str(e)}")
             todayOrSearch_morning_datas = []
             todayOrSearch_total_morning = 0
         return todayOrSearch_morning_datas, todayOrSearch_total_morning, typeOrSearch_of_morning
@@ -4855,13 +4748,10 @@ def today_update():
         try:
             cursor.execute("SELECT name, SUM(CASE WHEN date = %s AND morning = 1 THEN 1 ELSE 0 END) AS morning_sum, SUM(CASE WHEN date = %s THEN guest_morning ELSE 0 END) AS guest_morning_sum FROM `{meals}` GROUP BY name".format(meals=meals), (tomorrow, tomorrow))
             today_morning_datas = cursor.fetchall()
-            print("today_morning_datas:", today_morning_datas)
             today_total_morning = sum(row['morning_sum'] + int(row['guest_morning_sum']) for row in today_morning_datas)
         except mysql.connector.Error as e:
-            print(f"Database error fetching today's morning meals: {str(e)}")
             today_morning_datas = []
         except Exception as e:
-            print(f"Unexpected error fetching today's morning meals: {str(e)}")
             today_morning_datas = []
             today_total_morning = 0
 
@@ -4875,13 +4765,10 @@ def today_update():
         try:
             cursor.execute("SELECT name, SUM(CASE WHEN date = %s AND night = 1 THEN 1 ELSE 0 END) AS night_sum, SUM(CASE WHEN date = %s THEN guest_night ELSE 0 END) AS guest_night_sum FROM `{meals}` GROUP BY name".format(meals=meals), (which_date, which_date))
             todayOrSearch_night_datas = cursor.fetchall()
-            print("todayOrSearch_night_datas:", todayOrSearch_night_datas)
             todayOrSearch_total_night = sum(row['night_sum'] + int(row['guest_night_sum']) for row in todayOrSearch_night_datas)
         except mysql.connector.Error as e:
-            print(f"Database error fetching today's night meals: {str(e)}")
             todayOrSearch_night_datas = []
         except Exception as e:
-            print(f"Unexpected error fetching today's night meals: {str(e)}")
             todayOrSearch_night_datas = []
             todayOrSearch_total_night = 0
         return todayOrSearch_night_datas, todayOrSearch_total_night, typeOrSearch_of_night
@@ -4894,13 +4781,10 @@ def today_update():
         try:
             cursor.execute("SELECT name, SUM(CASE WHEN date = %s AND night = 1 THEN 1 ELSE 0 END) AS night_sum, SUM(CASE WHEN date = %s THEN guest_night ELSE 0 END) AS guest_night_sum FROM `{meals}` GROUP BY name".format(meals=meals), (yesterday, yesterday))
             today_night_datas = cursor.fetchall()
-            print("today_night_datas:", today_night_datas)
             today_total_night = sum(row['night_sum'] + int(row['guest_night_sum']) for row in today_night_datas)
         except mysql.connector.Error as e:
-            print(f"Database error fetching today's night meals: {str(e)}")
             today_night_datas = []
         except Exception as e:
-            print(f"Unexpected error fetching today's night meals: {str(e)}")
             today_night_datas = []
             today_total_night = 0
 
@@ -4942,7 +4826,6 @@ def today_update():
             message = "Please select a date."
             session['message'] = message
             return redirect(url_for('today_update'))
-    print("Server IST time:", now)
     return render_template('today_update.html', 
                             todayOrSearch_morning_datas = search_date_morning_datas if search_date_morning_datas else today_morning_datas, 
                             todayOrSearch_total_morning=search_date_total_morning if search_date_total_morning else today_total_morning,   
@@ -4954,5 +4837,3 @@ def today_update():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-

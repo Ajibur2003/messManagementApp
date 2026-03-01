@@ -654,7 +654,7 @@
             {% if message %}
             <h4>{{ message }}</h4>
             {% endif %}
-            <form method="POST" id="depositForm" novalidate>
+            <form method="POST" id="depositForm" novalidate onsubmit="return validateDepositForm();">
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="meal_deposit" value="yes_deposit" onchange="toggleDepositForm()">

@@ -593,8 +593,8 @@
                         <tr>
                             <th>Name</th>
                             <th>Date</th>
-                            <th>Night</th>
                             <th>Morning</th>
+                            <th>Night</th>
                             <th>Shop</th>
                             <th>Veg</th>
                             <th>Nveg</th>
@@ -607,8 +607,8 @@
                         <tr>
                             <td>{{ entry.username if entry.username else 'N/A' }}</td>
                             <td>{{ entry.date if entry.date else 'N/A' }}</td>
-                            <td>{{ entry.night if entry.night else '-' }}</td>
                             <td>{{ entry.morning if entry.morning else '-' }}</td>
+                            <td>{{ entry.night if entry.night else '-' }}</td>
                             <td>{{ entry.shop_money if entry.shop_money is not none else '0.00' }}</td>
                             <td>{{ entry.veg_money if entry.veg_money is not none else '0.00' }}</td>
                             <td>{{ entry.nonveg_money if entry.non_veg_money is not none else '0.00' }}</td>
@@ -648,7 +648,7 @@
             {% if message %}
             <h4 style="color: #ef5350; text-align:center; margin-bottom: 20px;">{{ message }}</h4>
             {% endif %}
-            <form method="POST" action="/manager/marketing" id="marketingForm" novalidate>
+            <form method="POST" action="/manager/marketing" id="marketingForm" novalidate onsubmit="return validateMarketingForm();">
                 <div class="radio-group">
                     <label>
                         <input type="radio" name="meal_marketing" value="yes_marketing" onchange="toggleMarketingForm()">
@@ -682,6 +682,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="morning">Morning Meal</label>
+                        <select name="morning" id="morning">
+                            <option value="selected">--Select--</option>
+                            <option value="chicken">Chicken</option>
+                            <option value="fish">Fish</option>
+                            <option value="veg">Veg</option>
+                            <option value="egg">Egg</option>
+                            <option value="beef">Beef</option>
+                            <option value="other">Other</option>
+                            <option value="no_need">No Need</option>
+                        </select>
+                        <span class="error-message" id="morning-error">Please select morning meal</span>
+                    </div>
+                    <div class="form-group">
                         <label for="night">Night Meal <span style="color: red;">*</span></label>
                         <select name="night" id="night">
                             <option value="selected">--Select--</option>
@@ -696,20 +710,6 @@
                         <span class="error-message" id="night-error">Please select night meal</span>
                     </div>
 
-                    <div class="form-group">
-                        <label for="morning">Morning Meal</label>
-                        <select name="morning" id="morning">
-                            <option value="selected">--Select--</option>
-                            <option value="chicken">Chicken</option>
-                            <option value="fish">Fish</option>
-                            <option value="veg">Veg</option>
-                            <option value="egg">Egg</option>
-                            <option value="beef">Beef</option>
-                            <option value="other">Other</option>
-                            <option value="no_need">No Need</option>
-                        </select>
-                        <span class="error-message" id="morning-error">Please select morning meal</span>
-                    </div>
 
                     <div class="form-group">
                         <label for="shop_money">Shop Money</label>
@@ -776,15 +776,15 @@
                 <div class="responsive-table">
                     <table>
                         <tr>
-                            <th>SL No</th><th>Name</th><th>Date</th><th>Night</th><th>Morning</th><th>Shop</th><th>Veg</th><th>Nveg</th><th>Other</th><th>C_Money</th><th>Note</th><th>Status</th>
+                            <th>SL No</th><th>Name</th><th>Date</th><th>Morning</th><th>Night</th><th>Shop</th><th>Veg</th><th>Nveg</th><th>Other</th><th>C_Money</th><th>Note</th><th>Status</th>
                         </tr>
                         {% for data in marketing_data %}
                         <tr>
                             <td>{{ loop.index }}</td>
                             <td>{{ data.username if data.username else 'N/A' }}</td>
                             <td>{{ data.date if data.date else 'N/A' }}</td>
-                            <td>{{ data.night if data.night else '-' }}</td>
                             <td>{{ data.morning if data.morning else '-' }}</td>
+                            <td>{{ data.night if data.night else '-' }}</td>
                             <td>{{ data.shop_money if data.shop_money is not none else '0.00' }}</td>
                             <td>{{ data.veg_money if data.veg_money is not none else '0.00' }}</td>
                             <td>{{ data.non_veg_money if data.non_veg_money is not none else '0.00' }}</td>

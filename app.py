@@ -396,9 +396,8 @@ def register():
                 (registration_date, name, phone_number, occupation,
                 instrument_amount, paid, payment_method, payment_by, refund_amount, note, password, 
                 mess_code, role) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (registration_date, name, father_name, father_number, phone_number, whatsapp_number,
-                 insta_id, address, occupation, university_name, department_name, university_id,
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (registration_date, name, phone_number, occupation,
                  instrument_amount, paid, payment_method, payment_by, refund_amount, note,
                  hashed_password, mess_code, 'user')
             )
@@ -4741,9 +4740,9 @@ def today_update():
             todayOrSearch_total_morning = 0
         return todayOrSearch_morning_datas, todayOrSearch_total_morning, typeOrSearch_of_morning
 
-    if (now < datetime.strptime('18:00', '%H:%M').time()):
+    if (now < datetime.strptime('10:00', '%H:%M').time()): #just for ramadan , after ramadan time is 18:00
         today_morning_datas, today_total_morning, type_of_morning = fetch_morning_data(today, "Today")
-    elif (datetime.strptime('18:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time()):
+    elif (datetime.strptime('10:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time()): #just for ramadan , after ramadan time is 18:00 to 23:59
         type_of_morning = "Tomorrow"
         try:
             cursor.execute("SELECT name, SUM(CASE WHEN date = %s AND morning = 1 THEN 1 ELSE 0 END) AS morning_sum, SUM(CASE WHEN date = %s THEN guest_morning ELSE 0 END) AS guest_morning_sum FROM `{meals}` GROUP BY name".format(meals=meals), (tomorrow, tomorrow))

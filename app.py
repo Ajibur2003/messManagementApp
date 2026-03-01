@@ -351,6 +351,7 @@ def reset_password():
                     conn.commit()
                     session.pop('reset_phone', None)
                     flash("Password reset successfully", "success")
+                    return render_template('login.html', message=message)
                 except Exception as e:
                     print(f"Error resetting password: {e}")
                     message = "An error occurred while resetting password"
@@ -399,9 +400,10 @@ def register():
                 f"""INSERT INTO `{users}` 
                 (registration_date, name, phone_number, occupation,
                 instrument_amount, paid, payment_method, payment_by, refund_amount, note, password, 
-                mess_code, role)
-                VALUES (%s, %s, %s,  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (registration_date, name, phone_number, occupation,
+                mess_code, role) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (registration_date, name, father_name, father_number, phone_number, whatsapp_number,
+                 insta_id, address, occupation, university_name, department_name, university_id,
                  instrument_amount, paid, payment_method, payment_by, refund_amount, note,
                  hashed_password, mess_code, 'user')
             )
@@ -4182,7 +4184,7 @@ def user_meal_amount(unknow=None, know=None):
         total_user_meals, total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest, total_user_guests, user_guest_amount, total_user_deposit, total_common, amount = find_meal_charge(user_id, total_common)
 
         # Update meal charge data
-        if (today == calculation_date and datetime.strptime('21:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('21:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
+        if (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
             try:
                 # Fetch active users
                 active_users_update = []

@@ -850,16 +850,16 @@
         let errorMessage = '';
 
         // Date validation
-        if (field.type === 'date' && value) {
-            const selectedDate = new Date(value);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
+        // if (field.type === 'date' && value) {
+        //     const selectedDate = new Date(value);
+        //     const today = new Date();
+        //     today.setHours(0, 0, 0, 0);
             
-            if (selectedDate > today) {
-                isValid = false;
-                errorMessage = 'Date cannot be in the future';
-            }
-        }
+        //     if (selectedDate > today) {
+        //         isValid = false;
+        //         errorMessage = 'Date cannot be in the future';
+        //     }
+        // }
 
         // Number validation
         if (field.type === 'number' && fieldId === 'money') {

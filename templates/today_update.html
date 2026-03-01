@@ -289,10 +289,10 @@
         <!-- Morning Section -->
         <div class="meal-section">
             <div class="section-header">
-                <h2 class="section-title">{{ typeOrSearch_of_morning }} Morning</h2>
+                <h2 class="section-title" onclick="myFunction2()">{{ typeOrSearch_of_morning }} Morning</h2>
                 <span class="total-badge">Total: {{ todayOrSearch_total_morning }} Meals</span>
             </div>
-            <div class="table-wrapper">
+            <div class="table-wrapper" id="myDIV2" style="display:none;">
                 <table>
                     <tr>
                         <th>Name</th>
@@ -319,10 +319,10 @@
         <!-- Night Section -->
         <div class="meal-section">
             <div class="section-header">
-                <h2 class="section-title">{{ typeOrSearch_of_night }} Night</h2>
+                <h2 class="section-title" onclick="myFunction()">{{ typeOrSearch_of_night }} Night</h2>
                 <span class="total-badge">Total: {{ todayOrSearch_total_night }} Meals</span>
             </div>
-            <div class="table-wrapper">
+            <div class="table-wrapper" id="myDIV" style="display:none;">
                 <table>
                     <tr>
                         <th>Name</th>
@@ -356,5 +356,23 @@
         </div>
     </div>
 </body>
+<script>
+    function myFunction() {
+        var x = document.getElementById("myDIV");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
 
+    function myFunction2() {
+        var x = document.getElementById("myDIV2");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>
 </html>

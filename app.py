@@ -4000,9 +4000,17 @@ def user_meal_amount(unknow=None, know=None):
                 total_nonveg = int(marketing_data[0].get('SUM(non_veg_money)') or 0)
                 total_other = int(marketing_data[0].get('SUM(other_money)') or 0)
                 total_common = int(marketing_data[0].get('SUM(common_money)') or 0)
-                total_marketing = total_shop + total_veg + total_other + total_nonveg + total_common
+                total_marketing = total_shop + total_veg + total_other + total_nonveg
+                TotalMarketingWithCommon = total_marketing + total_common
         except mysql.connector.Error as db_err:
             pass
+
+        # common charge divided by active member
+        try:
+            divided_common_charge = (total_common / len(active_users)) if len(active_users) > 0 else 0
+        except ZeroDivisionError:
+            divided_common_charge = 0
+
         # Calculate deposit totals
         total_deposit = 0
         try:
@@ -4016,7 +4024,7 @@ def user_meal_amount(unknow=None, know=None):
                 total_deposit = int(deposit_data[0].get('SUM(money)') or 0)
         except mysql.connector.Error as db_err:
             pass
-        amount_alive = total_deposit - total_marketing
+        amount_alive = total_deposit - TotalMarketingWithCommon
 
         # Calculate meal charge
         mealcharge = 0
@@ -4031,8 +4039,8 @@ def user_meal_amount(unknow=None, know=None):
             mealcharge = 0
 
         # Define function to find meal charge for a user
-        def find_meal_charge(user_id, total_common):
-            T_common = total_common
+        def find_meal_charge(user_id, PerHeadcommonCharge):
+            T_common = PerHeadcommonCharge
             
             # Fetch user guest meals
             user_guest_meals = []
@@ -4099,10 +4107,10 @@ def user_meal_amount(unknow=None, know=None):
                    total_user_guests, user_guest_amount, total_user_deposit, T_common, amount)
 
         # Get current user's meal charge
-        total_user_meals, total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest, total_user_guests, user_guest_amount, total_user_deposit, total_common, amount = find_meal_charge(user_id, total_common)
+        T_user_meals, T_user_veg_guest, T_user_egg_guest, T_user_fish_guest, T_user_chicken_guest, T_user_beef_guest, T_user_other_guest, T_user_guests, T_user_guest_amount, T_user_deposit, T_user_common, T_amount = find_meal_charge(user_id, divided_common_charge)
 
         # Update meal charge data
-        if (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1):
+        if (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and one_time_meal_charge_update == 0 and know != 1) or (today == calculation_date and datetime.strptime('00:00', '%H:%M').time() < now <= datetime.strptime('23:59', '%H:%M').time() and unknow == 1): # this line need to update in time section
             try:
                 # Fetch active users
                 active_users_update = []
@@ -4144,7 +4152,7 @@ def user_meal_amount(unknow=None, know=None):
                     if masi_M_on_off == 'per_month':
                         masi_charge = int((masi_charge / count_meal_member) + 1)
                     if total_common > 0:
-                        total_common = ((total_common / count_meal_member) + masi_charge)
+                        PerHeadCommon = ((total_common / count_meal_member) + masi_charge)
 
                 # Find manager
                 manager_name = None
@@ -4177,11 +4185,11 @@ def user_meal_amount(unknow=None, know=None):
                         total_guest_meal = %s, Market_shop_money = %s, Market_veg_money = %s, 
                         Market_non_veg_money = %s, Market_other_money = %s, total_marketing_money = %s, 
                         total_deposit_amount = %s WHERE date = %s
-                    """.format(variables=variables), (mealcharge, total_common, total_members, manager_name, 
+                    """.format(variables=variables), (mealcharge, PerHeadCommon, total_members, manager_name, 
                     total_morning, total_night, total_meals, total_veg_guest, total_egg_guest, 
                     total_fish_guest, total_chicken_guest, total_beef_guest, total_other_guest, 
                     total_guests, total_shop, total_veg, total_nonveg, total_other, 
-                    total_marketing, total_deposit, last_day_of_month))
+                    TotalMarketingWithCommon, total_deposit, last_day_of_month))
                     conn.commit()
                 except mysql.connector.Error as db_err:
                     conn.rollback()
@@ -4192,7 +4200,7 @@ def user_meal_amount(unknow=None, know=None):
                         continue
                     
                     try:
-                        user_meal_data = find_meal_charge(user['id'], total_common)
+                        user_meal_data = find_meal_charge(user['id'], PerHeadCommon)
                         total_user_meals, total_user_veg_guest, total_user_egg_guest, total_user_fish_guest, total_user_chicken_guest, total_user_beef_guest, total_user_other_guest, total_user_guests, user_guest_amount, total_user_deposit, T_common, amount = user_meal_data
                         
                         cursor.execute("""
@@ -4251,23 +4259,23 @@ def user_meal_amount(unknow=None, know=None):
         # Prepare money data dictionary
         moneydata = {
             "total_meals": total_meals,
-            "total_marketing": total_marketing,
+            "total_marketing": TotalMarketingWithCommon,
             "total_deposit": total_deposit,
             "amount_alive": amount_alive,
             "total_guests": total_guests,
             "mealcharge": mealcharge,
             "guest_amount": guest_amount,
-            "total_user_meals": total_user_meals,
-            "total_user_deposit": total_user_deposit,
-            "total_user_veg_guest": total_user_veg_guest,
-            "total_user_egg_guest": total_user_egg_guest,
-            "total_user_fish_guest": total_user_fish_guest,
-            "total_user_chicken_guest": total_user_chicken_guest,
-            "total_user_beef_guest": total_user_beef_guest,
-            "total_user_other_guest": total_user_other_guest,
-            "total_user_guests": total_user_guests,
-            "user_guest_amount": user_guest_amount,
-            "amount": amount,
+            "total_user_meals":  T_user_meals,
+            "total_user_deposit":  T_user_deposit,
+            "total_user_veg_guest":  T_user_veg_guest,
+            "total_user_egg_guest":  T_user_egg_guest,
+            "total_user_fish_guest":  T_user_fish_guest,
+            "total_user_chicken_guest":  T_user_chicken_guest,
+            "total_user_beef_guest":  T_user_beef_guest,
+            "total_user_other_guest":  T_user_other_guest,
+            "total_user_guests":  T_user_guests,
+            "user_guest_amount": T_user_guest_amount,
+            "amount": T_amount,
             "masi_M_on_off": masi_M_on_off,
             "masi_charge": masi_charge,
             "veg_guest_money": veg_guest_money,

@@ -460,7 +460,7 @@
             <h4>Total Beef Guests: {{ previous_variable_data[0].total_guest_beef_meal }}</h4>
             <h4>Total Other Guests: {{ previous_variable_data[0].total_guest_other_meal }}</h4>
             <h4>Total Guests: {{ previous_variable_data[0].total_guest_meal }}</h4>
-            <h4>Meal Charge: {{ previous_variable_data[0].meal_charge|round(2) }}</h4>
+            <h4>Meal Charge: {{ previous_variable_data[0].meal_charge | float | round(2) }}</h4>
             <h4>Common Charge: {{ previous_variable_data[0].common_charge }}</h4>
             <h4>Veg Guests charge: {{ previous_variable_data[0].veg_guest_charge }}</h4>
             <h4>Egg Guests charge: {{ previous_variable_data[0].egg_guest_charge }}</h4>

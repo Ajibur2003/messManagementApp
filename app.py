@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, jsonify
 import mysql.connector
 import bcrypt
 import json
@@ -26,7 +26,8 @@ def get_db():
 
 # for same time zone
 ist = pytz.timezone("Asia/Kolkata")
-def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, marketing):
+
+def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, TypeOfMeal): # this function block need some change. change is loop
     count = 0
     
     def update_guest(update_morning, update_night):
@@ -51,10 +52,10 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
             guest_meal_data = cursor.fetchone()
             
             cursor.execute(
-                f"SELECT morning, night FROM `{marketing}` WHERE date = %s",
+                f"SELECT morning, night FROM `{TypeOfMeal}` WHERE date = %s",
                 (today_guest_meal,)
             )
-            marketing_datas = cursor.fetchall()
+            TypeOfMeal_datas = cursor.fetchall()
             
             if not guest_meal_data:
                 today_guest_meal += timedelta(days=1)
@@ -80,96 +81,96 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
             if guest_morning_count == 0 and guest_night_count == 0:
                 pass
             elif guest_morning_count == 0 and guest_night_count != 0:
-                if marketing_datas:
-                    for marketing_data in marketing_datas:
+                if TypeOfMeal_datas:
+                    for TypeOfMeal_data in TypeOfMeal_datas:
                         count += 1
-                        marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
-                        marketing_night = str(marketing_night).strip()
-                        if marketing_night not in ['no_need', 'selected']:
-                            current_marketing_night = marketing_night 
+                        TypeOfMeal_night = TypeOfMeal_data['night'] if isinstance(TypeOfMeal_data, dict) else TypeOfMeal_data[1]
+                        TypeOfMeal_night = str(TypeOfMeal_night).strip()
+                        if TypeOfMeal_night not in ['no_need', 'selected']:
+                            current_TypeOfMeal_night = TypeOfMeal_night
 
                         def update_guest_night():
-                            if marketing_night in ['chicken', 'egg', 'fish', 'beef', 'other']:
+                            if TypeOfMeal_night in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_night_parts[1] if len(guest_night_parts) > 1 else ''
-                                if current_type != marketing_night:
-                                    update_night = f"{guest_night_count} {marketing_night}"
+                                if current_type != TypeOfMeal_night:
+                                    update_night = f"{guest_night_count} {TypeOfMeal_night}"
                                     update_guest(guest_morning, update_night)
-                            elif marketing_night == 'veg':
+                            elif TypeOfMeal_night == 'veg':
                                 current_type = guest_night_parts[1] if len(guest_night_parts) > 1 else ''
                                 if current_type != 'veg':
                                     update_night = f"{guest_night_count} veg"
                                     update_guest(guest_morning, update_night)
 
 
-                        if count == len(marketing_datas):
-                            if marketing_night in ['no_need', 'selected']:
-                                marketing_night = current_marketing_night
+                        if count == len(TypeOfMeal_datas):
+                            if TypeOfMeal_night in ['no_need', 'selected']:
+                                TypeOfMeal_night = current_TypeOfMeal_night
                             update_guest_night()
                             
                     count = 0
                     
             elif guest_morning_count != 0 and guest_night_count == 0:
-                if marketing_datas:
-                    for marketing_data in marketing_datas:
+                if TypeOfMeal_datas:
+                    for TypeOfMeal_data in TypeOfMeal_datas:
                         count += 1
-                        marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
-                        marketing_morning = str(marketing_morning).strip()
+                        TypeOfMeal_morning = TypeOfMeal_data['morning'] if isinstance(TypeOfMeal_data, dict) else TypeOfMeal_data[0]
+                        TypeOfMeal_morning = str(TypeOfMeal_morning).strip()
 
-                        if marketing_morning not in ['no_need', 'selected']:
-                            current_marketing_morning = marketing_morning 
+                        if TypeOfMeal_morning not in ['no_need', 'selected']:
+                            current_TypeOfMeal_morning = TypeOfMeal_morning
 
                         def update_guest_morning():
-                            if marketing_morning in ['chicken', 'egg', 'fish', 'beef', 'other']:
+                            if TypeOfMeal_morning in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_morning_parts[1] if len(guest_morning_parts) > 1 else ''
-                                if current_type != marketing_morning:
-                                    update_morning = f"{guest_morning_count} {marketing_morning}"
+                                if current_type != TypeOfMeal_morning:
+                                    update_morning = f"{guest_morning_count} {TypeOfMeal_morning}"
                                     update_guest(update_morning, guest_night)
-                            elif marketing_morning == 'veg':
+                            elif TypeOfMeal_morning == 'veg':
                                 current_type = guest_morning_parts[1] if len(guest_morning_parts) > 1 else ''
                                 if current_type != 'veg':
                                     update_morning = f"{guest_morning_count} veg"
                                     update_guest(update_morning, guest_night)
 
-                        if count == len(marketing_datas):
-                            if marketing_morning in ['no_need', 'selected']:
-                                marketing_morning = current_marketing_morning
+                        if count == len(TypeOfMeal_datas):
+                            if TypeOfMeal_morning in ['no_need', 'selected']:
+                                TypeOfMeal_morning = current_TypeOfMeal_morning
                             update_guest_morning()
                     count = 0
                     
             elif guest_morning_count != 0 and guest_night_count != 0:
-                if marketing_datas:
-                    for marketing_data in marketing_datas:
+                if TypeOfMeal_datas:
+                    for TypeOfMeal_data in TypeOfMeal_datas:
                         count += 1
 
-                        marketing_morning = marketing_data['morning'] if isinstance(marketing_data, dict) else marketing_data[0]
-                        marketing_night = marketing_data['night'] if isinstance(marketing_data, dict) else marketing_data[1]
+                        TypeOfMeal_morning = TypeOfMeal_data['morning'] if isinstance(TypeOfMeal_data, dict) else TypeOfMeal_data[0]
+                        TypeOfMeal_night = TypeOfMeal_data['night'] if isinstance(TypeOfMeal_data, dict) else TypeOfMeal_data[1]
                         
-                        marketing_morning = str(marketing_morning).strip()
-                        marketing_night = str(marketing_night).strip()
+                        TypeOfMeal_morning = str(TypeOfMeal_morning).strip()
+                        TypeOfMeal_night = str(TypeOfMeal_night).strip()
 
-                        if marketing_morning  not in ['no_need', 'selected']:
-                            current_marketing_morning = marketing_morning
-                        if marketing_night not in ['no_need', 'selected']:
-                            current_marketing_night = marketing_night
+                        if TypeOfMeal_morning  not in ['no_need', 'selected']:
+                            current_TypeOfMeal_morning = TypeOfMeal_morning
+                        if TypeOfMeal_night not in ['no_need', 'selected']:
+                            current_TypeOfMeal_night = TypeOfMeal_night
 
                         def update_guests():
                             update_guest_morning = None
                             update_guest_night = None
                             
-                            if marketing_morning in ['chicken', 'egg', 'fish', 'beef', 'other']:
+                            if TypeOfMeal_morning in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_morning_parts[1] if len(guest_morning_parts) > 1 else ''
-                                if current_type != marketing_morning:
-                                    update_guest_morning = f"{guest_morning_count} {marketing_morning}"
-                            elif marketing_morning == 'veg':
+                                if current_type != TypeOfMeal_morning:
+                                    update_guest_morning = f"{guest_morning_count} {TypeOfMeal_morning}"
+                            elif TypeOfMeal_morning == 'veg':
                                 current_type = guest_morning_parts[1] if len(guest_morning_parts) > 1 else ''
                                 if current_type != 'veg':
                                     update_guest_morning = f"{guest_morning_count} veg"
                             
-                            if marketing_night in ['chicken', 'egg', 'fish', 'beef', 'other']:
+                            if TypeOfMeal_night in ['chicken', 'egg', 'fish', 'beef', 'other']:
                                 current_type = guest_night_parts[1] if len(guest_night_parts) > 1 else ''
-                                if current_type != marketing_night:
-                                    update_guest_night = f"{guest_night_count} {marketing_night}"
-                            elif marketing_night == 'veg':
+                                if current_type != TypeOfMeal_night:
+                                    update_guest_night = f"{guest_night_count} {TypeOfMeal_night}"
+                            elif TypeOfMeal_night == 'veg':
                                 current_type = guest_night_parts[1] if len(guest_night_parts) > 1 else ''
                                 if current_type != 'veg':
                                     update_guest_night = f"{guest_night_count} veg"
@@ -179,16 +180,16 @@ def update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, ma
                                 final_night = update_guest_night if update_guest_night else guest_night
                                 update_guest(final_morning, final_night)
 
-                        if marketing_morning in ['no_need', 'selected'] or marketing_night in ['no_need', 'selected']:
-                            if count == len(marketing_datas) and marketing_morning in ['no_need', 'selected'] and marketing_night in ['no_need', 'selected']:
-                                marketing_morning = current_marketing_morning
-                                marketing_night = current_marketing_night
-                            elif count == len(marketing_datas) and marketing_morning in ['no_need', 'selected']:
-                                marketing_morning = current_marketing_morning
-                            elif count == len(marketing_datas) and marketing_night in ['no_need', 'selected']:
-                                marketing_night = current_marketing_night
+                        if TypeOfMeal_morning in ['no_need', 'selected'] or TypeOfMeal_night in ['no_need', 'selected']:
+                            if count == len(TypeOfMeal_datas) and TypeOfMeal_morning in ['no_need', 'selected'] and TypeOfMeal_night in ['no_need', 'selected']:
+                                TypeOfMeal_morning = current_TypeOfMeal_morning
+                                TypeOfMeal_night = current_TypeOfMeal_night
+                            elif count == len(TypeOfMeal_datas) and TypeOfMeal_morning in ['no_need', 'selected']:
+                                TypeOfMeal_morning = current_TypeOfMeal_morning
+                            elif count == len(TypeOfMeal_datas) and TypeOfMeal_night in ['no_need', 'selected']:
+                                TypeOfMeal_night = current_TypeOfMeal_night
                             update_guests()
-                        elif count == len(marketing_datas):
+                        elif count == len(TypeOfMeal_datas):
                             update_guests()
 
                     count = 0
@@ -591,6 +592,7 @@ def owner_dashboard():
             users = f"{str(mess_code_output)}_users"
             meals = f"{str(mess_code_output)}_meals"
             marketing = f"{str(mess_code_output)}_marketing"
+            TypeOfMeal = f"{str(mess_code_output)}_TypeOfMeal"
             marketing_pending = f"{str(mess_code_output)}_marketing_pending"
             deposit = f"{str(mess_code_output)}_deposit"
             deposit_pending = f"{str(mess_code_output)}_deposit_pending"
@@ -639,19 +641,30 @@ def owner_dashboard():
             
             try:
                 cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{marketing}` (
+                    my_row_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,,
                     sl_no BIGINT UNIQUE,
                     id BIGINT,
                     username VARCHAR(60),
                     date DATE,
-                    morning VARCHAR(20),
-                    night VARCHAR(20),
+                    note VARCHAR(255) DEFAULT 'nothing',
                     shop_money DECIMAL(10,2) DEFAULT 0,
                     veg_money DECIMAL(10,2) DEFAULT 0,
                     non_veg_money DECIMAL(10,2) DEFAULT 0,
                     other_money DECIMAL(10,2) DEFAULT 0,
                     common_money DECIMAL(10,2) DEFAULT 0,
-                    status VARCHAR(20) DEFAULT 'pending',
-                    note VARCHAR(255) DEFAULT 'nothing'
+                    total_marketing INT DEFAULT 0
+                )""")
+                conn.commit()
+            except Exception as e:
+                flash(f'Error: {e}', 'error')
+                return redirect('/owner_dashboard')
+
+            try:
+                cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{TypeOfMeal}` (
+                    date DATE PRIMARY KEY,
+                    morning VARCHAR(50),
+                    night VARCHAR(50),
+                    note VARCHAR(256)
                 )""")
                 conn.commit()
             except Exception as e:
@@ -664,15 +677,14 @@ def owner_dashboard():
                     id BIGINT,
                     username VARCHAR(60),
                     date DATE,
-                    morning VARCHAR(50),
-                    night VARCHAR(50),
+                    note VARCHAR(255) DEFAULT 'nothing',
                     shop_money DECIMAL(10,2) DEFAULT 0,
                     veg_money DECIMAL(10,2) DEFAULT 0,
                     non_veg_money DECIMAL(10,2) DEFAULT 0,
                     other_money DECIMAL(10,2) DEFAULT 0,
                     common_money DECIMAL(10,2) DEFAULT 0,
-                    status VARCHAR(20) DEFAULT 'pending',
-                    note VARCHAR(255) DEFAULT 'nothing'
+                    total_marketing INT DEFAULT 0,
+                    status VARCHAR(20) DEFAULT 'pending'
                 )""")
                 conn.commit()
             except Exception as e:
@@ -947,6 +959,7 @@ def dashboard():
         users = str(mess_code + "_users")
         meals = str(mess_code + "_meals")
         marketing = str(mess_code + "_marketing")
+        TypeOfMeal = str(mess_code + "_TypeOfMeal")
         marketing_pending = str(mess_code + "_marketing_pending")
         deposit = str(mess_code + "_deposit")
         deposit_pending = str(mess_code + "_deposit_pending")
@@ -1027,11 +1040,11 @@ def dashboard():
 
                         # Time boundaries
                         tonight_start = datetime.strptime('00:00', '%H:%M').time()
-                        tonight_end = datetime.strptime('15:00', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
+                        tonight_end = datetime.strptime('23:59', '%H:%M').time()
                         tomorrow_morning_start = datetime.strptime('00:00', '%H:%M').time()
-                        tomorrow_morning_day_end = datetime.strptime('15:59', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
-                        # tomorrow_morning_day_start = datetime.strptime('00:00', '%H:%M').time() #just for ramadan, then comment this line and uncomment the next line for normal days
-                        # tomorrow_morning_end = datetime.strptime('04:00', '%H:%M').time()
+                        tomorrow_morning_day_end = datetime.strptime('23:59', '%H:%M').time()
+                        tomorrow_morning_day_start = datetime.strptime('00:00', '%H:%M').time()
+                        tomorrow_morning_end = datetime.strptime('04:00', '%H:%M').time()
 
                         # TONIGHT OPTION
                         if selected_option == 'tonight' and toggle is not None and tonight_start <= now <= tonight_end:
@@ -1068,7 +1081,7 @@ def dashboard():
                         # TOMORROW MORNING OPTION
                         elif selected_option == 'tomorrow_morning' and toggle is not None:
                             try:
-                                if tomorrow_morning_start <= now <= tomorrow_morning_day_end: #just for ramadan, but this line can't be changed. just changed the tomorrow_morning_day_end time.
+                                if tomorrow_morning_start <= now <= tomorrow_morning_day_end:
                                     current_day = today + timedelta(days=1)
                                     while current_day <= last_day_of_month:
                                         morning = toggle
@@ -1088,29 +1101,28 @@ def dashboard():
                                     message = f"Meals updated from tomorrow morning to {last_day_of_month}."
                                     flash(message, 'success')
                                     
-                                # just for ramadan, then comment this block and uncomment for normal days
-                                # elif tomorrow_morning_day_start <= now <= tomorrow_morning_end:
-                                #     current_day = today
-                                #     while current_day <= last_day_of_month:
-                                #         morning = toggle
-                                #         night = toggle
+                                elif tomorrow_morning_day_start <= now <= tomorrow_morning_end:
+                                    current_day = today
+                                    while current_day <= last_day_of_month:
+                                        morning = toggle
+                                        night = toggle
                                         
-                                #         cursor.execute(
-                                #             "SELECT guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
-                                #             (current_day, user_id)
-                                #         )
-                                #         result = cursor.fetchone()
-                                #         guest_morning = result['guest_morning'] if result else 0
-                                #         guest_night = result['guest_night'] if result else 0
+                                        cursor.execute(
+                                            "SELECT guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id = %s".format(meals=meals),
+                                            (current_day, user_id)
+                                        )
+                                        result = cursor.fetchone()
+                                        guest_morning = result['guest_morning'] if result else 0
+                                        guest_night = result['guest_night'] if result else 0
                                         
-                                #         update_global_meals_table(username, current_day, morning, night, guest_morning, guest_night, user_id)
-                                #         current_day += timedelta(days=1)
+                                        update_global_meals_table(username, current_day, morning, night, guest_morning, guest_night, user_id)
+                                        current_day += timedelta(days=1)
                                     
-                                #     message = f"Meals updated from tomorrow morning to {last_day_of_month}."
-                                #     flash(message, 'success')
-                                # else:
-                                #     message = "Time out. Cannot update meals at this time."
-                                #     flash(message, 'danger')
+                                    message = f"Meals updated from tomorrow morning to {last_day_of_month}."
+                                    flash(message, 'success')
+                                else:
+                                    message = "Time out. Cannot update meals at this time."
+                                    flash(message, 'danger')
                             except Exception as e:
                                 flash(f"Error updating tomorrow morning meals: {str(e)}", 'danger')
                                 conn.rollback()
@@ -1153,7 +1165,7 @@ def dashboard():
                     # JUST NIGHT MODE OR GUEST NIGHT
                     elif mode == 'just_night' or guest == 'guest_night':
                         try:
-                            if datetime.strptime('00:00', '%H:%M').time() <= now <= datetime.strptime('15:00', '%H:%M').time(): #just for ramadan, change to 16:00 for normal days
+                            if datetime.strptime('00:00', '%H:%M').time() <= now <= datetime.strptime('16:00', '%H:%M').time():
                                 cursor.execute(
                                     "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
                                     (today, user_id)
@@ -1193,12 +1205,12 @@ def dashboard():
                     # JUST MORNING MODE OR GUEST MORNING
                     elif mode == 'just_morning' or guest == 'guest_morning':
                         try:
-                            six_am = datetime.strptime('00:00', '%H:%M').time() #just for ramadan, change to 06:00 for normal days
-                            end_day = datetime.strptime('15:00', '%H:%M').time() #just for ramadan, change to 23:59 for normal days
-                            # midnight = datetime.strptime('00:00', '%H:%M').time() # just for ramadan, then comment this line and uncomment the next line for normal days
-                            # three_am = datetime.strptime('03:00', '%H:%M').time()
+                            six_am = datetime.strptime('06:00', '%H:%M').time()
+                            end_day = datetime.strptime('23:59', '%H:%M').time()
+                            midnight = datetime.strptime('00:00', '%H:%M').time()
+                            one_am = datetime.strptime('01:00', '%H:%M').time()
 
-                            if six_am <= now <= end_day: # NOT change this line, just change time
+                            if six_am <= now <= end_day: 
                                 # Toggle tomorrow's morning meal
                                 tomorrow = today + timedelta(days=1)
 
@@ -1230,42 +1242,41 @@ def dashboard():
 
                                 message = f"Tomorrow's morning meal {'ON' if new_morning else 'OFF'}." if mode == 'just_morning' else f"Tomorrow morning {guest_morning} guest meal added"
                                 flash(message, 'success')
+
+                            elif midnight <= now <= one_am:
+                                # Toggle today's morning meal
+                                cursor.execute(
+                                    "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
+                                    (today, user_id)
+                                )
+                                result = cursor.fetchone()
+
+                                current_morning = result['morning'] if result else 0
+                                night = result['night'] if result else 0
+                                guest_morning = result['guest_morning'] if result else 0
+                                guest_night = result['guest_night'] if result else 0
+                                new_morning = current_morning
+
+                                if guest == 'guest_morning':
+                                    guest_morning_input = request.form.get('guest_morning_count', 0)
+                                    try:
+                                        guest_morning = int(guest_morning_input)
+                                        if guest_morning < 0:
+                                            guest_morning = 0
+                                    except (ValueError, TypeError):
+                                        guest_morning = 0
+                                
+                                if mode == 'just_morning':
+                                    new_morning = 0 if current_morning == 1 else 1
+
+                                update_global_meals_table(username, today, new_morning, night, guest_morning, guest_night, user_id)
+
+                                message = f"Today's morning meal {'ON' if new_morning else 'OFF'}." if mode == 'just_morning' else f"Today morning {guest_morning} guest meal added"
+                                flash(message, 'success')
+
                             else:
                                 message = "Just Morning updates are allowed from 12:00 AM–3:00 AM or 6:00 AM–11:59 PM."
                                 flash(message, 'danger')
-
-                            # For ramadan this block comment after ramadan this block uncomment 
-
-                            # elif midnight <= now <= three_am:
-                            #     # Toggle today's morning meal
-                            #     cursor.execute(
-                            #         "SELECT morning, night, guest_morning, guest_night FROM `{meals}` WHERE date = %s AND id= %s".format(meals=meals),
-                            #         (today, user_id)
-                            #     )
-                            #     result = cursor.fetchone()
-
-                            #     current_morning = result['morning'] if result else 0
-                            #     night = result['night'] if result else 0
-                            #     guest_morning = result['guest_morning'] if result else 0
-                            #     guest_night = result['guest_night'] if result else 0
-                            #     new_morning = current_morning
-
-                            #     if guest == 'guest_morning':
-                            #         guest_morning_input = request.form.get('guest_morning_count', 0)
-                            #         try:
-                            #             guest_morning = int(guest_morning_input)
-                            #             if guest_morning < 0:
-                            #                 guest_morning = 0
-                            #         except (ValueError, TypeError):
-                            #             guest_morning = 0
-                                
-                            #     if mode == 'just_morning':
-                            #         new_morning = 0 if current_morning == 1 else 1
-
-                            #     update_global_meals_table(username, today, new_morning, night, guest_morning, guest_night, user_id)
-
-                            #     message = f"Today's morning meal {'ON' if new_morning else 'OFF'}." if mode == 'just_morning' else f"Today morning {guest_morning} guest meal added"
-                            #     flash(message, 'success')
 
                         except Exception as e:
                             flash(f"Error updating morning meal: {str(e)}", 'danger')
@@ -1425,7 +1436,7 @@ def dashboard():
 
             # Update guest meal types (veg/non-veg)
             try:
-                update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, marketing)
+                update_guest_meal_types(cursor, conn, meals, user_id, month_start, today, TypeOfMeal)
             except Exception as e:
                 flash(f"Warning: Could not update guest meal types: {str(e)}", 'info')
 
@@ -1522,6 +1533,7 @@ def manager_dashboard():
         users = str(mess_code) + "_users"
         meals = str(mess_code) + "_meals"
         marketing = str(mess_code) + "_marketing"
+        TypeOfMeal = str(mess_code) + "_TypeOfMeal"
         marketing_pending = str(mess_code) + "_marketing_pending"
         deposit = str(mess_code) + "_deposit"
         deposit_pending = str(mess_code) + "_deposit_pending"
@@ -2056,7 +2068,7 @@ def manager_dashboard():
 
             # Update guest meal types
             try:
-                update_guest_meal_types(cursor, conn, meals, selected_id, month_start, today, marketing)
+                update_guest_meal_types(cursor, conn, meals, selected_id, month_start, today, TypeOfMeal)
             except Exception as e:
                 flash(f"Warning: Could not update guest meal types: {str(e)}", 'info')
 
@@ -2215,13 +2227,12 @@ def user_marketing_dashboard():
                         if month_start <= date_obj <= last_day_of_month:
                             # Get form data with validation
                             try:
-                                night = request.form.get('night', '').strip()
-                                morning = request.form.get('morning', '').strip()
                                 shop_money = safe_float(request.form.get('shop_money', 0))
                                 veg_money = safe_float(request.form.get('veg_money', 0))
                                 non_veg_money = safe_float(request.form.get('non_veg_money', 0))
                                 other_money = safe_float(request.form.get('other_money', 0))
                                 common_money = safe_float(request.form.get('common_money', 0))
+                                total_marketing = safe_float(request.form.get('total_marketing', 0))
                                 note = request.form.get('note', '').strip() or 'nothing'
 
                                 # Validate amounts
@@ -2238,10 +2249,10 @@ def user_marketing_dashboard():
                                 # Insert into pending table
                                 cursor.execute("""
                                     INSERT INTO `{marketing_pending}` 
-                                    (id, username, date, morning, night, shop_money, veg_money, non_veg_money, other_money, common_money, note)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    (id, username, date, shop_money, veg_money, non_veg_money, other_money, common_money, total_marketing, note)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 """.format(marketing_pending=marketing_pending), 
-                                (user_id, username, date_obj, morning, night, shop_money, veg_money, non_veg_money, other_money, common_money, note))
+                                (user_id, username, date_obj, shop_money, veg_money, non_veg_money, other_money, common_money, total_marketing, note))
                                 
                                 conn.commit()
                                 flash('Your marketing entry has been submitted for review.', 'success')
@@ -2437,6 +2448,7 @@ def manager_marketing_dashboard():
         users = str(mess_code + "_users")
         meals = str(mess_code + "_meals")
         marketing = str(mess_code + "_marketing")
+        TypeOfMeal = str(mess_code + "_TypeOfMeal")
         marketing_pending = str(mess_code + "_marketing_pending")
         deposit = str(mess_code + "_deposit")
         deposit_pending = str(mess_code + "_deposit_pending")
@@ -2450,6 +2462,7 @@ def manager_marketing_dashboard():
         # Get session data
         marketing_data = session.pop('marketing_data', [])
         meal_marketing = session.pop('meal_marketing', None)
+        TypeOfMeal_data = session.pop('TypeOfMeal_data', None)
 
         # Database connection
         conn = get_db()
@@ -2482,10 +2495,10 @@ def manager_marketing_dashboard():
                 except (TypeError, ValueError):
                     return 0.0
 
-            # Handle POST request
-            if request.method == 'POST':
+            # Handle marketing Form request
+            if request.method == 'POST' and ( request.form.get('action') or request.form.get('meal_marketing') ):
                 try:
-                    meal_marketing = request.form.get('meal_marketing', None) # ignor this line
+                    meal_marketing = request.form.get('meal_marketing', None) 
                     session['meal_marketing'] = meal_marketing
 
                     action = request.form.get('action') #action show None value
@@ -2522,12 +2535,12 @@ def manager_marketing_dashboard():
                                 # Insert into permanent marketing table
                                 cursor.execute("""
                                     INSERT INTO `{marketing}` 
-                                    (sl_no, id, username, date, night, morning, shop_money, veg_money, non_veg_money, other_money, common_money, note, status)
-                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    (sl_no, id, username, date, shop_money, veg_money, non_veg_money, other_money, common_money, total_marketing, note)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 """.format(marketing=marketing), 
-                                (row['sl_no'], row['id'], row['username'], row['date'], row['night'], row['morning'], 
+                                (row['sl_no'], row['id'], row['username'], row['date'],
                                  row['shop_money'], row['veg_money'], row['non_veg_money'], row['other_money'], 
-                                 row['common_money'], row.get('note', 'nothing'), 'accepted'))
+                                 row['common_money'], row.get('total_marketing', 0), row.get('note', 'nothing')))
 
                                 # Update status in pending table
                                 cursor.execute(
@@ -2606,13 +2619,12 @@ def manager_marketing_dashboard():
                             return redirect(url_for('manager_marketing_dashboard'))
 
                         # Get form data with validation
-                        night = request.form.get('night', '').strip()
-                        morning = request.form.get('morning', '').strip()
                         shop_money = safe_float(request.form.get('shop_money', 0))
                         veg_money = safe_float(request.form.get('veg_money', 0))
                         non_veg_money = safe_float(request.form.get('nonveg_money', 0))
                         other_money = safe_float(request.form.get('other_money', 0))
                         common_money = safe_float(request.form.get('common_money', 0))
+                        total_marketing = safe_float(request.form.get('total_marketing', 0))
                         note = request.form.get('note', '').strip() or 'nothing'
 
                         # Validate amounts
@@ -2630,10 +2642,10 @@ def manager_marketing_dashboard():
                         try:
                             cursor.execute("""
                                 INSERT INTO `{marketing}` 
-                                (id, username, date, morning, night, shop_money, veg_money, non_veg_money, other_money, common_money, note, status)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                (id, username, date, shop_money, veg_money, non_veg_money, other_money, common_money, total_marketing, note)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                             """.format(marketing=marketing), 
-                            (user_id, username, date_obj, morning, night, shop_money, veg_money, non_veg_money, other_money, common_money, note, 'accepted'))
+                            (user_id, username, date_obj, shop_money, veg_money, non_veg_money, other_money, common_money, total_marketing, note))
 
                             conn.commit()
                             flash('Marketing entry has been added successfully.', 'success')
@@ -2699,6 +2711,48 @@ def manager_marketing_dashboard():
                     conn.rollback()
                     return redirect(url_for('manager_marketing_dashboard'))
 
+            # Handle meal type data submission
+            if request.method == 'POST' and request.form.get('TypeOfMeal'): 
+                try:
+                    TypeOfMeal_value = request.form.get('TypeOfMeal', '').strip()
+
+                    if TypeOfMeal_value:
+                        try:
+                            date_string = request.form.get('date', '').strip()
+                            morning = request.form.get('morning', '').strip()
+                            night = request.form.get('night', '').strip()
+                            note = request.form.get('note', '').strip() or 'nothing'
+                            if not date_string and not morning and not night:
+                                flash('Please fill in all required fields.', 'danger')
+                                return redirect(url_for('manager_marketing_dashboard'))
+                            if not note:
+                                note = 'nothing'
+                            try:
+                                date_obj = datetime.strptime(date_string, '%Y-%m-%d').date()
+                                if not (month_start <= date_obj <= last_day_of_month):
+                                    flash(f'Please select a date within this month ({month_start} to {last_day_of_month}).', 'danger')
+                                    return redirect(url_for('manager_marketing_dashboard'))
+                            except ValueError:
+                                flash('Invalid date format.', 'danger')
+                                return redirect(url_for('manager_marketing_dashboard'))
+                            
+                            cursor.execute("INSERT INTO `{TypeOfMeal}` (date, morning, night, note) VALUES (%s, %s, %s, %s) ON DUPLICATE KEY UPDATE morning = VALUES(morning), night = VALUES(night), note = VALUES(note)".format(TypeOfMeal=TypeOfMeal),
+                                           (date_obj, morning, night, note))
+                            conn.commit()
+                            flash('Meal type data saved successfully.', 'success')
+                            return redirect(url_for('manager_marketing_dashboard'))
+                        except Exception as e:
+                            conn.rollback()
+                            flash(f'Error saving meal type data: {str(e)}', 'danger')
+                            return redirect(url_for('manager_marketing_dashboard'))
+                    else:
+                        flash('Please select a valid meal type.', 'danger')
+
+                    return redirect(url_for('manager_marketing_dashboard'))
+                except Exception as e:
+                    flash(f'Error processing meal type request: {str(e)}', 'danger')
+                    return redirect(url_for('manager_marketing_dashboard'))
+
             # GET request - Load data
             if meal_marketing != 'fetch_data':
                 try:
@@ -2714,6 +2768,21 @@ def manager_marketing_dashboard():
                 except Exception as e:
                     flash(f'Error fetching marketing data: {str(e)}', 'danger')
                     marketing_data = []
+
+            # Fetch meal type data if available
+            try:
+                cursor.execute(
+                    "SELECT * FROM `{TypeOfMeal}` WHERE date >= %s ORDER BY date DESC".format(TypeOfMeal=TypeOfMeal),
+                    (month_start,)
+                )
+                TypeOfMeal_data = cursor.fetchall()
+
+                if not TypeOfMeal_data:
+                    flash(f'No data found', 'info')
+                    TypeOfMeal_data = []
+            except Exception as e:
+                flash(f'Error fetching meal type data: {str(e)}', 'danger')
+                TypeOfMeal_data = []
 
             # Fetch pending entries
             try:
@@ -2785,7 +2854,8 @@ def manager_marketing_dashboard():
             marketing_data=marketing_data if marketing_data else [], 
             members=members, 
             messages=message, 
-            meal_marketing=meal_marketing
+            meal_marketing=meal_marketing,
+            TypeOfMeal_data=TypeOfMeal_data if TypeOfMeal_data else []
         )
 
     except Exception as e:
@@ -4841,6 +4911,6 @@ def today_update():
                             todayOrSearch_night_datas=search_date_night_datas if search_date_night_datas else today_night_datas, 
                             todayOrSearch_total_night=search_date_total_night if search_date_total_night else today_total_night, 
                             typeOrSearch_of_night=search_of_night if search_of_night else type_of_night)
-
+        
 if __name__ == '__main__':
     app.run(debug=True)

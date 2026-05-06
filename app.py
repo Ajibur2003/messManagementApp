@@ -641,7 +641,7 @@ def owner_dashboard():
             
             try:
                 cursor.execute(f"""CREATE TABLE IF NOT EXISTS `{marketing}` (
-                    my_row_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,,
+                    my_row_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     sl_no BIGINT UNIQUE,
                     id BIGINT,
                     username VARCHAR(60),
@@ -2328,8 +2328,8 @@ def user_marketing_dashboard():
                 try:
                     cursor.execute("""
                         DELETE FROM `{marketing_pending}` 
-                        WHERE status = 'accepted' AND id = %s
-                    """.format(marketing_pending=marketing_pending), (user_id,))
+                        WHERE status = 'accepted'
+                    """.format(marketing_pending=marketing_pending))
                     
                     if cursor.rowcount > 0:
                         conn.commit()
@@ -3067,15 +3067,13 @@ def user_deposit_dashboard():
                 entries = []
 
             # Clean up accepted entries
-            for entry in entries:
-                if entry and entry.get('status') == 'accepted':
-                    try:
-                        cursor.execute("""
-                            DELETE FROM {deposit_pending} WHERE status = 'accepted'
-                        """.format(deposit_pending=deposit_pending))
-                        conn.commit()
-                    except mysql.connector.Error as db_err:
-                        conn.rollback()
+            try:
+                cursor.execute("""
+                    DELETE FROM {deposit_pending} WHERE status = 'accepted'
+                """.format(deposit_pending=deposit_pending))
+                conn.commit()
+            except mysql.connector.Error as db_err:
+                conn.rollback()
 
             # Fetch deposit data if not from fetch_data request
             if meal_deposit != 'fetch_data':
@@ -3226,14 +3224,14 @@ def manager_deposit_dashboard():
                         return redirect(url_for('manager_deposit_dashboard'))
 
                     if action == 'accept':
-                        existing_row = None
+                        row = None
                         try:
                             cursor.execute("""
                                 SELECT * FROM {deposit_pending} WHERE SL_no = %s
                             """.format(deposit_pending=deposit_pending), (entry_sl_no,))
-                            existing_row = cursor.fetchone()
+                            row = cursor.fetchone()
                         except mysql.connector.Error as db_err:
-                            message = "Error fetching deposit entry. Please try again."
+                            message = "Error processing deposit entry. Please try again."
                             session['message'] = message
                             conn.rollback()
                             return redirect(url_for('manager_deposit_dashboard'))
@@ -3243,56 +3241,38 @@ def manager_deposit_dashboard():
                             conn.rollback()
                             return redirect(url_for('manager_deposit_dashboard'))
 
-                        if existing_row:
-                            row = None
+                        if row:
+                            # Validate row data
+                            if not all(key in row for key in ['SL_no', 'id', 'name', 'date', 'money', 'payment_by', 'note']):
+                                message = "Incomplete deposit entry data."
+                                session['message'] = message
+                                conn.rollback()
+                                return redirect(url_for('manager_deposit_dashboard'))
+
                             try:
                                 cursor.execute("""
-                                    SELECT * FROM {deposit_pending} WHERE SL_no = %s
-                                """.format(deposit_pending=deposit_pending), (entry_sl_no,))
-                                row = cursor.fetchone()
+                                    INSERT INTO {deposit} (SL_no, id, name, date, money, payment_by, note, status)
+                                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                                """.format(deposit=deposit), (
+                                    row['SL_no'], 
+                                    row['id'], 
+                                    row['name'], 
+                                    row['date'], 
+                                    row['money'], 
+                                    row['payment_by'], 
+                                    row['note'], 
+                                    'accepted'
+                                ))
                             except mysql.connector.Error as db_err:
-                                message = "Error processing deposit entry. Please try again."
+                                message = "Error accepting deposit entry. Please try again."
                                 session['message'] = message
                                 conn.rollback()
                                 return redirect(url_for('manager_deposit_dashboard'))
                             except Exception as e:
-                                message = "Error fetching from deposit_pending: {}".format(e)
+                                message = "Error inserting into deposit table: {}".format(e)
                                 session['message'] = message
                                 conn.rollback()
                                 return redirect(url_for('manager_deposit_dashboard'))
-
-                            if row:
-                                # Validate row data
-                                if not all(key in row for key in ['SL_no', 'id', 'name', 'date', 'money', 'payment_by', 'note']):
-                                    message = "Incomplete deposit entry data."
-                                    session['message'] = message
-                                    conn.rollback()
-                                    return redirect(url_for('manager_deposit_dashboard'))
-
-                                try:
-                                    cursor.execute("""
-                                        INSERT INTO {deposit} (SL_no, id, name, date, money, payment_by, note, status)
-                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                                    """.format(deposit=deposit), (
-                                        row['SL_no'], 
-                                        row['id'], 
-                                        row['name'], 
-                                        row['date'], 
-                                        row['money'], 
-                                        row['payment_by'], 
-                                        row['note'], 
-                                        'accepted'
-                                    ))
-                                except mysql.connector.Error as db_err:
-                                    message = "Error accepting deposit entry. Please try again."
-                                    session['message'] = message
-                                    conn.rollback()
-                                    return redirect(url_for('manager_deposit_dashboard'))
-                                except Exception as e:
-                                    message = "Error inserting into deposit table: {}".format(e)
-                                    session['message'] = message
-                                    conn.rollback()
-                                    return redirect(url_for('manager_deposit_dashboard'))
                         else:
                             message = "Deposit entry not found."
                             session['message'] = message
@@ -3561,8 +3541,8 @@ def manager_deposit_dashboard():
             pending_entries = []
             try:
                 cursor.execute("""
-                    SELECT * FROM {deposit_pending} ORDER BY date DESC
-                """.format(deposit_pending=deposit_pending))
+                    SELECT * FROM {deposit_pending} WHERE date >= %s ORDER BY date DESC
+                """.format(deposit_pending=deposit_pending), (month_start,))
                 pending_entries = cursor.fetchall()
 
                 if not pending_entries:

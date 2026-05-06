@@ -430,8 +430,8 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="nonveg_money">Non-Veg Money</label>
-                    <input type="number" name="nonveg_money" id="nonveg_money" min="0" step="0.01" placeholder="0.00">
+                    <label for="non_veg_money">Non-Veg Money</label>
+                    <input type="number" name="non_veg_money" id="non_veg_money" min="0" step="0.01" placeholder="0.00">
                     <span class="error-message">Please enter a valid amount</span>
                 </div>
                 
@@ -487,6 +487,7 @@
                         <th>Marketing Description</th>
                         <th>Shop</th>
                         <th>Veg</th>
+                        <th>Nveg</th>
                         <th>Other</th>
                         <th>C_Money</th>
                         <th>Total</th>
@@ -502,6 +503,7 @@
                                 <td>{{ entry.note if entry.note else '-' }}</td>
                                 <td>{{ "%.2f"|format(entry.shop_money | float) if entry.shop_money else '0.00' }}</td>
                                 <td>{{ "%.2f"|format(entry.veg_money | float) if entry.veg_money else '0.00' }}</td>
+                                <td>{{ "%.2f"|format(entry.non_veg_money | float) if entry.non_veg_money else '0.00' }}</td>
                                 <td>{{ "%.2f"|format(entry.other_money | float) if entry.other_money else '0.00' }}</td>
                                 <td>{{ "%.2f"|format(entry.common_money | float) if entry.common_money else '0.00' }}</td>
                                 <td>{{ "%.2f"|format(entry.total_marketing | float) if entry.total_marketing else '0.00' }}</td>
@@ -567,7 +569,7 @@
         const moneyInputs = [
             document.getElementById('shop_money'),
             document.getElementById('veg_money'),
-            document.getElementById('nonveg_money'),
+            document.getElementById('non_veg_money'),
             document.getElementById('other_money'),
             document.getElementById('common_money')
         ];
@@ -677,7 +679,7 @@
             if (selectedMode.value === 'yes_marketing') {
                 const shopMoney = parseFloat(document.getElementById('shop_money').value) || 0;
                 const vegMoney = parseFloat(document.getElementById('veg_money').value) || 0;
-                const nonvegMoney = parseFloat(document.getElementById('nonveg_money').value) || 0;
+                const nonvegMoney = parseFloat(document.getElementById('non_veg_money').value) || 0;
                 const otherMoney = parseFloat(document.getElementById('other_money').value) || 0;
                 const commonMoney = parseFloat(document.getElementById('common_money').value) || 0;
 
